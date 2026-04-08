@@ -9,10 +9,12 @@ import {
   Route,
   FileSearch,
   ShieldCheck,
+  Truck,
 } from "lucide-react";
 import QuizGame from "@/components/QuizGame";
-import ScenarioGame from "@/components/ScenarioGame";
 import DataChallengeGame from "@/components/DataChallengeGame";
+import RouteRunnerGame from "@/components/RouteRunnerGame";
+import ScenarioGame from "@/components/ScenarioGame";
 import Leaderboard from "@/components/Leaderboard";
 import ScoreSubmit from "@/components/ScoreSubmit";
 import { useLeaderboard } from "@/store/gameStore";
@@ -23,14 +25,16 @@ type GameView =
   | "quiz"
   | "scenario"
   | "data-challenge"
+  | "route-runner"
   | "submit-quiz"
   | "submit-scenario"
-  | "submit-data";
+  | "submit-data"
+  | "submit-route-runner";
 
 interface PendingScore {
   score: number;
   streak?: number;
-  game: "quiz" | "scenario" | "data-challenge";
+  game: "quiz" | "scenario" | "data-challenge" | "route-runner";
 }
 
 const GAMES = [
@@ -43,6 +47,7 @@ const GAMES = [
     color: "hsl(5 84% 48%)",
     badge: "8 Questions",
     difficulty: "Mixed",
+    cta: "Dispatch",
   },
   {
     id: "scenario" as const,
@@ -53,6 +58,7 @@ const GAMES = [
     color: "hsl(5 84% 48%)",
     badge: "5 Scenarios",
     difficulty: "Medium",
+    cta: "Dispatch",
   },
   {
     id: "data-challenge" as const,
@@ -63,6 +69,18 @@ const GAMES = [
     color: "hsl(5 84% 48%)",
     badge: "3 Challenges",
     difficulty: "Hard",
+    cta: "Dispatch",
+  },
+  {
+    id: "route-runner" as const,
+    icon: Truck,
+    title: "Route Runner",
+    description:
+      "A hybrid training game with 6 questions and 3 driving rounds. Answer, drive, dodge obstacles, and collect packages.",
+    color: "hsl(5 84% 48%)",
+    badge: "6 Questions • 3 Runs",
+    difficulty: "Arcade",
+    cta: "Play Route Runner!",
   },
 ];
 
@@ -88,6 +106,12 @@ export default function Home() {
     setSessionScore((s) => s + score);
     setPending({ score, game: "data-challenge" });
     setView("submit-data");
+  };
+
+  const handleRouteRunnerComplete = (score: number) => {
+    setSessionScore((s) => s + score);
+    setPending({ score, game: "route-runner" });
+    setView("submit-route-runner");
   };
 
   const handleSubmitScore = (name: string) => {
@@ -122,10 +146,7 @@ export default function Home() {
   if (view === "scenario") {
     return (
       <div className="min-h-screen px-4 py-8" style={pageBackground}>
-        <ScenarioGame
-          onComplete={handleScenarioComplete}
-          onBack={() => setView("hub")}
-        />
+        <ScenarioGame onComplete={handleScenarioComplete} onBack={() => setView("hub")} />
       </div>
     );
   }
@@ -133,15 +154,28 @@ export default function Home() {
   if (view === "data-challenge") {
     return (
       <div className="min-h-screen px-4 py-8" style={pageBackground}>
-        <DataChallengeGame
-          onComplete={handleDataComplete}
+        <DataChallengeGame onComplete={handleDataComplete} onBack={() => setView("hub")} />
+      </div>
+    );
+  }
+
+  if (view === "route-runner") {
+    return (
+      <div className="min-h-screen px-4 py-8" style={pageBackground}>
+        <RouteRunnerGame
+          onComplete={handleRouteRunnerComplete}
           onBack={() => setView("hub")}
         />
       </div>
     );
   }
 
-  if (view === "submit-quiz" || view === "submit-scenario" || view === "submit-data") {
+  if (
+    view === "submit-quiz" ||
+    view === "submit-scenario" ||
+    view === "submit-data" ||
+    view === "submit-route-runner"
+  ) {
     return (
       <div
         className="min-h-screen px-4 py-8 flex items-center justify-center"
@@ -234,7 +268,7 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-6">
           {GAMES.map((game, i) => {
             const Icon = game.icon;
 
@@ -244,8 +278,7 @@ export default function Home() {
                 className="rounded-3xl p-6 cursor-pointer transition-all hover:-translate-y-1 animate-slide-in-up"
                 style={{
                   animationDelay: `${i * 0.08}s`,
-                  background:
-                    "linear-gradient(180deg, hsl(0 0% 15%), hsl(0 0% 11%))",
+                  background: "linear-gradient(180deg, hsl(0 0% 15%), hsl(0 0% 11%))",
                   border: "1px solid hsl(128 20% 28%)",
                   boxShadow: "0 14px 32px rgba(0,0,0,0.30)",
                 }}
@@ -307,7 +340,7 @@ export default function Home() {
                       setView(game.id);
                     }}
                   >
-                    Dispatch <ChevronRight size={14} />
+                    {game.cta} <ChevronRight size={14} />
                   </button>
                 </div>
               </div>
@@ -320,8 +353,7 @@ export default function Home() {
             <div
               className="rounded-3xl border"
               style={{
-                background:
-                  "linear-gradient(180deg, hsl(0 0% 15%), hsl(0 0% 11%))",
+                background: "linear-gradient(180deg, hsl(0 0% 15%), hsl(0 0% 11%))",
                 borderColor: "hsl(128 20% 28%)",
                 boxShadow: "0 14px 32px rgba(0,0,0,0.30)",
               }}
@@ -354,8 +386,7 @@ export default function Home() {
           <div
             className="p-5 space-y-4 rounded-3xl border"
             style={{
-              background:
-                "linear-gradient(180deg, hsl(0 0% 15%), hsl(0 0% 11%))",
+              background: "linear-gradient(180deg, hsl(0 0% 15%), hsl(0 0% 11%))",
               borderColor: "hsl(128 20% 28%)",
               boxShadow: "0 14px 32px rgba(0,0,0,0.30)",
             }}
@@ -376,19 +407,25 @@ export default function Home() {
                   icon: Zap,
                   color: "hsl(5 84% 48%)",
                   title: "Route Blitz",
-                  desc: "Base points per question + time bonus + streak multipliers. Answer quickly and accurately for the highest score.",
+                  desc: "Base points per question + time bonus + streak multipliers.",
                 },
                 {
                   icon: BookOpen,
                   color: "hsl(5 84% 48%)",
                   title: "What Would You Do?",
-                  desc: "Best operational choice earns the most points. Acceptable choices score less. Poor decisions earn little or none.",
+                  desc: "Best operational choice earns the most points.",
                 },
                 {
                   icon: Database,
                   color: "hsl(38 95% 55%)",
                   title: "Issue Hunter",
-                  desc: "Points are awarded for correctly identifying issues. Missed problems and false positives reduce your score.",
+                  desc: "Spot issues accurately to maximize your audit score.",
+                },
+                {
+                  icon: Truck,
+                  color: "hsl(5 84% 48%)",
+                  title: "Route Runner",
+                  desc: "6 questions, 3 drive rounds, and bonus points from packages and survival.",
                 },
               ].map(({ icon: Icon, color, title, desc }) => (
                 <div key={title} className="flex gap-3">
