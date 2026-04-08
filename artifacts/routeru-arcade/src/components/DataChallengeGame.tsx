@@ -201,12 +201,14 @@ export default function DataChallengeGame({ onComplete, onBack }: DataChallengeP
               <thead>
                 <tr style={{ background: "hsl(230 22% 14%)" }}>
                   <th className="text-left px-3 py-2.5 text-muted-foreground font-medium text-xs">#</th>
-                  <th className="text-left px-3 py-2.5 text-muted-foreground font-medium text-xs">Prefix/ID</th>
-                  <th className="text-left px-3 py-2.5 text-muted-foreground font-medium text-xs">Next-Hop/Intf</th>
-                  <th className="text-left px-3 py-2.5 text-muted-foreground font-medium text-xs">Metric</th>
-                  <th className="text-left px-3 py-2.5 text-muted-foreground font-medium text-xs">Proto/State</th>
-                  <th className="text-left px-3 py-2.5 text-muted-foreground font-medium text-xs">Age</th>
-                  {submitted && <th className="text-left px-3 py-2.5 text-muted-foreground font-medium text-xs">Status</th>}
+                  <th className="text-left px-3 py-2.5 text-muted-foreground font-medium text-xs">Route / Stop</th>
+                  <th className="text-left px-3 py-2.5 text-muted-foreground font-medium text-xs">Assignment / Owner</th>
+                  <th className="text-left px-3 py-2.5 text-muted-foreground font-medium text-xs">Load / Detail</th>
+                  <th className="text-left px-3 py-2.5 text-muted-foreground font-medium text-xs">Status / Type</th>
+                  <th className="text-left px-3 py-2.5 text-muted-foreground font-medium text-xs">Stage</th>
+                  {submitted && (
+                    <th className="text-left px-3 py-2.5 text-muted-foreground font-medium text-xs">Result</th>
+                  )}
                 </tr>
               </thead>
               <tbody>

@@ -7,7 +7,14 @@ import Leaderboard from "@/components/Leaderboard";
 import ScoreSubmit from "@/components/ScoreSubmit";
 import { useLeaderboard } from "@/store/gameStore";
 
-type GameView = "hub" | "quiz" | "scenario" | "data-challenge" | "submit-quiz" | "submit-scenario" | "submit-data";
+type GameView =
+  | "hub"
+  | "quiz"
+  | "scenario"
+  | "data-challenge"
+  | "submit-quiz"
+  | "submit-scenario"
+  | "submit-data";
 
 interface PendingScore {
   score: number;
@@ -19,8 +26,9 @@ const GAMES = [
   {
     id: "quiz" as const,
     icon: Zap,
-    title: "Speed Quiz",
-    description: "Race the clock on routing protocols, BGP, OSPF, and more. Streak bonuses multiply your score.",
+    title: "Route Blitz",
+    description:
+      "Race the clock on routing decisions, service priorities, late risks, and dispatch tradeoffs. Faster answers earn more points.",
     color: "hsl(262 80% 65%)",
     bg: "hsl(262 80% 65% / 0.1)",
     border: "hsl(262 80% 65% / 0.25)",
@@ -32,8 +40,9 @@ const GAMES = [
   {
     id: "scenario" as const,
     icon: BookOpen,
-    title: "Scenario Decisions",
-    description: "Real-world network crises. Make the right call under pressure. Every decision has consequences.",
+    title: "What Would You Do?",
+    description:
+      "Work through real-world routing and dispatch situations. Make the best operational decision under pressure.",
     color: "hsl(180 70% 45%)",
     bg: "hsl(180 70% 45% / 0.1)",
     border: "hsl(180 70% 45% / 0.25)",
@@ -45,12 +54,13 @@ const GAMES = [
   {
     id: "data-challenge" as const,
     icon: Database,
-    title: "Data Challenge",
-    description: "Analyze routing tables and BGP tables. Spot the anomalies, bogons, and misconfigurations.",
+    title: "Issue Hunter",
+    description:
+      "Review route and account data to spot Off Day, Under Minimum, and service-risk issues before they become problems.",
     color: "hsl(38 95% 55%)",
     bg: "hsl(38 95% 55% / 0.1)",
     border: "hsl(38 95% 55% / 0.25)",
-    badge: "3 Datasets",
+    badge: "3 Challenges",
     badgeBg: "hsl(38 95% 55% / 0.2)",
     badgeColor: "hsl(38 95% 70%)",
     difficulty: "Hard",
@@ -136,11 +146,16 @@ export default function Home() {
         <div className="text-center space-y-3 animate-slide-in-up">
           <div
             className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest mb-2"
-            style={{ background: "hsl(262 80% 65% / 0.15)", color: "hsl(262 80% 75%)", border: "1px solid hsl(262 80% 65% / 0.25)" }}
+            style={{
+              background: "hsl(262 80% 65% / 0.15)",
+              color: "hsl(262 80% 75%)",
+              border: "1px solid hsl(262 80% 65% / 0.25)",
+            }}
           >
             <Star size={12} />
-            Gamified Networking Training
+            Gamified Routing Training
           </div>
+
           <h1
             className="text-5xl md:text-6xl font-bold tracking-tight"
             style={{ fontFamily: "'Space Grotesk', sans-serif" }}
@@ -148,13 +163,20 @@ export default function Home() {
             <span className="score-number">RouterU</span>{" "}
             <span className="text-foreground">Arcade</span>
           </h1>
+
           <p className="text-muted-foreground text-lg max-w-xl mx-auto">
-            Master routing protocols, BGP, and network troubleshooting through fast-paced mini-games.
+            Sharpen routing judgment, service protection, and exception handling through
+            fast-paced mini-games built for real operations.
           </p>
+
           {sessionScore > 0 && (
             <div
               className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold mt-2"
-              style={{ background: "hsl(38 95% 55% / 0.15)", color: "hsl(38 95% 70%)", border: "1px solid hsl(38 95% 55% / 0.3)" }}
+              style={{
+                background: "hsl(38 95% 55% / 0.15)",
+                color: "hsl(38 95% 70%)",
+                border: "1px solid hsl(38 95% 55% / 0.3)",
+              }}
             >
               <Trophy size={14} />
               Session Score: {sessionScore.toLocaleString()}
@@ -187,17 +209,26 @@ export default function Home() {
                     {game.badge}
                   </span>
                 </div>
+
                 <div className="space-y-1">
                   <h2 className="text-lg font-bold text-foreground">{game.title}</h2>
-                  <p className="text-muted-foreground text-sm leading-relaxed">{game.description}</p>
+                  <p className="text-muted-foreground text-sm leading-relaxed">
+                    {game.description}
+                  </p>
                 </div>
+
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-muted-foreground">Difficulty: {game.difficulty}</span>
+                  <span className="text-xs text-muted-foreground">
+                    Difficulty: {game.difficulty}
+                  </span>
                   <button
                     data-testid={`button-play-${game.id}`}
                     className="flex items-center gap-1 text-sm font-semibold transition-all hover:gap-2"
                     style={{ color: game.color }}
-                    onClick={(e) => { e.stopPropagation(); setView(game.id); }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setView(game.id);
+                    }}
                   >
                     Play <ChevronRight size={14} />
                   </button>
@@ -208,18 +239,37 @@ export default function Home() {
         </div>
 
         <div className="grid md:grid-cols-2 gap-6">
-          <Leaderboard entries={topEntries} currentScore={sessionScore > 0 ? sessionScore : undefined} />
+          <Leaderboard
+            entries={topEntries}
+            currentScore={sessionScore > 0 ? sessionScore : undefined}
+          />
 
           <div className="game-card p-5 space-y-4">
             <div className="flex items-center gap-2">
               <Star size={18} style={{ color: "hsl(262 80% 65%)" }} />
               <h3 className="font-bold text-foreground">How Scoring Works</h3>
             </div>
+
             <div className="space-y-3">
               {[
-                { icon: Zap, color: "hsl(262 80% 65%)", title: "Speed Quiz", desc: "Base points per question + time bonus + streak multipliers. Answer fast for maximum points." },
-                { icon: BookOpen, color: "hsl(180 70% 45%)", title: "Scenarios", desc: "Best decision = 300pts, acceptable = 100pts, poor decision = 0pts. No partial credit." },
-                { icon: Database, color: "hsl(38 95% 55%)", title: "Data Challenge", desc: "Points for correct identifications. False positives and missed issues reduce your score." },
+                {
+                  icon: Zap,
+                  color: "hsl(262 80% 65%)",
+                  title: "Route Blitz",
+                  desc: "Base points per question + time bonus + streak multipliers. Answer quickly and accurately for the highest score.",
+                },
+                {
+                  icon: BookOpen,
+                  color: "hsl(180 70% 45%)",
+                  title: "What Would You Do?",
+                  desc: "Best operational choice earns the most points. Acceptable choices score less. Poor decisions earn little or none.",
+                },
+                {
+                  icon: Database,
+                  color: "hsl(38 95% 55%)",
+                  title: "Issue Hunter",
+                  desc: "Points are awarded for correctly identifying issues. Missed problems and false positives reduce your score.",
+                },
               ].map(({ icon: Icon, color, title, desc }) => (
                 <div key={title} className="flex gap-3">
                   <div

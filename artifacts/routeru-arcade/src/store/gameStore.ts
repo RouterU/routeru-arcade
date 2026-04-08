@@ -23,14 +23,18 @@ export function useLeaderboard() {
 
   const addEntry = useCallback(
     (name: string, score: number, game: LeaderboardEntry["game"]) => {
+      const trimmed = name.trim();
+      if (!trimmed) return;
       const newEntry: LeaderboardEntry = {
         id: Date.now().toString(),
-        name,
+        name: trimmed,
         score,
         game,
         date: new Date().toISOString().slice(0, 10),
       };
-      setEntries((prev) => [...prev, newEntry].sort((a, b) => b.score - a.score).slice(0, 20));
+      setEntries((prev) =>
+        [...prev, newEntry].sort((a, b) => b.score - a.score).slice(0, 20)
+      );
     },
     []
   );

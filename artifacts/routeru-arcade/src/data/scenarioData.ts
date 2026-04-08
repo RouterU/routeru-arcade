@@ -17,142 +17,145 @@ export interface Scenario {
 export const scenarios: Scenario[] = [
   {
     id: 1,
-    title: "Network Outage - 3 AM Call",
+    title: "Unassigned Stops Before Publish",
     situation:
-      "You receive an emergency call at 3 AM. Users on a remote branch cannot reach the main office. The branch router shows 'OSPF neighbor down' for the link to HQ. What do you do first?",
+      "You are preparing to publish routes, but you notice several stops still showing as unassigned (marked with 'U'). What should you do?",
     choices: [
       {
-        text: "Immediately reboot the branch router",
+        text: "Ignore them and publish the routes anyway",
         outcome: "bad",
-        explanation: "Rebooting without diagnosis can cause additional downtime and data loss. Always diagnose first.",
+        explanation:
+          "All stops must be accounted for before publishing. Leaving unassigned stops will create service failures.",
         points: 0,
       },
       {
-        text: "Check physical connectivity and interface status, then verify OSPF hello/dead timers match",
+        text: "Assign all stops to routes, or if they are not shipping today, move them to a 999 route and publish",
         outcome: "good",
         explanation:
-          "Systematic approach: verify physical layer first, then check OSPF timer mismatch — the most common cause of neighbor drops.",
+          "The QRG requires all stops to be either routed or placed on a 999 route if not shipping for the day.",
         points: 300,
       },
       {
-        text: "Ask someone to check the firewall rules",
-        outcome: "ok",
+        text: "Move them to Archive",
+        outcome: "bad",
         explanation:
-          "Firewalls can block OSPF multicast, but checking interface status first is more systematic and likely faster.",
-        points: 100,
+          "Archive is for completed routes, not unassigned stops.",
+        points: 0,
       },
     ],
   },
   {
     id: 2,
-    title: "BGP Route Leak",
+    title: "Route Will Not Publish",
     situation:
-      "A customer calls saying they are receiving your full BGP table instead of just a default route. You confirm the ISP is leaking your internal prefixes. What is your immediate action?",
+      "A route is failing to publish. You retry multiple times but it still fails. What is your next step?",
     choices: [
       {
-        text: "Shut down the BGP session to the ISP immediately",
-        outcome: "ok",
+        text: "Keep retrying until it works",
+        outcome: "bad",
         explanation:
-          "This stops the leak but also breaks connectivity. Use only if the situation is critical and you have a backup path.",
-        points: 100,
+          "Retrying without diagnosing wastes time and does not fix the root issue.",
+        points: 0,
       },
       {
-        text: "Apply an outbound prefix-list filter to suppress the leaked prefixes, then notify the ISP",
+        text: "Check Route Detail to see if any orders are stuck in status 20",
         outcome: "good",
         explanation:
-          "Applying route filters is the safest fix — it stops the leak while maintaining connectivity and gives the ISP time to correct their configuration.",
+          "Orders stuck in status 20 can block publishing and must be resolved before the route will publish.",
         points: 300,
       },
       {
-        text: "Wait for the ISP to fix it on their end",
-        outcome: "bad",
+        text: "Move the route back to Planning",
+        outcome: "ok",
         explanation:
-          "Passive waiting in a route leak scenario can cause routing loops and reputational damage. You must take immediate action.",
-        points: 0,
+          "This may help reset the route, but does not directly address the root cause.",
+        points: 100,
       },
     ],
   },
   {
     id: 3,
-    title: "Routing Loop Detected",
+    title: "Cut Complete - What Next?",
     situation:
-      "Traceroute shows a routing loop between two routers. Packets are cycling between 10.1.1.1 and 10.1.1.2. Users are experiencing packet loss. How do you resolve this?",
+      "Cut has just been taken and routes are starting to populate. What should you do before moving routes into Review?",
     choices: [
       {
-        text: "Add a static route pointing to Null0 on each router to break the loop, then investigate the root cause",
-        outcome: "good",
-        explanation:
-          "A null route is a clean way to immediately break a loop. Combined with root cause analysis, this is the correct approach.",
-        points: 300,
-      },
-      {
-        text: "Increase the TTL of packets traversing the loop",
+        text: "Immediately move everything to Review",
         outcome: "bad",
-        explanation: "Increasing TTL doesn't fix a routing loop — it just delays the loop detection. The loop must be broken at the routing level.",
+        explanation:
+          "Moving too early can result in incomplete or inaccurate routing.",
         points: 0,
       },
       {
-        text: "Flush the routing tables on both routers and wait for reconvergence",
+        text: "Wait approximately 15 minutes for BGO to complete before moving routes and stops",
+        outcome: "good",
+        explanation:
+          "The QRG states you should wait 15 minutes after cut for BGO processing before finalizing routes.",
+        points: 300,
+      },
+      {
+        text: "Only move routes with drivers assigned",
         outcome: "ok",
         explanation:
-          "Clearing routes can help reconverge, but if the underlying misconfiguration remains, the loop will return. A null route is more surgical.",
+          "While partially correct, this does not address the need to wait for BGO completion.",
         points: 100,
       },
     ],
   },
   {
     id: 4,
-    title: "High CPU on Core Router",
+    title: "Publishing Status Check",
     situation:
-      "Your core router is showing 98% CPU. The router handles BGP for 800,000+ prefixes. Users are reporting intermittent connectivity. What do you do?",
+      "You publish a route and see a yellow diamond appear. What does this mean?",
     choices: [
       {
-        text: "Immediately shut down BGP to reduce load",
+        text: "The route failed to publish",
         outcome: "bad",
         explanation:
-          "Shutting BGP down will disconnect all BGP-dependent traffic, making the outage worse. You need to understand the cause first.",
+          "Yellow does not indicate failure.",
         points: 0,
       },
       {
-        text: "Use 'show processes cpu sorted' to identify the top process, check for BGP scanner or TCP issues",
+        text: "The route was successfully sent to Tandem",
         outcome: "good",
         explanation:
-          "Identifying the culprit process is the right first step. BGP scanner issues and TCP floods are common causes of high CPU on BGP routers.",
+          "A yellow diamond indicates a successful send to Tandem.",
         points: 300,
       },
       {
-        text: "Apply QoS policies to prioritize routing protocol traffic",
-        outcome: "ok",
+        text: "The route is locked",
+        outcome: "bad",
         explanation:
-          "QoS helps protect routing traffic but doesn't address the root cause. Diagnosis must come first.",
-        points: 100,
+          "Locks are unrelated to publish indicators.",
+        points: 0,
       },
     ],
   },
   {
     id: 5,
-    title: "Asymmetric Routing Problem",
+    title: "Route Locking Confusion",
     situation:
-      "Users report that connections to a web server are slow but the server shows normal response times. You notice traffic goes out on Link A but returns via Link B. What is your diagnosis?",
+      "A user attempts to lock a customer’s route directly in Route Planner, but it does not persist. Why?",
     choices: [
       {
-        text: "Replace Link B with a faster link",
+        text: "Route Planner does not allow locking",
         outcome: "bad",
-        explanation: "Asymmetric routing isn't necessarily about link speed — it can cause stateful firewall issues and inconsistent performance.",
+        explanation:
+          "Route Planner supports routing, but lock persistence is handled elsewhere.",
         points: 0,
       },
       {
-        text: "Investigate whether a stateful firewall is in the path and consider making routing symmetric using route maps",
+        text: "Locks must be maintained in SOUS Routing Attributes",
         outcome: "good",
         explanation:
-          "Asymmetric routing breaks stateful firewall session tracking. Making routing symmetric or using stateless inspection resolves this correctly.",
+          "The QRG specifies that route and sequence locks are managed in SOUS, not directly in Route Planner.",
         points: 300,
       },
       {
-        text: "Enable ECMP to spread load evenly",
+        text: "The route must be published first",
         outcome: "ok",
         explanation:
-          "ECMP can help with load distribution but may actually worsen asymmetric routing issues if not carefully implemented with stateful devices in the path.",
+          "Publishing does not control lock persistence.",
         points: 100,
       },
     ],
