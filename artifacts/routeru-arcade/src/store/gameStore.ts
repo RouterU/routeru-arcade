@@ -109,24 +109,28 @@ export function useLeaderboard() {
     []
   );
 
-  const resetLeaderboard = useCallback(async () => {
-    try {
-      const res = await fetch("/api/leaderboard", {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+const resetLeaderboard = useCallback(async (passcode: string) => {
+  try {
+    const res = await fetch("/api/leaderboard", {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ passcode }),
+    });
 
-      if (!res.ok) {
-        throw new Error(`Failed to reset leaderboard: ${res.status}`);
-      }
+    const data = await res.json();
 
-      setEntries([]);
-    } catch (error) {
-      console.error("Failed to reset leaderboard:", error);
+    if (!res.ok) {
+      throw new Error(data.error || `Failed to reset leaderboard: ${res.status}`);
     }
-  }, []);
+
+    setEntries([]);
+  } catch (error) {
+    console.error("Failed to reset leaderboard:", error);
+    throw error;
+  }
+}, []);
 
   const topEntries = entries.slice(0, 10);
 
