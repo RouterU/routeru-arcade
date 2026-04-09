@@ -1,0 +1,39 @@
+name: Update game data from master template
+
+on:
+  push:
+    paths:
+      - "artifacts/routeru-arcade/content-updates/master-template.json"
+      - "artifacts/routeru-arcade/content-updates/generate-game-files.js"
+    branches:
+      - main
+
+jobs:
+  generate-game-files:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Run generator
+        run: node artifacts/routeru-arcade/content-updates/generate-game-files.js
+
+      - name: Commit generated files
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add artifacts/routeru-arcade/src/data/quizData.ts
+          git add artifacts/routeru-arcade/src/data/scenarioData.ts
+          git add artifacts/routeru-arcade/src/data/dataChallenge.ts
+          git add artifacts/routeru-arcade/src/data/routeRunnerData.ts
+          git diff --cached --quiet || git commit -m "Auto-update game data from master template"
+          git push
