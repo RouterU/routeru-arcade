@@ -88,7 +88,7 @@ export default function Home() {
   const [view, setView] = useState<GameView>("hub");
   const [pending, setPending] = useState<PendingScore | null>(null);
   const [sessionScore, setSessionScore] = useState(0);
-  const { topEntries, addEntry, resetLeaderboard } = useLeaderboard();
+  const { topEntries, addEntry, refreshLeaderboard } = useLeaderboard();
 
   const handleQuizComplete = (score: number, streak: number) => {
     setSessionScore((s) => s + score);
@@ -124,6 +124,34 @@ export default function Home() {
   const handleSkipSubmit = () => {
     setPending(null);
     setView("hub");
+  };
+
+  const handleResetLeaderboard = async () => {
+    const passcode = window.prompt("Enter admin passcode to reset the leaderboard:");
+    if (!passcode) return;
+
+    try {
+      const res = await fetch("/api/leaderboard", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ passcode }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        window.alert(data.error || "Reset failed");
+        return;
+      }
+
+      window.alert("Leaderboard reset successfully.");
+      await refreshLeaderboard();
+    } catch (error) {
+      console.error("Failed to reset leaderboard:", error);
+      window.alert("Reset failed");
+    }
   };
 
   const pageBackground = {
@@ -366,12 +394,7 @@ export default function Home() {
 
             <button
               type="button"
-              onClick={() => {
-                const confirmed = window.confirm(
-                  "Reset the leaderboard for all scores saved on this device?"
-                );
-                if (confirmed) resetLeaderboard();
-              }}
+              onClick={handleResetLeaderboard}
               className="w-full py-2.5 rounded-xl text-sm font-semibold transition-all hover:opacity-90"
               style={{
                 background: "hsl(5 84% 48%)",
