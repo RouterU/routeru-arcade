@@ -1,9 +1,19 @@
 import fs from "fs";
 import path from "path";
+import { fileURLToPath } from "url";
 
-const baseDir = path.resolve(process.cwd(), "artifacts/routeru-arcade");
-const templatePath = path.join(baseDir, "content-updates", "master-template.json");
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// content-updates folder
+const contentDir = __dirname;
+
+// artifacts/routeru-arcade folder
+const baseDir = path.resolve(contentDir, "..");
+
+// src/data folder
 const dataDir = path.join(baseDir, "src", "data");
+const templatePath = path.join(contentDir, "master-template.json");
 
 const raw = fs.readFileSync(templatePath, "utf8");
 const content = JSON.parse(raw);
@@ -17,8 +27,7 @@ function writeFile(fileName, fileContent) {
 function toTsExport(typeDefs, exportName, data) {
   return `${typeDefs}
 
-export const ${exportName} = ${JSON.stringify(data, null, 2)};
-`;
+export const ${exportName} = ${JSON.stringify(data, null, 2)};\n`;
 }
 
 const quizTypes = `export interface QuizQuestion {
@@ -79,9 +88,24 @@ const routeRunnerTypes = `export interface RouteRunnerQuestion {
   points: number;
 }`;
 
-writeFile("quizData.ts", toTsExport(quizTypes, "quizQuestions", content.quiz));
-writeFile("scenarioData.ts", toTsExport(scenarioTypes, "scenarios", content.scenarios));
-writeFile("dataChallenge.ts", toTsExport(dataChallengeTypes, "dataChallenges", content.dataChallenges));
-writeFile("routeRunnerData.ts", toTsExport(routeRunnerTypes, "routeRunnerQuestions", content.routeRunner));
+writeFile(
+  "quizData.ts",
+  toTsExport(quizTypes, "quizQuestions", content.quiz)
+);
+
+writeFile(
+  "scenarioData.ts",
+  toTsExport(scenarioTypes, "scenarios", content.scenarios)
+);
+
+writeFile(
+  "dataChallenge.ts",
+  toTsExport(dataChallengeTypes, "dataChallenges", content.dataChallenges)
+);
+
+writeFile(
+  "routeRunnerData.ts",
+  toTsExport(routeRunnerTypes, "routeRunnerQuestions", content.routeRunner)
+);
 
 console.log("All game data files generated successfully.");
