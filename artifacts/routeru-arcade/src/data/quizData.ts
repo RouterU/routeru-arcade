@@ -11,7 +11,7 @@ export interface QuizQuestion {
 export const quizQuestions = [
   {
     "id": 1,
-    "question": "Which five schedules should users add to Favorites to begin routing?",
+    "question": "Which four schedules should users add to Favorites to begin routing?",
     "options": [
       "Planning, Dispatch, Review, and Archive",
       "Planning, Publish, Route, and Archive",
