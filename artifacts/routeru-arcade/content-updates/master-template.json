@@ -2,36 +2,295 @@
   "quiz": [
     {
       "id": 1,
-      "question": "Sample quiz question",
-      "options": ["Option A", "Option B", "Option C", "Option D"],
+      "question": "Which four schedules should users add to Favorites to begin routing?",
+      "options": [
+        "Planning, Dispatch, Review, and Archive",
+        "Planning, Publish, Route, and Archive",
+        "Planning, Dashboard, Review, and Trash",
+        "Review, Dispatch, Audit, and Archive"
+      ],
       "correctIndex": 0,
-      "explanation": "Why this is correct.",
+      "explanation": "The QRG says users should add their market’s Planning, Dispatch, Review, and Archive schedules to Favorites before routing.",
       "difficulty": "easy",
       "points": 100
+    },
+    {
+      "id": 2,
+      "question": "What is the Planning schedule primarily used for?",
+      "options": [
+        "Viewing completed routes only",
+        "Monitoring live published routes only",
+        "Visibility to future-dated orders and routes before final review",
+        "Deleting routes from the system"
+      ],
+      "correctIndex": 2,
+      "explanation": "The QRG describes Planning as the schedule that provides visibility to future orders and routes that have not yet been fully managed by a router.",
+      "difficulty": "easy",
+      "points": 100
+    },
+    {
+      "id": 3,
+      "question": "What should a router do before removing a route from a schedule?",
+      "options": [
+        "Publish it first",
+        "Freeze it and move it to Dispatch",
+        "Unassign all stops from the route",
+        "Clone the driver assigned to it"
+      ],
+      "correctIndex": 2,
+      "explanation": "The QRG says to use caution when removing routes and to unassign all stops before reassigning the route to Trash.",
+      "difficulty": "easy",
+      "points": 100
+    },
+    {
+      "id": 4,
+      "question": "How are unassigned stops shown on the map?",
+      "options": [
+        "A red diamond",
+        "A yellow route line",
+        "A U marker",
+        "A stop number 0"
+      ],
+      "correctIndex": 2,
+      "explanation": "The QRG states that unassigned stops can be shown on the map and are marked with a 'U'.",
+      "difficulty": "easy",
+      "points": 100
+    },
+    {
+      "id": 5,
+      "question": "After cut is taken and before finalizing routes in Review, how long should routers wait for BGO to complete?",
+      "options": [
+        "5 minutes",
+        "10 minutes",
+        "15 minutes",
+        "30 minutes"
+      ],
+      "correctIndex": 2,
+      "explanation": "The QRG instructs routers to wait 15 minutes after cut is taken for BGO to complete before manually moving routes and stops to Review.",
+      "difficulty": "medium",
+      "points": 150
+    },
+    {
+      "id": 6,
+      "question": "If a stop cannot ship on the current delivery day, what should happen to it?",
+      "options": [
+        "Leave it in Review until the next day",
+        "Move it to Archive",
+        "Add it to a 999 route and publish it",
+        "Delete the order and recreate it later"
+      ],
+      "correctIndex": 2,
+      "explanation": "The QRG says all unassigned stops must either be assigned to a route and published, or—if they are not shipping on the current delivery day—added to a 999 route and published.",
+      "difficulty": "medium",
+      "points": 150
+    },
+    {
+      "id": 7,
+      "question": "What is the recommended action if a route will not publish and some orders remain in status 20?",
+      "options": [
+        "Ignore it and publish again later",
+        "Check the Route Detail quadrant because orders stuck in status 20 can prevent publishing",
+        "Move the route back to Archive",
+        "Deactivate the driver and retry"
+      ],
+      "correctIndex": 1,
+      "explanation": "The QRG notes that if a route will not publish, you should check Route Detail 1 to see whether any orders are still in status 20, which can block publishing.",
+      "difficulty": "medium",
+      "points": 150
+    },
+    {
+      "id": 8,
+      "question": "What indicates that the first publish to Tandem was successful?",
+      "options": [
+        "A green diamond appears immediately",
+        "A red diamond appears on the route",
+        "A yellow diamond appears and Tandem Route Status confirms success",
+        "The route moves automatically to Archive"
+      ],
+      "correctIndex": 2,
+      "explanation": "The QRG explains that the first publish sends routes to Tandem and a yellow diamond appears when the send to Tandem is successful.",
+      "difficulty": "medium",
+      "points": 150
+    },
+    {
+      "id": 9,
+      "question": "What should appear after a successful publish to Omni?",
+      "options": [
+        "A blue square",
+        "A green diamond",
+        "A yellow triangle",
+        "A gray circle"
+      ],
+      "correctIndex": 1,
+      "explanation": "The QRG says a green diamond signifies the publish to Omni was successful.",
+      "difficulty": "medium",
+      "points": 150
+    },
+    {
+      "id": 10,
+      "question": "Where should routers maintain customer route and sequence locks?",
+      "options": [
+        "Only in Route Planner route details",
+        "In Omni equipment settings",
+        "In SOUS Routing Attributes",
+        "In the public filter menu"
+      ],
+      "correctIndex": 2,
+      "explanation": "The QRG states that locking a customer to a route or sequence is maintained in SOUS via Routing Attributes, not directly in Route Planner.",
+      "difficulty": "hard",
+      "points": 200
+    },
+    {
+      "id": 11,
+      "question": "What does a Preferred Route Position of 50 generally indicate?",
+      "options": [
+        "The customer must be the first stop",
+        "The customer is dynamic within the route sequence",
+        "The order is published to Dispatch",
+        "The stop is a backhaul pickup only"
+      ],
+      "correctIndex": 1,
+      "explanation": "The QRG explains that a '50' Preferred Route Position means the customer is dynamic and can move within a route sequence, while still respecting lower sequence locks.",
+      "difficulty": "hard",
+      "points": 200
+    },
+    {
+      "id": 12,
+      "question": "Where can you track detailed user and system updates to orders and routes in Route Planner?",
+      "options": [
+        "Summary Reports",
+        "Data > API Tracking > API Tracking",
+        "App Setup > UI Settings",
+        "Data > Templates > Route"
+      ],
+      "correctIndex": 1,
+      "explanation": "The QRG says API Tracking is found under Data > API Tracking > API Tracking and is used to review detailed history of system and user updates.",
+      "difficulty": "hard",
+      "points": 200
     }
   ],
   "scenarios": [
     {
       "id": 1,
-      "title": "Sample scenario title",
-      "situation": "Scenario situation text.",
+      "title": "Unassigned Stops Before Publish",
+      "situation": "You are preparing to publish routes, but you notice several stops still showing as unassigned (marked with 'U'). What should you do?",
       "choices": [
         {
-          "text": "Choice 1",
+          "text": "Ignore them and publish the routes anyway",
           "outcome": "bad",
-          "explanation": "Why this is bad.",
+          "explanation": "All stops must be accounted for before publishing. Leaving unassigned stops will create service failures.",
           "points": 0
         },
         {
-          "text": "Choice 2",
+          "text": "Assign all stops to routes, or if they are not shipping today, move them to a 999 route and publish",
           "outcome": "good",
-          "explanation": "Why this is good.",
+          "explanation": "The QRG requires all stops to be either routed or placed on a 999 route if not shipping for the day.",
           "points": 300
         },
         {
-          "text": "Choice 3",
+          "text": "Move them to Archive",
+          "outcome": "bad",
+          "explanation": "Archive is for completed routes, not unassigned stops.",
+          "points": 0
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Route Will Not Publish",
+      "situation": "A route is failing to publish. You retry multiple times but it still fails. What is your next step?",
+      "choices": [
+        {
+          "text": "Keep retrying until it works",
+          "outcome": "bad",
+          "explanation": "Retrying without diagnosing wastes time and does not fix the root issue.",
+          "points": 0
+        },
+        {
+          "text": "Check Route Detail to see if any orders are stuck in status 20",
+          "outcome": "good",
+          "explanation": "Orders stuck in status 20 can block publishing and must be resolved before the route will publish.",
+          "points": 300
+        },
+        {
+          "text": "Move the route back to Planning",
           "outcome": "ok",
-          "explanation": "Why this is okay.",
+          "explanation": "This may help reset the route, but does not directly address the root cause.",
+          "points": 100
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Cut Complete - What Next?",
+      "situation": "Cut has just been taken and routes are starting to populate. What should you do before moving routes into Review?",
+      "choices": [
+        {
+          "text": "Immediately move everything to Review",
+          "outcome": "bad",
+          "explanation": "Moving too early can result in incomplete or inaccurate routing.",
+          "points": 0
+        },
+        {
+          "text": "Wait approximately 15 minutes for BGO to complete before moving routes and stops",
+          "outcome": "good",
+          "explanation": "The QRG states you should wait 15 minutes after cut for BGO processing before finalizing routes.",
+          "points": 300
+        },
+        {
+          "text": "Only move routes with drivers assigned",
+          "outcome": "ok",
+          "explanation": "While partially correct, this does not address the need to wait for BGO completion.",
+          "points": 100
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Publishing Status Check",
+      "situation": "You publish a route and see a yellow diamond appear. What does this mean?",
+      "choices": [
+        {
+          "text": "The route failed to publish",
+          "outcome": "bad",
+          "explanation": "Yellow does not indicate failure.",
+          "points": 0
+        },
+        {
+          "text": "The route was successfully sent to Tandem",
+          "outcome": "good",
+          "explanation": "A yellow diamond indicates a successful send to Tandem.",
+          "points": 300
+        },
+        {
+          "text": "The route is locked",
+          "outcome": "bad",
+          "explanation": "Locks are unrelated to publish indicators.",
+          "points": 0
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Route Locking Confusion",
+      "situation": "A user attempts to lock a customer’s route directly in Route Planner, but it does not persist. Why?",
+      "choices": [
+        {
+          "text": "Route Planner does not allow locking",
+          "outcome": "bad",
+          "explanation": "Route Planner supports routing, but lock persistence is handled elsewhere.",
+          "points": 0
+        },
+        {
+          "text": "Locks must be maintained in SOUS Routing Attributes",
+          "outcome": "good",
+          "explanation": "The QRG specifies that route and sequence locks are managed in SOUS, not directly in Route Planner.",
+          "points": 300
+        },
+        {
+          "text": "The route must be published first",
+          "outcome": "ok",
+          "explanation": "Publishing does not control lock persistence.",
           "points": 100
         }
       ]
@@ -40,9 +299,9 @@
   "dataChallenges": [
     {
       "id": 1,
-      "title": "Sample data challenge",
-      "description": "Review the route data and identify issues.",
-      "hint": "Look for missing drivers or unassigned stops.",
+      "title": "Pre-Publish Route Audit",
+      "description": "Review this route list before publish. Identify all issues that would prevent a clean publish.",
+      "hint": "Look for unassigned stops, missing drivers, and routes not ready for publish.",
       "routingTable": [
         {
           "id": 1,
@@ -52,7 +311,6 @@
           "protocol": "Assigned",
           "age": "Ready",
           "flags": "OK",
-          "issue": "",
           "hasIssue": false
         },
         {
@@ -65,19 +323,230 @@
           "flags": "⚠",
           "issue": "Route missing driver assignment",
           "hasIssue": true
+        },
+        {
+          "id": 3,
+          "prefix": "Stop U-12",
+          "nextHop": "Unassigned",
+          "metric": "Cases: 45",
+          "protocol": "Unassigned Stop",
+          "age": "Planning",
+          "flags": "⚠",
+          "issue": "Stop is not assigned to any route",
+          "hasIssue": true
+        },
+        {
+          "id": 4,
+          "prefix": "Route 3055_3",
+          "nextHop": "Driver: Lopez",
+          "metric": "Stops: 20",
+          "protocol": "Assigned",
+          "age": "Ready",
+          "flags": "OK",
+          "hasIssue": false
+        },
+        {
+          "id": 5,
+          "prefix": "Route 3055_4",
+          "nextHop": "Driver: Kim",
+          "metric": "Stops: 3",
+          "protocol": "Under Minimum",
+          "age": "Review",
+          "flags": "⚠",
+          "issue": "Route below minimum stop threshold",
+          "hasIssue": true
         }
       ],
-      "correctIssueIds": [2],
-      "explanation": "Routes must have drivers assigned before publish."
+      "correctIssueIds": [2, 3, 5],
+      "explanation": "Routes must have drivers assigned, all stops must be routed or placed on a 999 route, and under-minimum routes should be reviewed before publish."
+    },
+    {
+      "id": 2,
+      "title": "Publish Status Audit",
+      "description": "Review these routes after publishing. Identify which ones failed or are incomplete.",
+      "hint": "Look at publish indicators and missing confirmations (yellow vs green diamond logic).",
+      "routingTable": [
+        {
+          "id": 1,
+          "prefix": "Route 3055_1",
+          "nextHop": "Published",
+          "metric": "Tandem + Omni",
+          "protocol": "Green",
+          "age": "Complete",
+          "flags": "OK",
+          "hasIssue": false
+        },
+        {
+          "id": 2,
+          "prefix": "Route 3055_2",
+          "nextHop": "Published",
+          "metric": "Tandem Only",
+          "protocol": "Yellow",
+          "age": "Incomplete",
+          "flags": "⚠",
+          "issue": "Not fully published to Omni",
+          "hasIssue": true
+        },
+        {
+          "id": 3,
+          "prefix": "Route 3055_3",
+          "nextHop": "Failed",
+          "metric": "Error",
+          "protocol": "None",
+          "age": "Blocked",
+          "flags": "❌",
+          "issue": "Route failed to publish",
+          "hasIssue": true
+        },
+        {
+          "id": 4,
+          "prefix": "Route 3055_4",
+          "nextHop": "Published",
+          "metric": "Tandem + Omni",
+          "protocol": "Green",
+          "age": "Complete",
+          "flags": "OK",
+          "hasIssue": false
+        }
+      ],
+      "correctIssueIds": [2, 3],
+      "explanation": "A yellow indicator means only Tandem was successful. Routes must fully publish (green) to be complete. Failed routes must be corrected."
+    },
+    {
+      "id": 3,
+      "title": "Review Schedule Validation",
+      "description": "You are reviewing routes before final publish. Identify issues that should be corrected before moving forward.",
+      "hint": "Focus on sequencing, route balance, and stops that don’t belong.",
+      "routingTable": [
+        {
+          "id": 1,
+          "prefix": "Route 3055_1",
+          "nextHop": "18 stops",
+          "metric": "Balanced",
+          "protocol": "Valid",
+          "age": "Ready",
+          "flags": "OK",
+          "hasIssue": false
+        },
+        {
+          "id": 2,
+          "prefix": "Route 3055_2",
+          "nextHop": "35 stops",
+          "metric": "Overloaded",
+          "protocol": "Imbalanced",
+          "age": "Review",
+          "flags": "⚠",
+          "issue": "Route significantly overloaded vs others",
+          "hasIssue": true
+        },
+        {
+          "id": 3,
+          "prefix": "Stop 22",
+          "nextHop": "Wrong Route",
+          "metric": "Out of area",
+          "protocol": "Misplaced",
+          "age": "Review",
+          "flags": "⚠",
+          "issue": "Stop assigned to incorrect route",
+          "hasIssue": true
+        },
+        {
+          "id": 4,
+          "prefix": "Route 3055_3",
+          "nextHop": "20 stops",
+          "metric": "Balanced",
+          "protocol": "Valid",
+          "age": "Ready",
+          "flags": "OK",
+          "hasIssue": false
+        }
+      ],
+      "correctIssueIds": [2, 3],
+      "explanation": "Routes should be balanced, and stops must be assigned to the correct route for efficiency and service."
     }
   ],
   "routeRunner": [
     {
       "id": 1,
-      "question": "Sample Route Runner question",
-      "options": ["Option A", "Option B", "Option C", "Option D"],
+      "question": "A route is showing unassigned stops marked with 'U' before publish. What should happen first?",
+      "options": [
+        "Publish anyway and fix later",
+        "Assign the stops to a valid route or place non-shipping stops on a 999 route",
+        "Archive the stops",
+        "Delete the stops from the schedule"
+      ],
       "correctIndex": 1,
-      "explanation": "Why this is correct.",
+      "explanation": "All stops must be accounted for before publish. Non-shipping stops should be placed on a 999 route.",
+      "difficulty": "easy",
+      "points": 100
+    },
+    {
+      "id": 2,
+      "question": "A yellow diamond appears after publish. What does it indicate?",
+      "options": [
+        "Publish failed",
+        "Route is locked",
+        "Successful send to Tandem",
+        "Successful publish to Omni"
+      ],
+      "correctIndex": 2,
+      "explanation": "A yellow diamond indicates the route was successfully sent to Tandem.",
+      "difficulty": "medium",
+      "points": 150
+    },
+    {
+      "id": 3,
+      "question": "Where should route and sequence locks be maintained long-term?",
+      "options": [
+        "Route Planner map settings",
+        "SOUS Routing Attributes",
+        "Driver profile notes",
+        "Dispatch comments"
+      ],
+      "correctIndex": 1,
+      "explanation": "Persistent route and sequence locks are maintained in SOUS Routing Attributes.",
+      "difficulty": "hard",
+      "points": 200
+    },
+    {
+      "id": 4,
+      "question": "A route will not publish and some orders remain in status 20. What should you check?",
+      "options": [
+        "Route Detail for blocked orders",
+        "Archive schedule",
+        "Driver meal break settings",
+        "Map zoom level"
+      ],
+      "correctIndex": 0,
+      "explanation": "Orders stuck in status 20 can block publishing and should be reviewed in Route Detail.",
+      "difficulty": "medium",
+      "points": 150
+    },
+    {
+      "id": 5,
+      "question": "After cut is taken, how long should routers generally wait for BGO to complete before moving routes and stops?",
+      "options": [
+        "5 minutes",
+        "10 minutes",
+        "15 minutes",
+        "30 minutes"
+      ],
+      "correctIndex": 2,
+      "explanation": "Routers should generally wait about 15 minutes after cut for BGO processing to complete.",
+      "difficulty": "easy",
+      "points": 100
+    },
+    {
+      "id": 6,
+      "question": "A route is under minimum before publish. What is the best action?",
+      "options": [
+        "Ignore it",
+        "Review it for consolidation or operational need before publishing",
+        "Move it to Archive immediately",
+        "Publish it no matter what"
+      ],
+      "correctIndex": 1,
+      "explanation": "Under-minimum routes should be reviewed before publish to determine whether they should be consolidated or adjusted.",
       "difficulty": "medium",
       "points": 150
     }
