@@ -32,7 +32,6 @@ export default async function handler(req, res) {
 
     if (req.method === "POST") {
       const { name, score, game } = req.body || {};
-
       const trimmedName = typeof name === "string" ? name.trim() : "";
 
       if (!trimmedName || typeof score !== "number" || !ALLOWED_GAMES.has(game)) {
@@ -57,6 +56,13 @@ export default async function handler(req, res) {
     }
 
     if (req.method === "DELETE") {
+      const { passcode } = req.body || {};
+      const expectedToken = process.env.LEADERBOARD_ADMIN_TOKEN;
+
+      if (!expectedToken || passcode !== expectedToken) {
+        return res.status(403).json({ error: "Invalid passcode" });
+      }
+
       await sql`DELETE FROM leaderboard`;
       return res.status(200).json({ success: true });
     }
