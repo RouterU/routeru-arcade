@@ -123,9 +123,9 @@ export default function RouteRunnerGame({
   onComplete,
   onBack,
 }: RouteRunnerGameProps) {
-  const [questions] = useState<QuizQuestion[]>(() =>
-    shuffleArray(quizQuestions).slice(0, QUESTION_COUNT)
-  );
+const [questions] = useState<RouteRunnerQuestion[]>(() =>
+  shuffleArray(routeRunnerQuestions).slice(0, QUESTION_COUNT)
+);
 
   const [phase, setPhase] = useState<Phase>("question");
 
