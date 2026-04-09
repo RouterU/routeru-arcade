@@ -1,0 +1,85 @@
+{
+  "quiz": [
+    {
+      "id": 1,
+      "question": "Sample quiz question",
+      "options": ["Option A", "Option B", "Option C", "Option D"],
+      "correctIndex": 0,
+      "explanation": "Why this is correct.",
+      "difficulty": "easy",
+      "points": 100
+    }
+  ],
+  "scenarios": [
+    {
+      "id": 1,
+      "title": "Sample scenario title",
+      "situation": "Scenario situation text.",
+      "choices": [
+        {
+          "text": "Choice 1",
+          "outcome": "bad",
+          "explanation": "Why this is bad.",
+          "points": 0
+        },
+        {
+          "text": "Choice 2",
+          "outcome": "good",
+          "explanation": "Why this is good.",
+          "points": 300
+        },
+        {
+          "text": "Choice 3",
+          "outcome": "ok",
+          "explanation": "Why this is okay.",
+          "points": 100
+        }
+      ]
+    }
+  ],
+  "dataChallenges": [
+    {
+      "id": 1,
+      "title": "Sample data challenge",
+      "description": "Review the route data and identify issues.",
+      "hint": "Look for missing drivers or unassigned stops.",
+      "routingTable": [
+        {
+          "id": 1,
+          "prefix": "Route 3055_1",
+          "nextHop": "Driver: Smith",
+          "metric": "Stops: 18",
+          "protocol": "Assigned",
+          "age": "Ready",
+          "flags": "OK",
+          "issue": "",
+          "hasIssue": false
+        },
+        {
+          "id": 2,
+          "prefix": "Route 3055_2",
+          "nextHop": "Driver: NONE",
+          "metric": "Stops: 12",
+          "protocol": "Unassigned Driver",
+          "age": "Review",
+          "flags": "⚠",
+          "issue": "Route missing driver assignment",
+          "hasIssue": true
+        }
+      ],
+      "correctIssueIds": [2],
+      "explanation": "Routes must have drivers assigned before publish."
+    }
+  ],
+  "routeRunner": [
+    {
+      "id": 1,
+      "question": "Sample Route Runner question",
+      "options": ["Option A", "Option B", "Option C", "Option D"],
+      "correctIndex": 1,
+      "explanation": "Why this is correct.",
+      "difficulty": "medium",
+      "points": 150
+    }
+  ]
+}
