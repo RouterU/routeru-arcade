@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 
 export interface LeaderboardEntry {
   id: string;
@@ -8,72 +8,123 @@ export interface LeaderboardEntry {
   date: string;
 }
 
-const STORAGE_KEY = "routeru_leaderboard";
+function isValidEntry(entry: unknown): entry is LeaderboardEntry {
+  if (!entry || typeof entry !== "object") return false;
 
-function readLeaderboard(): LeaderboardEntry[] {
-  if (typeof window === "undefined") return [];
+  const e = entry as LeaderboardEntry;
 
-  try {
-    const saved = window.localStorage.getItem(STORAGE_KEY);
-    if (!saved) return [];
-
-    const parsed = JSON.parse(saved);
-    if (!Array.isArray(parsed)) return [];
-
-    return parsed.filter(
-      (entry): entry is LeaderboardEntry =>
-        entry &&
-        typeof entry.id === "string" &&
-        typeof entry.name === "string" &&
-        typeof entry.score === "number" &&
-        (entry.game === "quiz" ||
-          entry.game === "scenario" ||
-          entry.game === "data-challenge" ||
-          entry.game === "route-runner") &&
-        typeof entry.date === "string"
-    );
-  } catch {
-    return [];
-  }
-}
-
-function writeLeaderboard(entries: LeaderboardEntry[]) {
-  if (typeof window === "undefined") return;
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+  return (
+    typeof e.id === "string" &&
+    typeof e.name === "string" &&
+    typeof e.score === "number" &&
+    (e.game === "quiz" ||
+      e.game === "scenario" ||
+      e.game === "data-challenge" ||
+      e.game === "route-runner") &&
+    typeof e.date === "string"
+  );
 }
 
 export function useLeaderboard() {
-  const [entries, setEntries] = useState<LeaderboardEntry[]>(() => readLeaderboard());
+  const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const loadLeaderboard = useCallback(async () => {
+    try {
+      setIsLoading(true);
+
+      const res = await fetch("/api/leaderboard", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!res.ok) {
+        throw new Error(`Failed to load leaderboard: ${res.status}`);
+      }
+
+      const data: unknown = await res.json();
+
+      if (!Array.isArray(data)) {
+        throw new Error("Leaderboard response was not an array");
+      }
+
+      const validEntries = data.filter(isValidEntry);
+
+      setEntries(
+        validEntries
+          .sort((a, b) => b.score - a.score)
+          .slice(0, 20)
+      );
+    } catch (error) {
+      console.error("Failed to load leaderboard:", error);
+      setEntries([]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadLeaderboard();
+  }, [loadLeaderboard]);
 
   const addEntry = useCallback(
-    (name: string, score: number, game: LeaderboardEntry["game"]) => {
+    async (name: string, score: number, game: LeaderboardEntry["game"]) => {
       const trimmed = name.trim();
       if (!trimmed) return;
 
-      const newEntry: LeaderboardEntry = {
-        id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-        name: trimmed,
-        score,
-        game,
-        date: new Date().toISOString().slice(0, 10),
-      };
+      try {
+        const res = await fetch("/api/leaderboard", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            name: trimmed,
+            score,
+            game,
+          }),
+        });
 
-      setEntries((prev) => {
-        const updated = [...prev, newEntry]
-          .sort((a, b) => b.score - a.score)
-          .slice(0, 20);
+        if (!res.ok) {
+          throw new Error(`Failed to save score: ${res.status}`);
+        }
 
-        writeLeaderboard(updated);
-        return updated;
-      });
+        const savedEntry: unknown = await res.json();
+
+        if (!isValidEntry(savedEntry)) {
+          throw new Error("Saved leaderboard entry was invalid");
+        }
+
+        setEntries((prev) =>
+          [...prev, savedEntry]
+            .sort((a, b) => b.score - a.score)
+            .slice(0, 20)
+        );
+      } catch (error) {
+        console.error("Failed to save leaderboard entry:", error);
+      }
     },
     []
   );
 
-  const resetLeaderboard = useCallback(() => {
-    setEntries([]);
-    if (typeof window !== "undefined") {
-      window.localStorage.removeItem(STORAGE_KEY);
+  const resetLeaderboard = useCallback(async () => {
+    try {
+      const res = await fetch("/api/leaderboard", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!res.ok) {
+        throw new Error(`Failed to reset leaderboard: ${res.status}`);
+      }
+
+      setEntries([]);
+    } catch (error) {
+      console.error("Failed to reset leaderboard:", error);
     }
   }, []);
 
@@ -84,5 +135,7 @@ export function useLeaderboard() {
     allEntries: entries,
     addEntry,
     resetLeaderboard,
+    isLoading,
+    refreshLeaderboard: loadLeaderboard,
   };
 }
