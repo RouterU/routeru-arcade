@@ -8,7 +8,7 @@ import {
   TrafficCone,
   Truck,
 } from "lucide-react";
-import { quizQuestions, type QuizQuestion } from "@/data/quizData";
+import { routeRunnerQuestions, type RouteRunnerQuestion } from "@/data/routeRunnerData";
 import truckImg from "../pages/truck.png";
 import packageImg from "../pages/package.png";
 import goldCrateImg from "../pages/gold-crate.png";
