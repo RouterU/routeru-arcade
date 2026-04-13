@@ -9,6 +9,7 @@ import {
   Truck,
 } from "lucide-react";
 import { routeRunnerQuestions, type RouteRunnerQuestion } from "@/data/routeRunnerData";
+import LoadoutStack from "./games/LoadoutStack";
 import truckImg from "../pages/truck.png";
 import packageImg from "../pages/package.png";
 import goldCrateImg from "../pages/gold-crate.png";
@@ -22,7 +23,7 @@ interface RouteRunnerGameProps {
   onBack: () => void;
 }
 
-type Phase = "question" | "drive" | "results";
+type Phase = "question" | "drive" | "stack" | "results";
 type AnswerState = "unanswered" | "correct" | "incorrect";
 type DriveItemType = "package" | "gold" | "fuel" | "cone" | "pallet" | "car";
 
@@ -36,6 +37,9 @@ interface DriveItem {
 const QUESTION_COUNT = 6;
 const DRIVE_DURATIONS = [15, 15, 20];
 const ROAD_LANES = 3;
+
+// Toggle this value to swap Route Runner mini-game modes
+const ACTIVE_ROUTE_RUNNER_MODE: "routeRunner" | "loadoutStack" = "loadoutStack";
 
 const ITEM_META: Record<
   DriveItemType,
@@ -123,9 +127,9 @@ export default function RouteRunnerGame({
   onComplete,
   onBack,
 }: RouteRunnerGameProps) {
-const [questions] = useState<RouteRunnerQuestion[]>(() =>
-  shuffleArray(routeRunnerQuestions).slice(0, QUESTION_COUNT)
-);
+  const [questions] = useState<RouteRunnerQuestion[]>(() =>
+    shuffleArray(routeRunnerQuestions).slice(0, QUESTION_COUNT)
+  );
 
   const [phase, setPhase] = useState<Phase>("question");
 
@@ -184,6 +188,21 @@ const [questions] = useState<RouteRunnerQuestion[]>(() =>
     setPhase("drive");
   };
 
+  const startStackRound = (roundIndex: number) => {
+    setDriveRound(roundIndex);
+    setLastDriveGain(0);
+    setLastDriveBonus(0);
+    setPhase("stack");
+  };
+
+  const launchMiniGame = (roundIndex: number) => {
+    if (ACTIVE_ROUTE_RUNNER_MODE === "loadoutStack") {
+      startStackRound(roundIndex);
+    } else {
+      startDriveRound(roundIndex);
+    }
+  };
+
   const handleAnswer = (optionIndex: number) => {
     if (answerState !== "unanswered") return;
 
@@ -214,10 +233,19 @@ const [questions] = useState<RouteRunnerQuestion[]>(() =>
   const handleNextQuestion = () => {
     const nextIndex = currentIndex + 1;
 
-    if (nextIndex % 2 === 0) {
+    // After Q2 and Q4, launch a normal mini-game round.
+    if (nextIndex % 2 === 0 && nextIndex < questions.length) {
       setCurrentIndex(nextIndex);
       resetQuestionState();
-      startDriveRound(nextIndex / 2 - 1);
+      launchMiniGame(nextIndex / 2 - 1);
+      return;
+    }
+
+    // After the final question, launch the final round.
+    if (nextIndex >= questions.length) {
+      setCurrentIndex(nextIndex);
+      resetQuestionState();
+      launchMiniGame(2);
       return;
     }
 
@@ -337,6 +365,21 @@ const [questions] = useState<RouteRunnerQuestion[]>(() =>
     }
   };
 
+  const handleStackExit = () => {
+    // Placeholder integration:
+    // current starter LoadoutStack component exits cleanly,
+    // but does not yet send round score back into Route Runner.
+    // Later we can wire round score payloads into driveScore here.
+    setLastDriveGain(0);
+    setLastDriveBonus(0);
+
+    if (currentIndex >= questions.length) {
+      setPhase("results");
+    } else {
+      setPhase("question");
+    }
+  };
+
   const handleReplay = () => {
     window.location.reload();
   };
@@ -433,7 +476,7 @@ const [questions] = useState<RouteRunnerQuestion[]>(() =>
               {driveScore.toLocaleString()}
             </div>
             <p className="text-sm mt-1" style={{ color: "hsl(0 0% 68%)" }}>
-              Driving Bonus
+              Mini-Game Bonus
             </p>
           </div>
         </div>
@@ -478,6 +521,17 @@ const [questions] = useState<RouteRunnerQuestion[]>(() =>
           </button>
         </div>
       </div>
+    );
+  }
+
+  if (phase === "stack") {
+    const isFinalStackRound = currentIndex >= questions.length;
+
+    return (
+      <LoadoutStack
+        mode={isFinalStackRound ? "survival" : "timed"}
+        onExit={handleStackExit}
+      />
     );
   }
 
@@ -836,6 +890,11 @@ const [questions] = useState<RouteRunnerQuestion[]>(() =>
     );
   }
 
+  const modeLabel =
+    ACTIVE_ROUTE_RUNNER_MODE === "loadoutStack"
+      ? "Loadout Stack Mode"
+      : "Route Runner Mode";
+
   return (
     <div className="max-w-3xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
@@ -882,9 +941,7 @@ const [questions] = useState<RouteRunnerQuestion[]>(() =>
           <span>
             Question {currentIndex + 1} of {questions.length}
           </span>
-          <span style={{ color: "hsl(5 84% 48%)" }}>
-            Route Runner Mode
-          </span>
+          <span style={{ color: "hsl(5 84% 48%)" }}>{modeLabel}</span>
         </div>
 
         <div
@@ -1028,9 +1085,13 @@ const [questions] = useState<RouteRunnerQuestion[]>(() =>
               }}
             >
               {currentIndex === questions.length - 1
-                ? "Start Final Run"
+                ? ACTIVE_ROUTE_RUNNER_MODE === "loadoutStack"
+                  ? "Start Final Stack Round"
+                  : "Start Final Run"
                 : (currentIndex + 1) % 2 === 0
-                ? "Start Drive Round"
+                ? ACTIVE_ROUTE_RUNNER_MODE === "loadoutStack"
+                  ? "Start Stack Round"
+                  : "Start Drive Round"
                 : "Next Question"}
               <ChevronRight size={16} />
             </button>
