@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { quizQuestions, type QuizQuestion } from "@/data/quizData";
+import LoadoutStack from "./games/LoadoutStack";
 import {
   Trophy,
   Clock,
@@ -46,6 +47,10 @@ export default function QuizGame({ onComplete, onBack }: QuizGameProps) {
   const [finished, setFinished] = useState(false);
   const [answeredQuestions, setAnsweredQuestions] = useState<boolean[]>([]);
 
+  // New states for mini-game flow
+  const [showGame, setShowGame] = useState(false);
+  const [isFinalGame, setIsFinalGame] = useState(false);
+
   const currentQuestion = questions[currentIndex];
   const progress = (currentIndex / questions.length) * 100;
 
@@ -65,14 +70,14 @@ export default function QuizGame({ onComplete, onBack }: QuizGameProps) {
   }, [answerState, currentIndex]);
 
   useEffect(() => {
-    if (answerState !== "unanswered" || finished) return;
+    if (answerState !== "unanswered" || finished || showGame) return;
     if (timeLeft <= 0) {
       handleTimeUp();
       return;
     }
     const timer = setTimeout(() => setTimeLeft((t) => t - 1), 1000);
     return () => clearTimeout(timer);
-  }, [timeLeft, answerState, finished, handleTimeUp]);
+  }, [timeLeft, answerState, finished, showGame, handleTimeUp]);
 
   const handleAnswer = (optionIndex: number) => {
     if (answerState !== "unanswered") return;
@@ -109,18 +114,38 @@ export default function QuizGame({ onComplete, onBack }: QuizGameProps) {
     });
   };
 
+  const resetForNextQuestion = () => {
+    setAnswerState("unanswered");
+    setSelectedIndex(null);
+    setShowExplanation(false);
+    setTimeLeft(TIME_PER_QUESTION);
+    setBonusPoints(0);
+  };
+
   const handleNext = () => {
+    // After every answered question, launch the mini-game.
+    // If this was the final question, launch survival mode first,
+    // then show results after the player tops out/exits.
     if (currentIndex + 1 >= questions.length) {
+      setIsFinalGame(true);
+      setShowGame(true);
+    } else {
+      setIsFinalGame(false);
+      setShowGame(true);
+    }
+  };
+
+  const handleGameExit = () => {
+    setShowGame(false);
+
+    if (isFinalGame) {
       setFinished(true);
       onComplete(score, maxStreak);
-    } else {
-      setCurrentIndex((i) => i + 1);
-      setAnswerState("unanswered");
-      setSelectedIndex(null);
-      setShowExplanation(false);
-      setTimeLeft(TIME_PER_QUESTION);
-      setBonusPoints(0);
+      return;
     }
+
+    setCurrentIndex((i) => i + 1);
+    resetForNextQuestion();
   };
 
   const timerFraction = timeLeft / TIME_PER_QUESTION;
@@ -130,6 +155,15 @@ export default function QuizGame({ onComplete, onBack }: QuizGameProps) {
       : timerFraction > 0.25
       ? "hsl(38 95% 58%)"
       : "hsl(0 75% 55%)";
+
+  if (showGame) {
+    return (
+      <LoadoutStack
+        mode={isFinalGame ? "survival" : "timed"}
+        onExit={handleGameExit}
+      />
+    );
+  }
 
   if (finished) {
     const correctCount = answeredQuestions.filter(Boolean).length;
@@ -478,7 +512,9 @@ export default function QuizGame({ onComplete, onBack }: QuizGameProps) {
                 boxShadow: "0 8px 18px rgba(170, 24, 24, 0.30)",
               }}
             >
-              {currentIndex + 1 >= questions.length ? "View Results" : "Next Question"}
+              {currentIndex + 1 >= questions.length
+                ? "Final Round"
+                : "Play Mini Game"}
               <ChevronRight size={16} />
             </button>
           </div>
