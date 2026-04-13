@@ -35,11 +35,23 @@ type ActivePiece = {
   rotations: Point[][];
 };
 
+type PersistedStackState = {
+  board: Board;
+  piece: ActivePiece;
+  nextPiece: ActivePiece;
+  score: number;
+  linesCleared: number;
+  piecesPlaced: number;
+} | null;
+
 const BOARD_WIDTH = 10;
 const BOARD_HEIGHT = 16;
 const NORMAL_DROP_MS = 650;
 const FAST_DROP_MS = 60;
 const DEFAULT_TIMED_SECONDS = 15;
+
+// Persists stack progress between rounds while the app session is open
+let persistedStackState: PersistedStackState = null;
 
 const PIECES: PieceDef[] = [
   {
@@ -222,6 +234,21 @@ function randomPiece(): ActivePiece {
   };
 }
 
+function getFreshGameState() {
+  return {
+    board: createEmptyBoard(),
+    piece: randomPiece(),
+    nextPiece: randomPiece(),
+    score: 0,
+    linesCleared: 0,
+    piecesPlaced: 0,
+  };
+}
+
+function getInitialGameState() {
+  return persistedStackState ?? getFreshGameState();
+}
+
 function getBlocks(piece: ActivePiece, rotationIndex = piece.rotationIndex): Point[] {
   return piece.rotations[rotationIndex].map((pt) => ({
     x: piece.x + pt.x,
@@ -291,12 +318,14 @@ export default function LoadoutStack({
   title = "Loadout Stack",
   onExit,
 }: LoadoutStackProps) {
-  const [board, setBoard] = useState<Board>(() => createEmptyBoard());
-  const [piece, setPiece] = useState<ActivePiece>(() => randomPiece());
-  const [nextPiece, setNextPiece] = useState<ActivePiece>(() => randomPiece());
-  const [score, setScore] = useState(0);
-  const [linesCleared, setLinesCleared] = useState(0);
-  const [piecesPlaced, setPiecesPlaced] = useState(0);
+  const initialState = useMemo(() => getInitialGameState(), []);
+
+  const [board, setBoard] = useState<Board>(() => initialState.board);
+  const [piece, setPiece] = useState<ActivePiece>(() => initialState.piece);
+  const [nextPiece, setNextPiece] = useState<ActivePiece>(() => initialState.nextPiece);
+  const [score, setScore] = useState(() => initialState.score);
+  const [linesCleared, setLinesCleared] = useState(() => initialState.linesCleared);
+  const [piecesPlaced, setPiecesPlaced] = useState(() => initialState.piecesPlaced);
   const [isRunning, setIsRunning] = useState(true);
   const [isFastDropping, setIsFastDropping] = useState(false);
   const [timeLeft, setTimeLeft] = useState<number | null>(
@@ -329,9 +358,25 @@ export default function LoadoutStack({
     piecesPlacedRef.current = piecesPlaced;
   }, [piecesPlaced]);
 
+  useEffect(() => {
+    persistedStackState = {
+      board,
+      piece,
+      nextPiece,
+      score,
+      linesCleared,
+      piecesPlaced,
+    };
+  }, [board, piece, nextPiece, score, linesCleared, piecesPlaced]);
+
   const exitGame = useCallback(
     (reason: "timer_complete" | "top_out" | "manual_exit") => {
       setIsRunning(false);
+
+      if (reason === "top_out" || mode === "survival") {
+        persistedStackState = null;
+      }
+
       onExit?.({
         reason,
         score: scoreRef.current,
@@ -339,7 +384,7 @@ export default function LoadoutStack({
         piecesPlaced: piecesPlacedRef.current,
       });
     },
-    [onExit]
+    [mode, onExit]
   );
 
   const spawnNextPiece = useCallback(
@@ -351,7 +396,8 @@ export default function LoadoutStack({
         rotationIndex: 0,
       };
 
-      setNextPiece(randomPiece());
+      const upcomingPiece = randomPiece();
+      setNextPiece(upcomingPiece);
 
       if (!isValidPosition(workingBoard, spawned)) {
         exitGame("top_out");
@@ -368,9 +414,11 @@ export default function LoadoutStack({
     (dx: number, dy: number) => {
       setPiece((current) => {
         if (!isRunning) return current;
+
         if (isValidPosition(boardRef.current, current, current.rotationIndex, dx, dy)) {
           return { ...current, x: current.x + dx, y: current.y + dy };
         }
+
         return current;
       });
     },
@@ -471,36 +519,56 @@ export default function LoadoutStack({
     const handleKeyDown = (event: KeyboardEvent) => {
       if (!isRunning) return;
 
-      if (event.key === "ArrowLeft" || event.key.toLowerCase() === "a") {
+      const key = event.key.toLowerCase();
+      const controlledKeys = [
+        "arrowleft",
+        "arrowright",
+        "arrowup",
+        "arrowdown",
+        " ",
+        "a",
+        "d",
+        "w",
+        "s",
+        "x",
+      ];
+
+      if (controlledKeys.includes(key) || event.key === " ") {
+        event.preventDefault();
+      }
+
+      if (event.key === "ArrowLeft" || key === "a") {
         movePiece(-1, 0);
       }
 
-      if (event.key === "ArrowRight" || event.key.toLowerCase() === "d") {
+      if (event.key === "ArrowRight" || key === "d") {
         movePiece(1, 0);
       }
 
-      if (event.key === "ArrowUp" || event.key.toLowerCase() === "w" || event.key.toLowerCase() === "x") {
+      if (event.key === "ArrowUp" || key === "w" || key === "x") {
         rotatePiece();
       }
 
-      if (event.key === "ArrowDown" || event.key.toLowerCase() === "s") {
+      if (event.key === "ArrowDown" || key === "s") {
         setIsFastDropping(true);
       }
 
       if (event.key === " ") {
-        event.preventDefault();
         hardDrop();
       }
     };
 
     const handleKeyUp = (event: KeyboardEvent) => {
-      if (event.key === "ArrowDown" || event.key.toLowerCase() === "s") {
+      const key = event.key.toLowerCase();
+
+      if (event.key === "ArrowDown" || key === "s") {
+        event.preventDefault();
         setIsFastDropping(false);
       }
     };
 
-    window.addEventListener("keydown", handleKeyDown);
-    window.addEventListener("keyup", handleKeyUp);
+    window.addEventListener("keydown", handleKeyDown, { passive: false });
+    window.addEventListener("keyup", handleKeyUp, { passive: false });
 
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
@@ -536,7 +604,7 @@ export default function LoadoutStack({
   }, [nextPiece]);
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white p-4 md:p-6">
+    <div className="min-h-screen bg-slate-950 text-white p-4 md:p-6 overflow-hidden">
       <div className="mx-auto max-w-6xl grid gap-4 lg:grid-cols-[320px_1fr_280px]">
         <div className="rounded-3xl bg-slate-900/90 border border-slate-700 p-4 shadow-2xl">
           <div className="mb-4">
@@ -547,7 +615,7 @@ export default function LoadoutStack({
             <p className="text-sm text-slate-300 mt-2">
               {mode === "survival"
                 ? "Final round: keep stacking until you hit the top."
-                : "Timed round: stack fast and clear rows before time runs out."}
+                : "Timed round: continue your stack and clear rows before time runs out."}
             </p>
           </div>
 
@@ -566,12 +634,13 @@ export default function LoadoutStack({
             <div className="space-y-1 text-sm text-slate-300">
               <div>← / → or A / D Move</div>
               <div>↑ or W Rotate</div>
-              <div>↓ or S Fast Drop</div>
+              <div>↓ or S Soft Drop</div>
               <div>Space Hard Drop</div>
             </div>
           </div>
 
           <button
+            type="button"
             onClick={() => exitGame("manual_exit")}
             className="mt-4 w-full rounded-2xl bg-cyan-500 hover:bg-cyan-400 transition px-4 py-3 font-bold text-slate-950"
           >
@@ -665,6 +734,7 @@ function MobileButton({
 }) {
   return (
     <button
+      type="button"
       onClick={onClick}
       className="rounded-2xl bg-slate-800 border border-slate-700 px-4 py-4 font-bold text-white active:scale-[0.98] transition"
     >
