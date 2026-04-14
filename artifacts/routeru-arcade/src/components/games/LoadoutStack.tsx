@@ -694,7 +694,7 @@ export default function LoadoutStack({
             <div
               className="absolute inset-0"
               style={{
-                background: "rgba(2, 6, 23, 0.72)",
+                background: "rgba(2, 6, 23, 0.45)",
               }}
             />
 
