@@ -39,7 +39,7 @@ const DRIVE_DURATIONS = [15, 15, 20];
 const ROAD_LANES = 3;
 
 // Toggle this value to swap Route Runner mini-game modes
-const ACTIVE_ROUTE_RUNNER_MODE: "routeRunner" | "loadoutStack" = "loadoutStack";
+const ACTIVE_ROUTE_RUNNER_MODE: "routeRunner" | "loadoutStack" = "routeRunner";
 
 const ITEM_META: Record<
   DriveItemType,
