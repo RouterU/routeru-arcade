@@ -74,13 +74,13 @@ const GAMES = [
   {
     id: "route-runner" as const,
     icon: Truck,
-    title: "Route Runner",
+    title: "Routing Game Zone",
     description:
-      "A hybrid training game with 6 questions and 3 driving rounds. Answer, drive, dodge obstacles, and collect packages.",
+      "A hybrid training game with 6 questions and 3 game rounds. Answer, dodge obstacles, collect points, and dominate the leaderboard.",
     color: "hsl(5 84% 48%)",
     badge: "6 Questions • 3 Runs",
     difficulty: "Arcade",
-    cta: "Play Route Runner!",
+    cta: "Play Now!",
   },
 ];
 
