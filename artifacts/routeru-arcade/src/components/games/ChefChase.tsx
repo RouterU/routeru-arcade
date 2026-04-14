@@ -26,6 +26,8 @@ type Enemy = {
   y: number;
   colorClass: string;
   label: string;
+  released: boolean;
+  releaseAt: number;
 };
 
 type PersistedChefChaseState = {
@@ -38,10 +40,11 @@ type PersistedChefChaseState = {
   pelletsCollected: number;
   bonusCollected: number;
   survivalSeconds: number;
+  elapsedSeconds: number;
 } | null;
 
 const DEFAULT_TIMED_SECONDS = 15;
-const TILE_SIZE = 28;
+const TILE_SIZE = 38;
 const MOVE_MS = 180;
 const ENEMY_BASE_MS = 260;
 
@@ -69,23 +72,23 @@ const MAZE: Tile[][] = [
 const START_CHEF: Position = { x: 1, y: 1 };
 
 const START_ENEMIES: Enemy[] = [
-  { id: "sysco", x: 13, y: 1, colorClass: "bg-red-500", label: "SV" },
-  { id: "pfg", x: 13, y: 13, colorClass: "bg-sky-400", label: "PG" },
-  { id: "gfs", x: 1, y: 13, colorClass: "bg-lime-400", label: "GF" },
+  { id: "sysco", x: 13, y: 1, colorClass: "bg-red-500", label: "SV", released: true, releaseAt: 0 },
+  { id: "pfg", x: 7, y: 7, colorClass: "bg-sky-400", label: "PG", released: false, releaseAt: 6 },
+  { id: "gfs", x: 7, y: 8, colorClass: "bg-lime-400", label: "GF", released: false, releaseAt: 12 },
 ];
 
-const BONUS_ITEMS: Record<string, { points: number; colorClass: string; label: string }> = {
-  steak: { points: 40, colorClass: "bg-red-400", label: "🥩" },
-  chicken: { points: 30, colorClass: "bg-amber-300", label: "🍗" },
-  pasta: { points: 35, colorClass: "bg-yellow-300", label: "🍝" },
+const BONUS_ITEMS: Record<string, { points: number; label: string }> = {
+  steak: { points: 40, label: "🥩" },
+  chicken: { points: 30, label: "🍗" },
+  pasta: { points: 35, label: "🍝" },
 };
 
 const BONUS_LOCATIONS = [
   { x: 7, y: 1, item: "steak" },
-  { x: 7, y: 7, item: "chicken" },
   { x: 7, y: 13, item: "pasta" },
   { x: 3, y: 9, item: "steak" },
   { x: 11, y: 5, item: "pasta" },
+  { x: 7, y: 11, item: "chicken" },
 ];
 
 function inBounds(x: number, y: number) {
@@ -98,7 +101,12 @@ function isPath(x: number, y: number) {
 
 function createInitialPellets() {
   return MAZE.map((row, y) =>
-    row.map((cell, x) => cell === 0 && !(x === START_CHEF.x && y === START_CHEF.y))
+    row.map((cell, x) => {
+      const isStart = x === START_CHEF.x && y === START_CHEF.y;
+      const isBonus = BONUS_LOCATIONS.some((b) => b.x === x && b.y === y);
+      const isPen = (x === 7 && y === 7) || (x === 7 && y === 8);
+      return cell === 0 && !isStart && !isBonus && !isPen;
+    })
   );
 }
 
@@ -121,15 +129,12 @@ function getFreshState() {
     pelletsCollected: 0,
     bonusCollected: 0,
     survivalSeconds: 0,
+    elapsedSeconds: 0,
   };
 }
 
 function getInitialState() {
   return persistedChefChaseState ?? getFreshState();
-}
-
-function positionsEqual(a: Position, b: Position) {
-  return a.x === b.x && a.y === b.y;
 }
 
 function nextPos(pos: Position, dir: Direction): Position {
@@ -156,7 +161,7 @@ function chooseEnemyMove(enemy: Position, chef: Position): Direction {
   if (dirs.length === 0) return "left";
 
   const roll = Math.random();
-  if (roll < 0.25) {
+  if (roll < 0.22) {
     return dirs[Math.floor(Math.random() * dirs.length)];
   }
 
@@ -196,6 +201,7 @@ export default function ChefChase({
     mode === "timed" ? Math.max(1, timedSeconds) : null
   );
   const [survivalSeconds, setSurvivalSeconds] = useState(initial.survivalSeconds);
+  const [elapsedSeconds, setElapsedSeconds] = useState(initial.elapsedSeconds);
   const [isRunning, setIsRunning] = useState(true);
 
   const chefRef = useRef(chef);
@@ -229,8 +235,9 @@ export default function ChefChase({
       pelletsCollected,
       bonusCollected,
       survivalSeconds,
+      elapsedSeconds,
     };
-  }, [pellets, bonusMap, chef, chefDir, enemies, score, pelletsCollected, bonusCollected, survivalSeconds]);
+  }, [pellets, bonusMap, chef, chefDir, enemies, score, pelletsCollected, bonusCollected, survivalSeconds, elapsedSeconds]);
 
   const enemyMoveMs = useMemo(() => {
     if (mode !== "survival") return ENEMY_BASE_MS;
@@ -309,7 +316,9 @@ export default function ChefChase({
     setChef(next);
     collectAtPosition(next);
 
-    const hit = enemiesRef.current.some((enemy) => enemy.x === next.x && enemy.y === next.y);
+    const hit = enemiesRef.current.some(
+      (enemy) => enemy.released && enemy.x === next.x && enemy.y === next.y
+    );
     if (hit) {
       exitGame("caught");
     }
@@ -320,12 +329,17 @@ export default function ChefChase({
 
     setEnemies((prev) => {
       const updated = prev.map((enemy) => {
+        if (!enemy.released) return enemy;
+
         const dir = chooseEnemyMove({ x: enemy.x, y: enemy.y }, chefRef.current);
         const next = nextPos({ x: enemy.x, y: enemy.y }, dir);
         return isPath(next.x, next.y) ? { ...enemy, x: next.x, y: next.y } : enemy;
       });
 
-      const caught = updated.some((enemy) => enemy.x === chefRef.current.x && enemy.y === chefRef.current.y);
+      const caught = updated.some(
+        (enemy) => enemy.released && enemy.x === chefRef.current.x && enemy.y === chefRef.current.y
+      );
+
       if (caught) {
         window.setTimeout(() => exitGame("caught"), 0);
       }
@@ -349,8 +363,19 @@ export default function ChefChase({
   useEffect(() => {
     if (!isRunning) return;
 
-    if (mode === "timed") {
-      const timer = window.setInterval(() => {
+    const timer = window.setInterval(() => {
+      setElapsedSeconds((prev) => prev + 1);
+
+      setEnemies((prev) =>
+        prev.map((enemy) => {
+          if (!enemy.released && elapsedSeconds + 1 >= enemy.releaseAt) {
+            return { ...enemy, released: true };
+          }
+          return enemy;
+        })
+      );
+
+      if (mode === "timed") {
         setTimeLeft((prev) => {
           if (prev === null) return prev;
           if (prev <= 1) {
@@ -360,17 +385,13 @@ export default function ChefChase({
           }
           return prev - 1;
         });
-      }, 1000);
-
-      return () => window.clearInterval(timer);
-    }
-
-    const survivalTimer = window.setInterval(() => {
-      setSurvivalSeconds((prev) => prev + 1);
+      } else {
+        setSurvivalSeconds((prev) => prev + 1);
+      }
     }, 1000);
 
-    return () => window.clearInterval(survivalTimer);
-  }, [exitGame, isRunning, mode]);
+    return () => window.clearInterval(timer);
+  }, [elapsedSeconds, exitGame, isRunning, mode]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -411,7 +432,7 @@ export default function ChefChase({
 
   return (
     <div className="min-h-screen bg-slate-950 text-white p-4 md:p-6 overflow-hidden">
-      <div className="mx-auto max-w-6xl grid gap-4 lg:grid-cols-[320px_1fr_280px]">
+      <div className="mx-auto max-w-[1500px] grid gap-4 lg:grid-cols-[320px_1fr_280px]">
         <div className="rounded-3xl bg-slate-900/90 border border-slate-700 p-4 shadow-2xl">
           <div className="mb-4">
             <div className="text-xs uppercase tracking-[0.2em] text-amber-300">
@@ -420,7 +441,7 @@ export default function ChefChase({
             <h1 className="text-3xl font-black mt-1">{title}</h1>
             <p className="text-sm text-slate-300 mt-2">
               {mode === "survival"
-                ? "Final round: survive the maze as enemies get faster every 15 seconds."
+                ? "Final round: survive the maze as enemies release and speed up."
                 : "Collect food, grab bonus proteins, and avoid the rivals."}
             </p>
           </div>
@@ -464,7 +485,7 @@ export default function ChefChase({
                 const hasPellet = pellets[y][x];
                 const bonus = bonusMap[y][x];
                 const isChef = chef.x === x && chef.y === y;
-                const enemy = enemies.find((e) => e.x === x && e.y === y);
+                const enemy = enemies.find((e) => e.x === x && e.y === y && e.released);
 
                 return (
                   <div
@@ -485,12 +506,12 @@ export default function ChefChase({
 
                     {!isWall && hasPellet && (
                       <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="w-2 h-2 rounded-full bg-red-300" />
+                        <div className="w-2.5 h-2.5 rounded-full bg-red-300" />
                       </div>
                     )}
 
                     {!isWall && bonus && (
-                      <div className="absolute inset-0 flex items-center justify-center text-sm">
+                      <div className="absolute inset-0 flex items-center justify-center text-xl">
                         {BONUS_ITEMS[bonus].label}
                       </div>
                     )}
@@ -498,7 +519,7 @@ export default function ChefChase({
                     {enemy && (
                       <div className="absolute inset-0 flex items-center justify-center">
                         <div
-                          className={`w-5 h-5 rounded-full ${enemy.colorClass} flex items-center justify-center text-[9px] font-black text-slate-950`}
+                          className={`w-7 h-7 rounded-full ${enemy.colorClass} flex items-center justify-center text-[10px] font-black text-slate-950`}
                         >
                           {enemy.label}
                         </div>
@@ -507,7 +528,7 @@ export default function ChefChase({
 
                     {isChef && (
                       <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="w-5 h-5 rounded-full bg-white border-2 border-red-500 flex items-center justify-center text-[10px]">
+                        <div className="w-7 h-7 rounded-full bg-white border-2 border-red-500 flex items-center justify-center text-sm">
                           👨‍🍳
                         </div>
                       </div>
@@ -516,6 +537,39 @@ export default function ChefChase({
                 );
               })
             )}
+
+            <div
+              className="absolute rounded-xl border-2 border-dashed border-slate-500/70 bg-slate-800/60 flex items-center justify-center text-[11px] font-semibold text-slate-300"
+              style={{
+                left: 6 * TILE_SIZE,
+                top: 6.5 * TILE_SIZE,
+                width: 3 * TILE_SIZE,
+                height: 2 * TILE_SIZE,
+              }}
+            >
+              PEN
+            </div>
+
+            {enemies
+              .filter((enemy) => !enemy.released)
+              .map((enemy, idx) => (
+                <div
+                  key={enemy.id}
+                  className="absolute flex items-center justify-center"
+                  style={{
+                    left: (6.7 + (idx % 2) * 1.2) * TILE_SIZE,
+                    top: (6.9 + Math.floor(idx / 2) * 0.9) * TILE_SIZE,
+                    width: TILE_SIZE,
+                    height: TILE_SIZE,
+                  }}
+                >
+                  <div
+                    className={`w-7 h-7 rounded-full ${enemy.colorClass} flex items-center justify-center text-[10px] font-black text-slate-950 opacity-80`}
+                  >
+                    {enemy.label}
+                  </div>
+                </div>
+              ))}
           </div>
         </div>
 
@@ -535,14 +589,15 @@ export default function ChefChase({
             <div className="text-sm font-bold mb-2">Maze Status</div>
             <div className="space-y-1 text-sm text-slate-300">
               <div>Remaining food: {remainingPellets}</div>
-              <div>Enemies active: {enemies.length}</div>
+              <div>Enemies active: {enemies.filter((e) => e.released).length}</div>
+              <div>Enemies in pen: {enemies.filter((e) => !e.released).length}</div>
               <div>Mode: {mode === "survival" ? "Final Survival" : "Timed Round"}</div>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="mx-auto max-w-6xl mt-4 grid gap-3 md:grid-cols-4">
+      <div className="mx-auto max-w-[1500px] mt-4 grid gap-3 md:grid-cols-4">
         <MobileButton label="Left" onClick={() => setQueuedDir("left")} />
         <MobileButton label="Up" onClick={() => setQueuedDir("up")} />
         <MobileButton label="Right" onClick={() => setQueuedDir("right")} />
