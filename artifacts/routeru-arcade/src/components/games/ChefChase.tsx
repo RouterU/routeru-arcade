@@ -3,7 +3,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 type ChefChaseMode = "timed" | "survival";
 
 interface ChefChaseExitPayload {
-  reason: "timer_complete" | "caught" | "manual_exit";
+  reason: "timer_complete" | "caught" | "manual_exit" | "completed";
   score: number;
   pelletsCollected: number;
   bonusCollected: number;
@@ -30,25 +30,12 @@ type Enemy = {
   releaseAt: number;
 };
 
-type PersistedChefChaseState = {
-  pellets: boolean[][];
-  bonusMap: string[][];
-  chef: Position;
-  chefDir: Direction;
-  enemies: Enemy[];
-  score: number;
-  pelletsCollected: number;
-  bonusCollected: number;
-  survivalSeconds: number;
-  elapsedSeconds: number;
-} | null;
-
 const DEFAULT_TIMED_SECONDS = 15;
 const TILE_SIZE = 38;
 const MOVE_MS = 180;
 const ENEMY_BASE_MS = 260;
-
-let persistedChefChaseState: PersistedChefChaseState = null;
+const FINAL_LEVEL_1_SECONDS = 12;
+const FINAL_LEVEL_2_SECONDS = 12;
 
 // 1 = wall, 0 = path
 const MAZE: Tile[][] = [
@@ -70,12 +57,6 @@ const MAZE: Tile[][] = [
 ];
 
 const START_CHEF: Position = { x: 1, y: 1 };
-
-const START_ENEMIES: Enemy[] = [
-  { id: "sysco", x: 13, y: 1, colorClass: "bg-red-500", label: "SV", released: true, releaseAt: 0 },
-  { id: "pfg", x: 7, y: 7, colorClass: "bg-sky-400", label: "PG", released: false, releaseAt: 6 },
-  { id: "gfs", x: 7, y: 8, colorClass: "bg-lime-400", label: "GF", released: false, releaseAt: 12 },
-];
 
 const BONUS_ITEMS: Record<string, { points: number; label: string }> = {
   steak: { points: 40, label: "🥩" },
@@ -118,23 +99,35 @@ function createInitialBonusMap() {
   return map;
 }
 
-function getFreshState() {
+function buildEnemiesForLevel(level: 1 | 2): Enemy[] {
+  if (level === 1) {
+    return [
+      { id: "sysco", x: 13, y: 1, colorClass: "bg-red-500", label: "SV", released: true, releaseAt: 0 },
+      { id: "pfg", x: 7, y: 7, colorClass: "bg-sky-400", label: "PG", released: false, releaseAt: 6 },
+      { id: "gfs", x: 7, y: 8, colorClass: "bg-lime-400", label: "GF", released: false, releaseAt: 12 },
+    ];
+  }
+
+  return [
+    { id: "sysco", x: 13, y: 1, colorClass: "bg-red-500", label: "SV", released: true, releaseAt: 0 },
+    { id: "pfg", x: 7, y: 7, colorClass: "bg-sky-400", label: "PG", released: false, releaseAt: 4 },
+    { id: "gfs", x: 7, y: 8, colorClass: "bg-lime-400", label: "GF", released: false, releaseAt: 8 },
+  ];
+}
+
+function getFreshState(level: 1 | 2) {
   return {
     pellets: createInitialPellets(),
     bonusMap: createInitialBonusMap(),
     chef: { ...START_CHEF },
     chefDir: "right" as Direction,
-    enemies: START_ENEMIES.map((e) => ({ ...e })),
+    enemies: buildEnemiesForLevel(level),
     score: 0,
     pelletsCollected: 0,
     bonusCollected: 0,
     survivalSeconds: 0,
     elapsedSeconds: 0,
   };
-}
-
-function getInitialState() {
-  return persistedChefChaseState ?? getFreshState();
 }
 
 function nextPos(pos: Position, dir: Direction): Position {
@@ -156,12 +149,14 @@ function manhattan(a: Position, b: Position) {
   return Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
 }
 
-function chooseEnemyMove(enemy: Position, chef: Position): Direction {
+function chooseEnemyMove(enemy: Position, chef: Position, level: 1 | 2): Direction {
   const dirs = validDirections(enemy);
   if (dirs.length === 0) return "left";
 
+  const randomChance = level === 1 ? 0.22 : 0.12;
   const roll = Math.random();
-  if (roll < 0.22) {
+
+  if (roll < randomChance) {
     return dirs[Math.floor(Math.random() * dirs.length)];
   }
 
@@ -186,7 +181,8 @@ export default function ChefChase({
   title = "Chef Chase",
   onExit,
 }: ChefChaseProps) {
-  const initial = useMemo(() => getInitialState(), []);
+  const startingLevel: 1 | 2 = 1;
+  const initial = useMemo(() => getFreshState(startingLevel), []);
 
   const [pellets, setPellets] = useState<boolean[][]>(() => initial.pellets);
   const [bonusMap, setBonusMap] = useState<string[][]>(() => initial.bonusMap);
@@ -203,6 +199,9 @@ export default function ChefChase({
   const [survivalSeconds, setSurvivalSeconds] = useState(initial.survivalSeconds);
   const [elapsedSeconds, setElapsedSeconds] = useState(initial.elapsedSeconds);
   const [isRunning, setIsRunning] = useState(true);
+  const [level, setLevel] = useState<1 | 2>(1);
+  const [showLevelMessage, setShowLevelMessage] = useState(mode === "survival");
+  const [levelMessage, setLevelMessage] = useState(mode === "survival" ? "LEVEL 1" : "");
 
   const chefRef = useRef(chef);
   const chefDirRef = useRef(chefDir);
@@ -213,6 +212,7 @@ export default function ChefChase({
   const bonusCollectedRef = useRef(bonusCollected);
   const pelletsRef = useRef(pellets);
   const bonusMapRef = useRef(bonusMap);
+  const levelRef = useRef(level);
 
   useEffect(() => { chefRef.current = chef; }, [chef]);
   useEffect(() => { chefDirRef.current = chefDir; }, [chefDir]);
@@ -223,36 +223,40 @@ export default function ChefChase({
   useEffect(() => { bonusCollectedRef.current = bonusCollected; }, [bonusCollected]);
   useEffect(() => { pelletsRef.current = pellets; }, [pellets]);
   useEffect(() => { bonusMapRef.current = bonusMap; }, [bonusMap]);
+  useEffect(() => { levelRef.current = level; }, [level]);
 
   useEffect(() => {
-    persistedChefChaseState = {
-      pellets,
-      bonusMap,
-      chef,
-      chefDir,
-      enemies,
-      score,
-      pelletsCollected,
-      bonusCollected,
-      survivalSeconds,
-      elapsedSeconds,
-    };
-  }, [pellets, bonusMap, chef, chefDir, enemies, score, pelletsCollected, bonusCollected, survivalSeconds, elapsedSeconds]);
+    if (!showLevelMessage) return;
+    const timeout = window.setTimeout(() => {
+      setShowLevelMessage(false);
+    }, 1600);
+    return () => window.clearTimeout(timeout);
+  }, [showLevelMessage]);
 
   const enemyMoveMs = useMemo(() => {
     if (mode !== "survival") return ENEMY_BASE_MS;
-    const level = Math.floor(survivalSeconds / 15);
-    return Math.max(120, ENEMY_BASE_MS - level * 20);
-  }, [mode, survivalSeconds]);
+    if (level === 1) return ENEMY_BASE_MS;
+    return 180;
+  }, [mode, level]);
+
+  const resetForLevelTwo = useCallback(() => {
+    const nextState = getFreshState(2);
+
+    setPellets(nextState.pellets);
+    setBonusMap(nextState.bonusMap);
+    setChef(nextState.chef);
+    setChefDir(nextState.chefDir);
+    setQueuedDir(null);
+    setEnemies(nextState.enemies);
+    setElapsedSeconds(0);
+    setLevel(2);
+    setLevelMessage("LEVEL 1 COMPLETE");
+    setShowLevelMessage(true);
+  }, []);
 
   const exitGame = useCallback(
-    (reason: "timer_complete" | "caught" | "manual_exit") => {
+    (reason: "timer_complete" | "caught" | "manual_exit" | "completed") => {
       setIsRunning(false);
-
-      if (reason === "caught" || mode === "survival") {
-        persistedChefChaseState = null;
-      }
-
       onExit?.({
         reason,
         score: scoreRef.current,
@@ -260,7 +264,7 @@ export default function ChefChase({
         bonusCollected: bonusCollectedRef.current,
       });
     },
-    [mode, onExit]
+    [onExit]
   );
 
   const collectAtPosition = useCallback((pos: Position) => {
@@ -293,7 +297,7 @@ export default function ChefChase({
   }, []);
 
   const moveChefStep = useCallback(() => {
-    if (!isRunning) return;
+    if (!isRunning || showLevelMessage) return;
 
     const current = chefRef.current;
     let activeDir = chefDirRef.current;
@@ -322,16 +326,20 @@ export default function ChefChase({
     if (hit) {
       exitGame("caught");
     }
-  }, [collectAtPosition, exitGame, isRunning]);
+  }, [collectAtPosition, exitGame, isRunning, showLevelMessage]);
 
   const moveEnemiesStep = useCallback(() => {
-    if (!isRunning) return;
+    if (!isRunning || showLevelMessage) return;
 
     setEnemies((prev) => {
       const updated = prev.map((enemy) => {
         if (!enemy.released) return enemy;
 
-        const dir = chooseEnemyMove({ x: enemy.x, y: enemy.y }, chefRef.current);
+        const dir = chooseEnemyMove(
+          { x: enemy.x, y: enemy.y },
+          chefRef.current,
+          levelRef.current
+        );
         const next = nextPos({ x: enemy.x, y: enemy.y }, dir);
         return isPath(next.x, next.y) ? { ...enemy, x: next.x, y: next.y } : enemy;
       });
@@ -346,7 +354,7 @@ export default function ChefChase({
 
       return updated;
     });
-  }, [exitGame, isRunning]);
+  }, [exitGame, isRunning, showLevelMessage]);
 
   useEffect(() => {
     if (!isRunning) return;
@@ -364,16 +372,22 @@ export default function ChefChase({
     if (!isRunning) return;
 
     const timer = window.setInterval(() => {
-      setElapsedSeconds((prev) => prev + 1);
+      if (showLevelMessage) return;
 
-      setEnemies((prev) =>
-        prev.map((enemy) => {
-          if (!enemy.released && elapsedSeconds + 1 >= enemy.releaseAt) {
-            return { ...enemy, released: true };
-          }
-          return enemy;
-        })
-      );
+      setElapsedSeconds((prev) => {
+        const nextElapsed = prev + 1;
+
+        setEnemies((currentEnemies) =>
+          currentEnemies.map((enemy) => {
+            if (!enemy.released && nextElapsed >= enemy.releaseAt) {
+              return { ...enemy, released: true };
+            }
+            return enemy;
+          })
+        );
+
+        return nextElapsed;
+      });
 
       if (mode === "timed") {
         setTimeLeft((prev) => {
@@ -386,12 +400,29 @@ export default function ChefChase({
           return prev - 1;
         });
       } else {
-        setSurvivalSeconds((prev) => prev + 1);
+        setSurvivalSeconds((prev) => {
+          const next = prev + 1;
+
+          if (levelRef.current === 1 && next >= FINAL_LEVEL_1_SECONDS) {
+            window.setTimeout(() => {
+              resetForLevelTwo();
+            }, 0);
+            return next;
+          }
+
+          if (levelRef.current === 2 && next >= FINAL_LEVEL_1_SECONDS + FINAL_LEVEL_2_SECONDS) {
+            window.clearInterval(timer);
+            exitGame("completed");
+            return next;
+          }
+
+          return next;
+        });
       }
     }, 1000);
 
     return () => window.clearInterval(timer);
-  }, [elapsedSeconds, exitGame, isRunning, mode]);
+  }, [exitGame, isRunning, mode, resetForLevelTwo, showLevelMessage]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -430,6 +461,13 @@ export default function ChefChase({
   const boardWidth = MAZE[0].length * TILE_SIZE;
   const boardHeight = MAZE.length * TILE_SIZE;
 
+  const wallClass =
+    level === 1
+      ? "bg-blue-900 border border-blue-500/40"
+      : "bg-purple-900 border border-fuchsia-500/40";
+
+  const boardBgClass = level === 1 ? "bg-slate-950" : "bg-slate-950";
+
   return (
     <div className="min-h-screen bg-slate-950 text-white p-4 md:p-6 overflow-hidden">
       <div className="mx-auto max-w-[1500px] grid gap-4 lg:grid-cols-[320px_1fr_280px]">
@@ -441,7 +479,7 @@ export default function ChefChase({
             <h1 className="text-3xl font-black mt-1">{title}</h1>
             <p className="text-sm text-slate-300 mt-2">
               {mode === "survival"
-                ? "Final round: survive the maze as enemies release and speed up."
+                ? "Final round: beat Level 1 to unlock Level 2. Villains release from the pen and get faster."
                 : "Collect food, grab bonus proteins, and avoid the rivals."}
             </p>
           </div>
@@ -451,8 +489,8 @@ export default function ChefChase({
             <StatCard label="Pellets" value={pelletsCollected} />
             <StatCard label="Bonus Foods" value={bonusCollected} />
             <StatCard
-              label={mode === "survival" ? "Survival" : "Time Left"}
-              value={mode === "survival" ? `${survivalSeconds}s` : `${timeLeft ?? 0}s`}
+              label={mode === "survival" ? "Level" : "Time Left"}
+              value={mode === "survival" ? `Level ${level}` : `${timeLeft ?? 0}s`}
             />
           </div>
 
@@ -476,7 +514,7 @@ export default function ChefChase({
 
         <div className="rounded-3xl bg-slate-900/90 border border-slate-700 p-4 shadow-2xl flex items-center justify-center">
           <div
-            className="relative rounded-2xl overflow-hidden border border-slate-700 bg-slate-950"
+            className={`relative rounded-2xl overflow-hidden border border-slate-700 ${boardBgClass}`}
             style={{ width: boardWidth, height: boardHeight }}
           >
             {MAZE.map((row, y) =>
@@ -498,11 +536,7 @@ export default function ChefChase({
                       height: TILE_SIZE,
                     }}
                   >
-                    <div
-                      className={`w-full h-full ${
-                        isWall ? "bg-blue-900 border border-blue-500/40" : "bg-slate-950"
-                      }`}
-                    />
+                    <div className={`w-full h-full ${isWall ? wallClass : boardBgClass}`} />
 
                     {!isWall && hasPellet && (
                       <div className="absolute inset-0 flex items-center justify-center">
@@ -539,7 +573,11 @@ export default function ChefChase({
             )}
 
             <div
-              className="absolute rounded-xl border-2 border-dashed border-slate-500/70 bg-slate-800/60 flex items-center justify-center text-[11px] font-semibold text-slate-300"
+              className={`absolute rounded-xl border-2 border-dashed flex items-center justify-center text-[11px] font-semibold ${
+                level === 1
+                  ? "border-slate-500/70 bg-slate-800/60 text-slate-300"
+                  : "border-fuchsia-400/70 bg-fuchsia-950/40 text-fuchsia-200"
+              }`}
               style={{
                 left: 6 * TILE_SIZE,
                 top: 6.5 * TILE_SIZE,
@@ -570,6 +608,22 @@ export default function ChefChase({
                   </div>
                 </div>
               ))}
+
+            {showLevelMessage && (
+              <div className="absolute inset-0 flex items-center justify-center bg-black/45 z-20">
+                <div className="rounded-3xl border border-amber-300/40 bg-slate-900/95 px-8 py-6 text-center shadow-2xl">
+                  <div className="text-xs uppercase tracking-[0.25em] text-amber-300 mb-2">
+                    Chef Chase
+                  </div>
+                  <div className="text-3xl font-black text-white">{levelMessage}</div>
+                  {level === 2 && (
+                    <div className="text-sm text-slate-300 mt-2">
+                      New map color. Faster villains. Stay alive.
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
@@ -591,7 +645,9 @@ export default function ChefChase({
               <div>Remaining food: {remainingPellets}</div>
               <div>Enemies active: {enemies.filter((e) => e.released).length}</div>
               <div>Enemies in pen: {enemies.filter((e) => !e.released).length}</div>
-              <div>Mode: {mode === "survival" ? "Final Survival" : "Timed Round"}</div>
+              <div>
+                Mode: {mode === "survival" ? `Final Survival · Level ${level}` : "Timed Round"}
+              </div>
             </div>
           </div>
         </div>
