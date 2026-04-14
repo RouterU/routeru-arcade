@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { routeRunnerQuestions, type RouteRunnerQuestion } from "@/data/routeRunnerData";
 import LoadoutStack from "./games/LoadoutStack";
+import ChefChase from "./games/ChefChase";
 import truckImg from "../pages/truck.png";
 import packageImg from "../pages/package.png";
 import goldCrateImg from "../pages/gold-crate.png";
@@ -23,7 +24,7 @@ interface RouteRunnerGameProps {
   onBack: () => void;
 }
 
-type Phase = "question" | "drive" | "stack" | "results";
+type Phase = "question" | "drive" | "stack" | "chef" | "results";
 type AnswerState = "unanswered" | "correct" | "incorrect";
 type DriveItemType = "package" | "gold" | "fuel" | "cone" | "pallet" | "car";
 
@@ -39,7 +40,7 @@ const DRIVE_DURATIONS = [15, 15, 20];
 const ROAD_LANES = 3;
 
 // Toggle this value to swap Route Runner mini-game modes
-const ACTIVE_ROUTE_RUNNER_MODE: "routeRunner" | "loadoutStack" = "loadoutStack";
+const ACTIVE_ROUTE_RUNNER_MODE: "routeRunner" | "loadoutStack" | "chefChase" = "chefChase";
 
 const ITEM_META: Record<
   DriveItemType,
@@ -195,12 +196,25 @@ export default function RouteRunnerGame({
     setPhase("stack");
   };
 
+  const startChefRound = (roundIndex: number) => {
+    setDriveRound(roundIndex);
+    setLastDriveGain(0);
+    setLastDriveBonus(0);
+    setPhase("chef");
+  };
+
   const launchMiniGame = (roundIndex: number) => {
     if (ACTIVE_ROUTE_RUNNER_MODE === "loadoutStack") {
       startStackRound(roundIndex);
-    } else {
-      startDriveRound(roundIndex);
+      return;
     }
+
+    if (ACTIVE_ROUTE_RUNNER_MODE === "chefChase") {
+      startChefRound(roundIndex);
+      return;
+    }
+
+    startDriveRound(roundIndex);
   };
 
   const handleAnswer = (optionIndex: number) => {
@@ -233,7 +247,6 @@ export default function RouteRunnerGame({
   const handleNextQuestion = () => {
     const nextIndex = currentIndex + 1;
 
-    // After Q2 and Q4, launch a normal mini-game round.
     if (nextIndex % 2 === 0 && nextIndex < questions.length) {
       setCurrentIndex(nextIndex);
       resetQuestionState();
@@ -241,7 +254,6 @@ export default function RouteRunnerGame({
       return;
     }
 
-    // After the final question, launch the final round.
     if (nextIndex >= questions.length) {
       setCurrentIndex(nextIndex);
       resetQuestionState();
@@ -366,10 +378,17 @@ export default function RouteRunnerGame({
   };
 
   const handleStackExit = () => {
-    // Placeholder integration:
-    // current starter LoadoutStack component exits cleanly,
-    // but does not yet send round score back into Route Runner.
-    // Later we can wire round score payloads into driveScore here.
+    setLastDriveGain(0);
+    setLastDriveBonus(0);
+
+    if (currentIndex >= questions.length) {
+      setPhase("results");
+    } else {
+      setPhase("question");
+    }
+  };
+
+  const handleChefExit = () => {
     setLastDriveGain(0);
     setLastDriveBonus(0);
 
@@ -531,6 +550,17 @@ export default function RouteRunnerGame({
       <LoadoutStack
         mode={isFinalStackRound ? "survival" : "timed"}
         onExit={handleStackExit}
+      />
+    );
+  }
+
+  if (phase === "chef") {
+    const isFinalChefRound = currentIndex >= questions.length;
+
+    return (
+      <ChefChase
+        mode={isFinalChefRound ? "survival" : "timed"}
+        onExit={handleChefExit}
       />
     );
   }
@@ -893,7 +923,24 @@ export default function RouteRunnerGame({
   const modeLabel =
     ACTIVE_ROUTE_RUNNER_MODE === "loadoutStack"
       ? "Loadout Stack Mode"
+      : ACTIVE_ROUTE_RUNNER_MODE === "chefChase"
+      ? "Chef Chase Mode"
       : "Route Runner Mode";
+
+  const nextButtonLabel =
+    currentIndex === questions.length - 1
+      ? ACTIVE_ROUTE_RUNNER_MODE === "loadoutStack"
+        ? "Start Final Stack Round"
+        : ACTIVE_ROUTE_RUNNER_MODE === "chefChase"
+        ? "Start Final Chef Chase"
+        : "Start Final Run"
+      : (currentIndex + 1) % 2 === 0
+      ? ACTIVE_ROUTE_RUNNER_MODE === "loadoutStack"
+        ? "Start Stack Round"
+        : ACTIVE_ROUTE_RUNNER_MODE === "chefChase"
+        ? "Start Chef Chase Round"
+        : "Start Drive Round"
+      : "Next Question";
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
@@ -1084,15 +1131,7 @@ export default function RouteRunnerGame({
                 boxShadow: "0 8px 18px rgba(170, 24, 24, 0.30)",
               }}
             >
-              {currentIndex === questions.length - 1
-                ? ACTIVE_ROUTE_RUNNER_MODE === "loadoutStack"
-                  ? "Start Final Stack Round"
-                  : "Start Final Run"
-                : (currentIndex + 1) % 2 === 0
-                ? ACTIVE_ROUTE_RUNNER_MODE === "loadoutStack"
-                  ? "Start Stack Round"
-                  : "Start Drive Round"
-                : "Next Question"}
+              {nextButtonLabel}
               <ChevronRight size={16} />
             </button>
           </div>
