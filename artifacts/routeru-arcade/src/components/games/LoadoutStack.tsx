@@ -686,7 +686,7 @@ export default function LoadoutStack({
                 backgroundSize: "70%",
                 backgroundPosition: "center",
                 backgroundRepeat: "no-repeat",
-                opacity: 0.18,
+                opacity: 0.5,
                 filter: "blur(0.5px)",
               }}
             />
@@ -694,7 +694,7 @@ export default function LoadoutStack({
             <div
               className="absolute inset-0"
               style={{
-                background: "rgba(2, 6, 23, 0.45)",
+                background: "rgba(2, 6, 23, 0.25)",
               }}
             />
 
@@ -709,7 +709,7 @@ export default function LoadoutStack({
                   <div
                     key={`${x}-${y}`}
                     className={`rounded-md border border-slate-800/80 ${
-                      cell ?? "bg-slate-900/55"
+                      cell ?? "bg-slate-800/20"
                     }`}
                   />
                 ))
