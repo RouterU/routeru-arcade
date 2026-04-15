@@ -30,18 +30,23 @@ type Enemy = {
   y: number;
   released: boolean;
   releaseAt: number;
+  homeX: number;
+  homeY: number;
 };
 
 const DEFAULT_TIMED_SECONDS = 15;
-const TILE_SIZE = 42;
-const MOVE_MS = 180;
-const ENEMY_BASE_MS = 260;
+const TILE_SIZE = 32;
+const MOVE_MS = 170;
+const ENEMY_BASE_MS = 255;
 const FINAL_LEVEL_1_SECONDS = 12;
 const FINAL_LEVEL_2_SECONDS = 12;
 
-const CHEF_SIZE = 34;
-const ENEMY_SIZE = 34;
-const PEN_ENEMY_SIZE = 30;
+const CHEF_SIZE = 38;
+const ENEMY_SIZE = 38;
+const PEN_ENEMY_SIZE = 32;
+
+const POWER_MODE_SECONDS = 6;
+const ENEMY_EAT_POINTS = 100;
 
 // 1 = wall, 0 = path
 const MAZE: Tile[][] = [
@@ -103,7 +108,13 @@ function createInitialPellets() {
     row.map((cell, x) => {
       const isStart = x === START_CHEF.x && y === START_CHEF.y;
       const isBonus = BONUS_LOCATIONS.some((b) => b.x === x && b.y === y);
-      const isPen = (x === 7 && y === 7) || (x === 7 && y === 8);
+      const isPen =
+        (x === 6 && y === 7) ||
+        (x === 7 && y === 7) ||
+        (x === 8 && y === 7) ||
+        (x === 6 && y === 8) ||
+        (x === 7 && y === 8) ||
+        (x === 8 && y === 8);
       return cell === 0 && !isStart && !isBonus && !isPen;
     })
   );
@@ -120,16 +131,16 @@ function createInitialBonusMap() {
 function buildEnemiesForLevel(level: 1 | 2): Enemy[] {
   if (level === 1) {
     return [
-      { id: "sysco", x: 13, y: 1, released: true, releaseAt: 0 },
-      { id: "pfg", x: 7, y: 7, released: false, releaseAt: 6 },
-      { id: "gfs", x: 7, y: 8, released: false, releaseAt: 12 },
+      { id: "sysco", x: 13, y: 1, released: true, releaseAt: 0, homeX: 7, homeY: 7 },
+      { id: "pfg", x: 7, y: 7, released: false, releaseAt: 6, homeX: 7, homeY: 7 },
+      { id: "gfs", x: 7, y: 8, released: false, releaseAt: 12, homeX: 7, homeY: 8 },
     ];
   }
 
   return [
-    { id: "sysco", x: 13, y: 1, released: true, releaseAt: 0 },
-    { id: "pfg", x: 7, y: 7, released: false, releaseAt: 4 },
-    { id: "gfs", x: 7, y: 8, released: false, releaseAt: 8 },
+    { id: "sysco", x: 13, y: 1, released: true, releaseAt: 0, homeX: 7, homeY: 7 },
+    { id: "pfg", x: 7, y: 7, released: false, releaseAt: 4, homeX: 7, homeY: 7 },
+    { id: "gfs", x: 7, y: 8, released: false, releaseAt: 8, homeX: 7, homeY: 8 },
   ];
 }
 
@@ -167,7 +178,12 @@ function manhattan(a: Position, b: Position) {
   return Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
 }
 
-function chooseEnemyMove(enemy: Position, chef: Position, level: 1 | 2): Direction {
+function chooseEnemyMove(
+  enemy: Position,
+  chef: Position,
+  level: 1 | 2,
+  vulnerable: boolean
+): Direction {
   const dirs = validDirections(enemy);
   if (dirs.length === 0) return "left";
 
@@ -179,12 +195,18 @@ function chooseEnemyMove(enemy: Position, chef: Position, level: 1 | 2): Directi
   }
 
   let bestDir = dirs[0];
-  let bestScore = Number.POSITIVE_INFINITY;
+  let bestScore = vulnerable ? Number.NEGATIVE_INFINITY : Number.POSITIVE_INFINITY;
 
   for (const dir of dirs) {
     const n = nextPos(enemy, dir);
     const d = manhattan(n, chef);
-    if (d < bestScore) {
+
+    if (!vulnerable && d < bestScore) {
+      bestScore = d;
+      bestDir = dir;
+    }
+
+    if (vulnerable && d > bestScore) {
       bestScore = d;
       bestDir = dir;
     }
@@ -220,6 +242,7 @@ export default function ChefChase({
   const [level, setLevel] = useState<1 | 2>(1);
   const [showLevelMessage, setShowLevelMessage] = useState(mode === "survival");
   const [levelMessage, setLevelMessage] = useState(mode === "survival" ? "LEVEL 1" : "");
+  const [powerModeSeconds, setPowerModeSeconds] = useState(0);
 
   const chefRef = useRef(chef);
   const chefDirRef = useRef(chefDir);
@@ -231,6 +254,7 @@ export default function ChefChase({
   const pelletsRef = useRef(pellets);
   const bonusMapRef = useRef(bonusMap);
   const levelRef = useRef(level);
+  const powerModeRef = useRef(powerModeSeconds);
 
   useEffect(() => {
     chefRef.current = chef;
@@ -262,6 +286,9 @@ export default function ChefChase({
   useEffect(() => {
     levelRef.current = level;
   }, [level]);
+  useEffect(() => {
+    powerModeRef.current = powerModeSeconds;
+  }, [powerModeSeconds]);
 
   useEffect(() => {
     if (!showLevelMessage) return;
@@ -287,6 +314,7 @@ export default function ChefChase({
     setQueuedDir(null);
     setEnemies(nextState.enemies);
     setElapsedSeconds(0);
+    setPowerModeSeconds(0);
     setLevel(2);
     setLevelMessage("LEVEL 1 COMPLETE");
     setShowLevelMessage(true);
@@ -311,6 +339,7 @@ export default function ChefChase({
     let gained = 0;
     let pelletGain = 0;
     let bonusGain = 0;
+    let triggeredPower = false;
 
     if (pGrid[pos.y][pos.x]) {
       pGrid[pos.y][pos.x] = false;
@@ -322,6 +351,7 @@ export default function ChefChase({
     if (bonusItem) {
       gained += BONUS_ITEMS[bonusItem].points;
       bonusGain += 1;
+      triggeredPower = true;
       bGrid[pos.y][pos.x] = "";
     }
 
@@ -332,7 +362,29 @@ export default function ChefChase({
       if (pelletGain) setPelletsCollected((prev) => prev + pelletGain);
       if (bonusGain) setBonusCollected((prev) => prev + bonusGain);
     }
+
+    if (triggeredPower) {
+      setPowerModeSeconds(POWER_MODE_SECONDS);
+    }
   }, []);
+
+  const sendEnemyToPen = useCallback((enemyId: Enemy["id"]) => {
+    setEnemies((prev) =>
+      prev.map((enemy) => {
+        if (enemy.id !== enemyId) return enemy;
+
+        const reReleaseDelay = levelRef.current === 1 ? 4 : 3;
+
+        return {
+          ...enemy,
+          x: enemy.homeX,
+          y: enemy.homeY,
+          released: false,
+          releaseAt: elapsedSeconds + reReleaseDelay,
+        };
+      })
+    );
+  }, [elapsedSeconds]);
 
   const moveChefStep = useCallback(() => {
     if (!isRunning || showLevelMessage) return;
@@ -351,20 +403,24 @@ export default function ChefChase({
     }
 
     const next = nextPos(current, activeDir);
-    if (!isPath(next.x, next.y)) {
-      return;
-    }
+    if (!isPath(next.x, next.y)) return;
 
     setChef(next);
     collectAtPosition(next);
 
-    const hit = enemiesRef.current.some(
+    const hitEnemy = enemiesRef.current.find(
       (enemy) => enemy.released && enemy.x === next.x && enemy.y === next.y
     );
-    if (hit) {
-      exitGame("caught");
+
+    if (hitEnemy) {
+      if (powerModeRef.current > 0) {
+        setScore((prev) => prev + ENEMY_EAT_POINTS);
+        sendEnemyToPen(hitEnemy.id);
+      } else {
+        exitGame("caught");
+      }
     }
-  }, [collectAtPosition, exitGame, isRunning, showLevelMessage]);
+  }, [collectAtPosition, exitGame, isRunning, sendEnemyToPen, showLevelMessage]);
 
   const moveEnemiesStep = useCallback(() => {
     if (!isRunning || showLevelMessage) return;
@@ -376,23 +432,31 @@ export default function ChefChase({
         const dir = chooseEnemyMove(
           { x: enemy.x, y: enemy.y },
           chefRef.current,
-          levelRef.current
+          levelRef.current,
+          powerModeRef.current > 0
         );
         const next = nextPos({ x: enemy.x, y: enemy.y }, dir);
         return isPath(next.x, next.y) ? { ...enemy, x: next.x, y: next.y } : enemy;
       });
 
-      const caught = updated.some(
+      const collidedEnemy = updated.find(
         (enemy) => enemy.released && enemy.x === chefRef.current.x && enemy.y === chefRef.current.y
       );
 
-      if (caught) {
-        window.setTimeout(() => exitGame("caught"), 0);
+      if (collidedEnemy) {
+        if (powerModeRef.current > 0) {
+          window.setTimeout(() => {
+            setScore((prev) => prev + ENEMY_EAT_POINTS);
+            sendEnemyToPen(collidedEnemy.id);
+          }, 0);
+        } else {
+          window.setTimeout(() => exitGame("caught"), 0);
+        }
       }
 
       return updated;
     });
-  }, [exitGame, isRunning, showLevelMessage]);
+  }, [exitGame, isRunning, sendEnemyToPen, showLevelMessage]);
 
   useEffect(() => {
     if (!isRunning) return;
@@ -426,6 +490,10 @@ export default function ChefChase({
 
         return nextElapsed;
       });
+
+      if (powerModeRef.current > 0) {
+        setPowerModeSeconds((prev) => Math.max(0, prev - 1));
+      }
 
       if (mode === "timed") {
         setTimeLeft((prev) => {
@@ -477,7 +545,10 @@ export default function ChefChase({
         "s",
       ];
 
-      if (controlledKeys.includes(event.key) || controlledKeys.includes(event.key.toLowerCase())) {
+      if (
+        controlledKeys.includes(event.key) ||
+        controlledKeys.includes(event.key.toLowerCase())
+      ) {
         event.preventDefault();
       }
 
@@ -517,7 +588,7 @@ export default function ChefChase({
             <h1 className="text-3xl font-black mt-1">{title}</h1>
             <p className="text-sm text-slate-300 mt-2">
               {mode === "survival"
-                ? "Final round: beat Level 1 to unlock Level 2. Villains release from the pen and get faster."
+                ? "Final round: beat Level 1 to unlock Level 2. Bonus foods trigger power mode."
                 : "Collect food, grab bonus proteins, and avoid the rivals."}
             </p>
           </div>
@@ -530,6 +601,10 @@ export default function ChefChase({
               label={mode === "survival" ? "Level" : "Time Left"}
               value={mode === "survival" ? `Level ${level}` : `${timeLeft ?? 0}s`}
             />
+            <StatCard
+              label="Power Mode"
+              value={powerModeSeconds > 0 ? `${powerModeSeconds}s` : "Off"}
+            />
           </div>
 
           <div className="mt-4 rounded-2xl bg-slate-800/70 p-3 border border-slate-700">
@@ -537,7 +612,8 @@ export default function ChefChase({
             <div className="space-y-1 text-sm text-slate-300">
               <div>← ↑ ↓ → Move</div>
               <div>W A S D also works</div>
-              <div>Chef keeps moving like an arcade maze game</div>
+              <div>Bonus foods trigger power mode</div>
+              <div>Eat vulnerable villains for +100</div>
             </div>
           </div>
 
@@ -578,12 +654,12 @@ export default function ChefChase({
 
                     {!isWall && hasPellet && (
                       <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="w-2.5 h-2.5 rounded-full bg-red-300 shadow-[0_0_8px_rgba(252,165,165,0.55)]" />
+                        <div className="w-2 h-2 rounded-full bg-red-300 shadow-[0_0_8px_rgba(252,165,165,0.55)]" />
                       </div>
                     )}
 
                     {!isWall && bonus && (
-                      <div className="absolute inset-0 flex items-center justify-center text-[22px]">
+                      <div className="absolute inset-0 flex items-center justify-center text-[20px]">
                         {BONUS_ITEMS[bonus].label}
                       </div>
                     )}
@@ -599,7 +675,13 @@ export default function ChefChase({
                             height: ENEMY_SIZE,
                             objectFit: "contain",
                             imageRendering: "pixelated",
-                            filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.45))",
+                            transition: "transform 120ms linear, filter 120ms linear",
+                            transform: powerModeSeconds > 0 ? "scale(1.03)" : "scale(1)",
+                            filter:
+                              powerModeSeconds > 0
+                                ? "drop-shadow(0 0 8px rgba(147,197,253,0.85)) saturate(0.72)"
+                                : "drop-shadow(0 2px 4px rgba(0,0,0,0.45))",
+                            opacity: powerModeSeconds > 0 ? 0.82 : 1,
                           }}
                         />
                       </div>
@@ -616,6 +698,8 @@ export default function ChefChase({
                             height: CHEF_SIZE,
                             objectFit: "contain",
                             imageRendering: "pixelated",
+                            transition: "transform 120ms linear",
+                            transform: "scale(1)",
                             filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.45))",
                           }}
                         />
@@ -695,9 +779,9 @@ export default function ChefChase({
 
           <div className="mt-3 space-y-3">
             <LegendRow label="Apple / Orange / Fruit pickups" value="+10" colorClass="bg-red-300" />
-            <LegendRow label="Steak" value="+40" emoji="🥩" />
-            <LegendRow label="Chicken Leg" value="+30" emoji="🍗" />
-            <LegendRow label="Pasta Bowl" value="+35" emoji="🍝" />
+            <LegendRow label="Steak (Power Food)" value="+40" emoji="🥩" />
+            <LegendRow label="Chicken Leg (Power Food)" value="+30" emoji="🍗" />
+            <LegendRow label="Pasta Bowl (Power Food)" value="+35" emoji="🍝" />
           </div>
 
           <div className="mt-4 rounded-2xl bg-slate-800/70 p-3 border border-slate-700">
@@ -706,6 +790,7 @@ export default function ChefChase({
               <div>Remaining food: {remainingPellets}</div>
               <div>Enemies active: {enemies.filter((e) => e.released).length}</div>
               <div>Enemies in pen: {enemies.filter((e) => !e.released).length}</div>
+              <div>Power mode: {powerModeSeconds > 0 ? "Active" : "Inactive"}</div>
               <div>
                 Mode: {mode === "survival" ? `Final Survival · Level ${level}` : "Timed Round"}
               </div>
