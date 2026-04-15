@@ -572,7 +572,7 @@ export default function ChefChase({
 
   const boardWidth = MAZE[0].length * TILE_SIZE;
   const boardHeight = MAZE.length * TILE_SIZE;
-  const boardScale = 2.3;
+  const boardScale = 4.3;
 
   const wallClass =
     level === 1
