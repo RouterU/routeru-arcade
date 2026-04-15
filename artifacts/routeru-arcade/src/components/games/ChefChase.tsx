@@ -40,9 +40,9 @@ const ENEMY_BASE_MS = 255;
 const FINAL_LEVEL_1_SECONDS = 12;
 const FINAL_LEVEL_2_SECONDS = 12;
 
-const CHEF_SIZE = 88;
-const ENEMY_SIZE = 88;
-const PEN_ENEMY_SIZE = 70;
+const CHEF_SIZE = 92;
+const ENEMY_SIZE = 92;
+const PEN_ENEMY_SIZE = 72;
 
 const POWER_MODE_SECONDS = 6;
 
@@ -641,7 +641,7 @@ export default function ChefChase({
                       }}
                     >
                       <div
-                        className={`absolute inset-[10px] rounded-[3px] ${
+                        className={`absolute inset-[8px] rounded-[3px] ${
                           isWall ? wallClass : boardBgClass
                         }`}
                       />
