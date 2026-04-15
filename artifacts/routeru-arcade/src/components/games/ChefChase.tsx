@@ -41,9 +41,9 @@ const ENEMY_BASE_MS = 255;
 const FINAL_LEVEL_1_SECONDS = 12;
 const FINAL_LEVEL_2_SECONDS = 12;
 
-const CHEF_SIZE = 38;
-const ENEMY_SIZE = 38;
-const PEN_ENEMY_SIZE = 32;
+const CHEF_SIZE = 50;
+const ENEMY_SIZE = 50;
+const PEN_ENEMY_SIZE = 42;
 
 const POWER_MODE_SECONDS = 6;
 const ENEMY_EAT_POINTS = 100;
@@ -368,23 +368,26 @@ export default function ChefChase({
     }
   }, []);
 
-  const sendEnemyToPen = useCallback((enemyId: Enemy["id"]) => {
-    setEnemies((prev) =>
-      prev.map((enemy) => {
-        if (enemy.id !== enemyId) return enemy;
+  const sendEnemyToPen = useCallback(
+    (enemyId: Enemy["id"]) => {
+      setEnemies((prev) =>
+        prev.map((enemy) => {
+          if (enemy.id !== enemyId) return enemy;
 
-        const reReleaseDelay = levelRef.current === 1 ? 4 : 3;
+          const reReleaseDelay = levelRef.current === 1 ? 4 : 3;
 
-        return {
-          ...enemy,
-          x: enemy.homeX,
-          y: enemy.homeY,
-          released: false,
-          releaseAt: elapsedSeconds + reReleaseDelay,
-        };
-      })
-    );
-  }, [elapsedSeconds]);
+          return {
+            ...enemy,
+            x: enemy.homeX,
+            y: enemy.homeY,
+            released: false,
+            releaseAt: elapsedSeconds + reReleaseDelay,
+          };
+        })
+      );
+    },
+    [elapsedSeconds]
+  );
 
   const moveChefStep = useCallback(() => {
     if (!isRunning || showLevelMessage) return;
@@ -569,6 +572,7 @@ export default function ChefChase({
 
   const boardWidth = MAZE[0].length * TILE_SIZE;
   const boardHeight = MAZE.length * TILE_SIZE;
+  const boardScale = 1.9;
 
   const wallClass =
     level === 1
@@ -579,7 +583,7 @@ export default function ChefChase({
 
   return (
     <div className="min-h-screen bg-slate-950 text-white p-4 md:p-6 overflow-hidden">
-      <div className="mx-auto max-w-[1600px] grid gap-4 lg:grid-cols-[320px_1fr_280px]">
+      <div className="mx-auto max-w-[1800px] grid gap-4 lg:grid-cols-[320px_1fr_280px]">
         <div className="rounded-3xl bg-slate-900/90 border border-slate-700 p-4 shadow-2xl">
           <div className="mb-4">
             <div className="text-xs uppercase tracking-[0.2em] text-amber-300">
@@ -626,149 +630,170 @@ export default function ChefChase({
           </button>
         </div>
 
-        <div className="rounded-3xl bg-slate-900/90 border border-slate-700 p-4 shadow-2xl flex items-center justify-center">
+        <div className="rounded-3xl bg-slate-900/90 border border-slate-700 p-4 shadow-2xl flex items-center justify-center overflow-hidden">
           <div
-            className={`relative rounded-2xl overflow-hidden border border-slate-700 ${boardBgClass}`}
-            style={{ width: boardWidth, height: boardHeight }}
+            className="flex items-center justify-center"
+            style={{
+              width: "100%",
+              height: "100%",
+              minHeight: 760,
+            }}
           >
-            {MAZE.map((row, y) =>
-              row.map((cell, x) => {
-                const isWall = cell === 1;
-                const hasPellet = pellets[y][x];
-                const bonus = bonusMap[y][x];
-                const isChef = chef.x === x && chef.y === y;
-                const enemy = enemies.find((e) => e.x === x && e.y === y && e.released);
-
-                return (
-                  <div
-                    key={`${x}-${y}`}
-                    className="absolute"
-                    style={{
-                      left: x * TILE_SIZE,
-                      top: y * TILE_SIZE,
-                      width: TILE_SIZE,
-                      height: TILE_SIZE,
-                    }}
-                  >
-                    <div className={`w-full h-full ${isWall ? wallClass : boardBgClass}`} />
-
-                    {!isWall && hasPellet && (
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="w-2 h-2 rounded-full bg-red-300 shadow-[0_0_8px_rgba(252,165,165,0.55)]" />
-                      </div>
-                    )}
-
-                    {!isWall && bonus && (
-                      <div className="absolute inset-0 flex items-center justify-center text-[20px]">
-                        {BONUS_ITEMS[bonus].label}
-                      </div>
-                    )}
-
-                    {enemy && (
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <img
-                          src={getEnemySprite(enemy.id)}
-                          alt={getEnemyName(enemy.id)}
-                          className="pointer-events-none select-none"
-                          style={{
-                            width: ENEMY_SIZE,
-                            height: ENEMY_SIZE,
-                            objectFit: "contain",
-                            imageRendering: "pixelated",
-                            transition: "transform 120ms linear, filter 120ms linear",
-                            transform: powerModeSeconds > 0 ? "scale(1.03)" : "scale(1)",
-                            filter:
-                              powerModeSeconds > 0
-                                ? "drop-shadow(0 0 8px rgba(147,197,253,0.85)) saturate(0.72)"
-                                : "drop-shadow(0 2px 4px rgba(0,0,0,0.45))",
-                            opacity: powerModeSeconds > 0 ? 0.82 : 1,
-                          }}
-                        />
-                      </div>
-                    )}
-
-                    {isChef && (
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <img
-                          src={chefSprite}
-                          alt="Chef"
-                          className="pointer-events-none select-none"
-                          style={{
-                            width: CHEF_SIZE,
-                            height: CHEF_SIZE,
-                            objectFit: "contain",
-                            imageRendering: "pixelated",
-                            transition: "transform 120ms linear",
-                            transform: "scale(1)",
-                            filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.45))",
-                          }}
-                        />
-                      </div>
-                    )}
-                  </div>
-                );
-              })
-            )}
-
             <div
-              className={`absolute rounded-xl border-2 border-dashed flex items-center justify-center text-[11px] font-semibold ${
-                level === 1
-                  ? "border-slate-500/70 bg-slate-800/60 text-slate-300"
-                  : "border-fuchsia-400/70 bg-fuchsia-950/40 text-fuchsia-200"
-              }`}
+              className="origin-center"
               style={{
-                left: 6 * TILE_SIZE,
-                top: 6.5 * TILE_SIZE,
-                width: 3 * TILE_SIZE,
-                height: 2 * TILE_SIZE,
+                width: boardWidth,
+                height: boardHeight,
+                transform: `scale(${boardScale})`,
+                transformOrigin: "center center",
               }}
             >
-              PEN
-            </div>
+              <div
+                className={`relative rounded-2xl overflow-hidden border border-slate-700 ${boardBgClass}`}
+                style={{ width: boardWidth, height: boardHeight }}
+              >
+                {MAZE.map((row, y) =>
+                  row.map((cell, x) => {
+                    const isWall = cell === 1;
+                    const hasPellet = pellets[y][x];
+                    const bonus = bonusMap[y][x];
+                    const isChef = chef.x === x && chef.y === y;
+                    const enemy = enemies.find((e) => e.x === x && e.y === y && e.released);
 
-            {enemies
-              .filter((enemy) => !enemy.released)
-              .map((enemy, idx) => (
+                    return (
+                      <div
+                        key={`${x}-${y}`}
+                        className="absolute"
+                        style={{
+                          left: x * TILE_SIZE,
+                          top: y * TILE_SIZE,
+                          width: TILE_SIZE,
+                          height: TILE_SIZE,
+                        }}
+                      >
+                        <div
+                          className={`absolute inset-[2px] rounded-[4px] ${
+                            isWall ? wallClass : boardBgClass
+                          }`}
+                        />
+
+                        {!isWall && hasPellet && (
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <div className="w-2 h-2 rounded-full bg-red-300 shadow-[0_0_8px_rgba(252,165,165,0.55)]" />
+                          </div>
+                        )}
+
+                        {!isWall && bonus && (
+                          <div className="absolute inset-0 flex items-center justify-center text-[18px]">
+                            {BONUS_ITEMS[bonus].label}
+                          </div>
+                        )}
+
+                        {enemy && (
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <img
+                              src={getEnemySprite(enemy.id)}
+                              alt={getEnemyName(enemy.id)}
+                              className="pointer-events-none select-none"
+                              style={{
+                                width: ENEMY_SIZE,
+                                height: ENEMY_SIZE,
+                                objectFit: "contain",
+                                imageRendering: "pixelated",
+                                transition: "transform 120ms linear, filter 120ms linear",
+                                transform: powerModeSeconds > 0 ? "scale(1.03)" : "scale(1)",
+                                filter:
+                                  powerModeSeconds > 0
+                                    ? "drop-shadow(0 0 8px rgba(147,197,253,0.85)) saturate(0.72)"
+                                    : "drop-shadow(0 2px 4px rgba(0,0,0,0.45))",
+                                opacity: powerModeSeconds > 0 ? 0.82 : 1,
+                              }}
+                            />
+                          </div>
+                        )}
+
+                        {isChef && (
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <img
+                              src={chefSprite}
+                              alt="Chef"
+                              className="pointer-events-none select-none"
+                              style={{
+                                width: CHEF_SIZE,
+                                height: CHEF_SIZE,
+                                objectFit: "contain",
+                                imageRendering: "pixelated",
+                                filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.45))",
+                              }}
+                            />
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })
+                )}
+
                 <div
-                  key={enemy.id}
-                  className="absolute flex items-center justify-center"
+                  className={`absolute rounded-xl border-2 border-dashed flex items-center justify-center text-[11px] font-semibold ${
+                    level === 1
+                      ? "border-slate-500/70 bg-slate-800/60 text-slate-300"
+                      : "border-fuchsia-400/70 bg-fuchsia-950/40 text-fuchsia-200"
+                  }`}
                   style={{
-                    left: (6.65 + (idx % 2) * 1.2) * TILE_SIZE,
-                    top: (6.85 + Math.floor(idx / 2) * 0.9) * TILE_SIZE,
-                    width: TILE_SIZE,
-                    height: TILE_SIZE,
+                    left: 6 * TILE_SIZE,
+                    top: 6.5 * TILE_SIZE,
+                    width: 3 * TILE_SIZE,
+                    height: 2 * TILE_SIZE,
                   }}
                 >
-                  <img
-                    src={getEnemySprite(enemy.id)}
-                    alt={getEnemyName(enemy.id)}
-                    className="pointer-events-none select-none opacity-85"
-                    style={{
-                      width: PEN_ENEMY_SIZE,
-                      height: PEN_ENEMY_SIZE,
-                      objectFit: "contain",
-                      imageRendering: "pixelated",
-                      filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.4))",
-                    }}
-                  />
+                  PEN
                 </div>
-              ))}
 
-            {showLevelMessage && (
-              <div className="absolute inset-0 flex items-center justify-center bg-black/45 z-20">
-                <div className="rounded-3xl border border-amber-300/40 bg-slate-900/95 px-8 py-6 text-center shadow-2xl">
-                  <div className="text-xs uppercase tracking-[0.25em] text-amber-300 mb-2">
-                    Chef Chase
-                  </div>
-                  <div className="text-3xl font-black text-white">{levelMessage}</div>
-                  {level === 2 && (
-                    <div className="text-sm text-slate-300 mt-2">
-                      New map color. Faster villains. Stay alive.
+                {enemies
+                  .filter((enemy) => !enemy.released)
+                  .map((enemy, idx) => (
+                    <div
+                      key={enemy.id}
+                      className="absolute flex items-center justify-center"
+                      style={{
+                        left: (6.65 + (idx % 2) * 1.2) * TILE_SIZE,
+                        top: (6.85 + Math.floor(idx / 2) * 0.9) * TILE_SIZE,
+                        width: TILE_SIZE,
+                        height: TILE_SIZE,
+                      }}
+                    >
+                      <img
+                        src={getEnemySprite(enemy.id)}
+                        alt={getEnemyName(enemy.id)}
+                        className="pointer-events-none select-none opacity-85"
+                        style={{
+                          width: PEN_ENEMY_SIZE,
+                          height: PEN_ENEMY_SIZE,
+                          objectFit: "contain",
+                          imageRendering: "pixelated",
+                          filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.4))",
+                        }}
+                      />
                     </div>
-                  )}
-                </div>
+                  ))}
+
+                {showLevelMessage && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/45 z-20">
+                    <div className="rounded-3xl border border-amber-300/40 bg-slate-900/95 px-8 py-6 text-center shadow-2xl">
+                      <div className="text-xs uppercase tracking-[0.25em] text-amber-300 mb-2">
+                        Chef Chase
+                      </div>
+                      <div className="text-3xl font-black text-white">{levelMessage}</div>
+                      {level === 2 && (
+                        <div className="text-sm text-slate-300 mt-2">
+                          New map color. Faster villains. Stay alive.
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
-            )}
+            </div>
           </div>
         </div>
 
@@ -799,7 +824,7 @@ export default function ChefChase({
         </div>
       </div>
 
-      <div className="mx-auto max-w-[1600px] mt-4 grid gap-3 md:grid-cols-4">
+      <div className="mx-auto max-w-[1800px] mt-4 grid gap-3 md:grid-cols-4">
         <MobileButton label="Left" onClick={() => setQueuedDir("left")} />
         <MobileButton label="Up" onClick={() => setQueuedDir("up")} />
         <MobileButton label="Right" onClick={() => setQueuedDir("right")} />
