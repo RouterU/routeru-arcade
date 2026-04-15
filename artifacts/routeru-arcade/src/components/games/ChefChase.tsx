@@ -40,6 +40,10 @@ const ENEMY_BASE_MS = 255;
 const FINAL_LEVEL_1_SECONDS = 12;
 const FINAL_LEVEL_2_SECONDS = 12;
 
+const CHEF_SIZE = 58;
+const ENEMY_SIZE = 58;
+const PEN_ENEMY_SIZE = 48;
+
 const POWER_MODE_SECONDS = 6;
 const ENEMY_EAT_POINTS = 100;
 
@@ -261,16 +265,16 @@ export default function ChefChase({
       const viewportW = window.innerWidth;
       const viewportH = window.innerHeight;
 
-      const reservedSidePanels = viewportW >= 1024 ? 320 + 280 + 120 : 80;
-      const reservedVertical = 220;
+      const reservedSidePanels = viewportW >= 1024 ? 320 + 280 + 80 : 40;
+      const reservedVertical = 140;
 
-      const availableW = Math.max(420, viewportW - reservedSidePanels);
-      const availableH = Math.max(420, viewportH - reservedVertical);
+      const availableW = Math.max(500, viewportW - reservedSidePanels);
+      const availableH = Math.max(500, viewportH - reservedVertical);
 
       const byWidth = Math.floor(availableW / GRID_COLS);
       const byHeight = Math.floor(availableH / GRID_ROWS);
 
-      const next = Math.max(30, Math.min(56, Math.min(byWidth, byHeight)));
+      const next = Math.max(34, Math.min(64, Math.min(byWidth, byHeight)));
       setTileSize(next);
     };
 
@@ -596,9 +600,9 @@ export default function ChefChase({
   const boardWidth = GRID_COLS * tileSize;
   const boardHeight = GRID_ROWS * tileSize;
 
-  const chefSize = Math.round(tileSize * 1.18);
-  const enemySize = Math.round(tileSize * 1.18);
-  const penEnemySize = Math.round(tileSize * 0.95);
+  const chefSize = Math.max(CHEF_SIZE, Math.round(tileSize * 1.28));
+  const enemySize = Math.max(ENEMY_SIZE, Math.round(tileSize * 1.28));
+  const penEnemySize = Math.max(PEN_ENEMY_SIZE, Math.round(tileSize * 1.02));
 
   const wallClass =
     level === 1
@@ -660,7 +664,7 @@ export default function ChefChase({
           <div
             className="flex items-center justify-center w-full"
             style={{
-              minHeight: "calc(100vh - 180px)",
+              minHeight: "calc(100vh - 130px)",
             }}
           >
             <div
@@ -687,7 +691,7 @@ export default function ChefChase({
                       }}
                     >
                       <div
-                        className={`absolute inset-[2px] rounded-[5px] ${
+                        className={`absolute inset-[4px] rounded-[4px] ${
                           isWall ? wallClass : boardBgClass
                         }`}
                       />
