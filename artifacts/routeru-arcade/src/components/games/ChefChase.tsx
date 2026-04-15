@@ -1,4 +1,8 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import chefSprite from "@/pages/chefchaos.png";
+import vampireSprite from "@/pages/vampire.png";
+import ghostSprite from "@/pages/ghost.png";
+import monsterSprite from "@/pages/monster.png";
 
 type ChefChaseMode = "timed" | "survival";
 
@@ -21,39 +25,41 @@ type Position = { x: number; y: number };
 type Direction = "up" | "down" | "left" | "right";
 
 type Enemy = {
-  id: string;
+  id: "sysco" | "pfg" | "gfs";
   x: number;
   y: number;
-  colorClass: string;
-  label: string;
   released: boolean;
   releaseAt: number;
 };
 
 const DEFAULT_TIMED_SECONDS = 15;
-const TILE_SIZE = 38;
+const TILE_SIZE = 42;
 const MOVE_MS = 180;
 const ENEMY_BASE_MS = 260;
 const FINAL_LEVEL_1_SECONDS = 12;
 const FINAL_LEVEL_2_SECONDS = 12;
 
+const CHEF_SIZE = 34;
+const ENEMY_SIZE = 34;
+const PEN_ENEMY_SIZE = 30;
+
 // 1 = wall, 0 = path
 const MAZE: Tile[][] = [
-  [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-  [1,0,0,0,0,0,1,0,0,0,1,0,0,0,1],
-  [1,0,1,1,1,0,1,0,1,0,1,0,1,0,1],
-  [1,0,1,0,0,0,0,0,1,0,0,0,1,0,1],
-  [1,0,1,0,1,1,1,0,1,1,1,0,1,0,1],
-  [1,0,0,0,1,0,0,0,0,0,1,0,0,0,1],
-  [1,1,1,0,1,0,1,1,1,0,1,0,1,1,1],
-  [1,0,0,0,0,0,1,0,1,0,0,0,0,0,1],
-  [1,0,1,1,1,0,1,0,1,0,1,1,1,0,1],
-  [1,0,1,0,0,0,0,0,0,0,0,0,1,0,1],
-  [1,0,1,0,1,1,1,0,1,1,1,0,1,0,1],
-  [1,0,0,0,1,0,0,0,0,0,1,0,0,0,1],
-  [1,0,1,1,1,0,1,1,1,0,1,1,1,0,1],
-  [1,0,0,0,0,0,1,0,0,0,0,0,0,0,1],
-  [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+  [1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1],
+  [1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1],
+  [1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1],
+  [1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1],
+  [1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
+  [1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1],
+  [1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1],
+  [1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1],
+  [1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1],
+  [1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1],
+  [1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
+  [1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1],
+  [1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1],
+  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
 ];
 
 const START_CHEF: Position = { x: 1, y: 1 };
@@ -71,6 +77,18 @@ const BONUS_LOCATIONS = [
   { x: 11, y: 5, item: "pasta" },
   { x: 7, y: 11, item: "chicken" },
 ];
+
+function getEnemySprite(id: Enemy["id"]) {
+  if (id === "sysco") return vampireSprite;
+  if (id === "pfg") return ghostSprite;
+  return monsterSprite;
+}
+
+function getEnemyName(id: Enemy["id"]) {
+  if (id === "sysco") return "Sysco Vampire";
+  if (id === "pfg") return "PFG Ghost";
+  return "GFS Monster";
+}
 
 function inBounds(x: number, y: number) {
   return y >= 0 && y < MAZE.length && x >= 0 && x < MAZE[0].length;
@@ -102,16 +120,16 @@ function createInitialBonusMap() {
 function buildEnemiesForLevel(level: 1 | 2): Enemy[] {
   if (level === 1) {
     return [
-      { id: "sysco", x: 13, y: 1, colorClass: "bg-red-500", label: "SV", released: true, releaseAt: 0 },
-      { id: "pfg", x: 7, y: 7, colorClass: "bg-sky-400", label: "PG", released: false, releaseAt: 6 },
-      { id: "gfs", x: 7, y: 8, colorClass: "bg-lime-400", label: "GF", released: false, releaseAt: 12 },
+      { id: "sysco", x: 13, y: 1, released: true, releaseAt: 0 },
+      { id: "pfg", x: 7, y: 7, released: false, releaseAt: 6 },
+      { id: "gfs", x: 7, y: 8, released: false, releaseAt: 12 },
     ];
   }
 
   return [
-    { id: "sysco", x: 13, y: 1, colorClass: "bg-red-500", label: "SV", released: true, releaseAt: 0 },
-    { id: "pfg", x: 7, y: 7, colorClass: "bg-sky-400", label: "PG", released: false, releaseAt: 4 },
-    { id: "gfs", x: 7, y: 8, colorClass: "bg-lime-400", label: "GF", released: false, releaseAt: 8 },
+    { id: "sysco", x: 13, y: 1, released: true, releaseAt: 0 },
+    { id: "pfg", x: 7, y: 7, released: false, releaseAt: 4 },
+    { id: "gfs", x: 7, y: 8, released: false, releaseAt: 8 },
   ];
 }
 
@@ -214,16 +232,36 @@ export default function ChefChase({
   const bonusMapRef = useRef(bonusMap);
   const levelRef = useRef(level);
 
-  useEffect(() => { chefRef.current = chef; }, [chef]);
-  useEffect(() => { chefDirRef.current = chefDir; }, [chefDir]);
-  useEffect(() => { queuedDirRef.current = queuedDir; }, [queuedDir]);
-  useEffect(() => { enemiesRef.current = enemies; }, [enemies]);
-  useEffect(() => { scoreRef.current = score; }, [score]);
-  useEffect(() => { pelletsCollectedRef.current = pelletsCollected; }, [pelletsCollected]);
-  useEffect(() => { bonusCollectedRef.current = bonusCollected; }, [bonusCollected]);
-  useEffect(() => { pelletsRef.current = pellets; }, [pellets]);
-  useEffect(() => { bonusMapRef.current = bonusMap; }, [bonusMap]);
-  useEffect(() => { levelRef.current = level; }, [level]);
+  useEffect(() => {
+    chefRef.current = chef;
+  }, [chef]);
+  useEffect(() => {
+    chefDirRef.current = chefDir;
+  }, [chefDir]);
+  useEffect(() => {
+    queuedDirRef.current = queuedDir;
+  }, [queuedDir]);
+  useEffect(() => {
+    enemiesRef.current = enemies;
+  }, [enemies]);
+  useEffect(() => {
+    scoreRef.current = score;
+  }, [score]);
+  useEffect(() => {
+    pelletsCollectedRef.current = pelletsCollected;
+  }, [pelletsCollected]);
+  useEffect(() => {
+    bonusCollectedRef.current = bonusCollected;
+  }, [bonusCollected]);
+  useEffect(() => {
+    pelletsRef.current = pellets;
+  }, [pellets]);
+  useEffect(() => {
+    bonusMapRef.current = bonusMap;
+  }, [bonusMap]);
+  useEffect(() => {
+    levelRef.current = level;
+  }, [level]);
 
   useEffect(() => {
     if (!showLevelMessage) return;
@@ -466,11 +504,11 @@ export default function ChefChase({
       ? "bg-blue-900 border border-blue-500/40"
       : "bg-purple-900 border border-fuchsia-500/40";
 
-  const boardBgClass = level === 1 ? "bg-slate-950" : "bg-slate-950";
+  const boardBgClass = "bg-slate-950";
 
   return (
     <div className="min-h-screen bg-slate-950 text-white p-4 md:p-6 overflow-hidden">
-      <div className="mx-auto max-w-[1500px] grid gap-4 lg:grid-cols-[320px_1fr_280px]">
+      <div className="mx-auto max-w-[1600px] grid gap-4 lg:grid-cols-[320px_1fr_280px]">
         <div className="rounded-3xl bg-slate-900/90 border border-slate-700 p-4 shadow-2xl">
           <div className="mb-4">
             <div className="text-xs uppercase tracking-[0.2em] text-amber-300">
@@ -540,31 +578,47 @@ export default function ChefChase({
 
                     {!isWall && hasPellet && (
                       <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="w-2.5 h-2.5 rounded-full bg-red-300" />
+                        <div className="w-2.5 h-2.5 rounded-full bg-red-300 shadow-[0_0_8px_rgba(252,165,165,0.55)]" />
                       </div>
                     )}
 
                     {!isWall && bonus && (
-                      <div className="absolute inset-0 flex items-center justify-center text-xl">
+                      <div className="absolute inset-0 flex items-center justify-center text-[22px]">
                         {BONUS_ITEMS[bonus].label}
                       </div>
                     )}
 
                     {enemy && (
                       <div className="absolute inset-0 flex items-center justify-center">
-                        <div
-                          className={`w-7 h-7 rounded-full ${enemy.colorClass} flex items-center justify-center text-[10px] font-black text-slate-950`}
-                        >
-                          {enemy.label}
-                        </div>
+                        <img
+                          src={getEnemySprite(enemy.id)}
+                          alt={getEnemyName(enemy.id)}
+                          className="pointer-events-none select-none"
+                          style={{
+                            width: ENEMY_SIZE,
+                            height: ENEMY_SIZE,
+                            objectFit: "contain",
+                            imageRendering: "pixelated",
+                            filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.45))",
+                          }}
+                        />
                       </div>
                     )}
 
                     {isChef && (
                       <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="w-7 h-7 rounded-full bg-white border-2 border-red-500 flex items-center justify-center text-sm">
-                          👨‍🍳
-                        </div>
+                        <img
+                          src={chefSprite}
+                          alt="Chef"
+                          className="pointer-events-none select-none"
+                          style={{
+                            width: CHEF_SIZE,
+                            height: CHEF_SIZE,
+                            objectFit: "contain",
+                            imageRendering: "pixelated",
+                            filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.45))",
+                          }}
+                        />
                       </div>
                     )}
                   </div>
@@ -595,17 +649,24 @@ export default function ChefChase({
                   key={enemy.id}
                   className="absolute flex items-center justify-center"
                   style={{
-                    left: (6.7 + (idx % 2) * 1.2) * TILE_SIZE,
-                    top: (6.9 + Math.floor(idx / 2) * 0.9) * TILE_SIZE,
+                    left: (6.65 + (idx % 2) * 1.2) * TILE_SIZE,
+                    top: (6.85 + Math.floor(idx / 2) * 0.9) * TILE_SIZE,
                     width: TILE_SIZE,
                     height: TILE_SIZE,
                   }}
                 >
-                  <div
-                    className={`w-7 h-7 rounded-full ${enemy.colorClass} flex items-center justify-center text-[10px] font-black text-slate-950 opacity-80`}
-                  >
-                    {enemy.label}
-                  </div>
+                  <img
+                    src={getEnemySprite(enemy.id)}
+                    alt={getEnemyName(enemy.id)}
+                    className="pointer-events-none select-none opacity-85"
+                    style={{
+                      width: PEN_ENEMY_SIZE,
+                      height: PEN_ENEMY_SIZE,
+                      objectFit: "contain",
+                      imageRendering: "pixelated",
+                      filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.4))",
+                    }}
+                  />
                 </div>
               ))}
 
@@ -653,7 +714,7 @@ export default function ChefChase({
         </div>
       </div>
 
-      <div className="mx-auto max-w-[1500px] mt-4 grid gap-3 md:grid-cols-4">
+      <div className="mx-auto max-w-[1600px] mt-4 grid gap-3 md:grid-cols-4">
         <MobileButton label="Left" onClick={() => setQueuedDir("left")} />
         <MobileButton label="Up" onClick={() => setQueuedDir("up")} />
         <MobileButton label="Right" onClick={() => setQueuedDir("right")} />
