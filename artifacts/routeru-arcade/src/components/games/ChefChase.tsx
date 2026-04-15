@@ -40,9 +40,9 @@ const ENEMY_BASE_MS = 255;
 const FINAL_LEVEL_1_SECONDS = 12;
 const FINAL_LEVEL_2_SECONDS = 12;
 
-const CHEF_SIZE = 76;
-const ENEMY_SIZE = 76;
-const PEN_ENEMY_SIZE = 60;
+const CHEF_SIZE = 88;
+const ENEMY_SIZE = 88;
+const PEN_ENEMY_SIZE = 70;
 
 const POWER_MODE_SECONDS = 6;
 
