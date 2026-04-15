@@ -160,6 +160,9 @@ export default function RouteRunnerGame({
   const driveRoundScoreRef = useRef(0);
   const driveEndedRef = useRef(false);
 
+  const lastStackScoreRef = useRef(0);
+  const lastChefScoreRef = useRef(0);
+
   const currentQuestion = questions[currentIndex];
   const totalScore = questionScore + driveScore;
 
@@ -377,22 +380,52 @@ export default function RouteRunnerGame({
     }
   };
 
-  const handleStackExit = () => {
-    setLastDriveGain(0);
+  const handleStackExit = (payload?: {
+    reason?: "timer_complete" | "top_out" | "manual_exit";
+    score?: number;
+  }) => {
+    const totalStackScore = payload?.score ?? 0;
+    const roundGain = Math.max(0, totalStackScore - lastStackScoreRef.current);
+
+    lastStackScoreRef.current = totalStackScore;
+
     setLastDriveBonus(0);
+    setLastDriveGain(roundGain);
+    setDriveScore((prev) => prev + roundGain);
 
     if (currentIndex >= questions.length) {
+      lastStackScoreRef.current = 0;
       setPhase("results");
     } else {
       setPhase("question");
     }
   };
 
-  const handleChefExit = () => {
-    setLastDriveGain(0);
-    setLastDriveBonus(0);
+  const handleChefExit = (payload?: {
+    reason?: "timer_complete" | "caught" | "manual_exit" | "completed";
+    score?: number;
+    pelletsCollected?: number;
+    bonusCollected?: number;
+  }) => {
+    const roundScore = payload?.score ?? 0;
+
+    let completionBonus = 0;
+    if (payload?.reason === "completed") {
+      completionBonus = 150;
+    } else if (payload?.reason === "timer_complete") {
+      completionBonus = 50;
+    }
+
+    const roundTotal = roundScore + completionBonus;
+
+    lastChefScoreRef.current = roundScore;
+
+    setLastDriveBonus(completionBonus);
+    setLastDriveGain(roundTotal);
+    setDriveScore((prev) => prev + roundTotal);
 
     if (currentIndex >= questions.length) {
+      lastChefScoreRef.current = 0;
       setPhase("results");
     } else {
       setPhase("question");
@@ -400,6 +433,8 @@ export default function RouteRunnerGame({
   };
 
   const handleReplay = () => {
+    lastStackScoreRef.current = 0;
+    lastChefScoreRef.current = 0;
     window.location.reload();
   };
 
