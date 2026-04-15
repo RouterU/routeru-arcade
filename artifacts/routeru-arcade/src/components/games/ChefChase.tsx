@@ -641,7 +641,7 @@ export default function ChefChase({
                       }}
                     >
                       <div
-                        className={`absolute inset-[8px] rounded-[3px] ${
+                        className={`absolute inset-[10px] rounded-[3px] ${
                           isWall ? wallClass : boardBgClass
                         }`}
                       />
