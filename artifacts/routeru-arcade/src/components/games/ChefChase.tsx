@@ -769,20 +769,100 @@ export default function ChefChase({
               )}
 
               <div
-                className={`absolute rounded-2xl border-2 border-dashed flex items-center justify-center font-semibold ${
-                  level === 1
-                    ? "border-slate-500/70 bg-slate-800/40 text-slate-300"
-                    : "border-fuchsia-400/70 bg-fuchsia-950/30 text-fuchsia-200"
-                }`}
+                className="absolute pointer-events-none"
                 style={{
-                  left: 6 * tileSize,
-                  top: 6.5 * tileSize,
-                  width: 3 * tileSize,
-                  height: 2 * tileSize,
-                  fontSize: Math.max(11, tileSize * 0.24),
+                  left: 5.85 * tileSize,
+                  top: 6.35 * tileSize,
+                  width: 3.3 * tileSize,
+                  height: 2.35 * tileSize,
                 }}
               >
-                PEN
+                <div
+                  className="absolute inset-0 rounded-[18px]"
+                  style={{
+                    background:
+                      level === 1
+                        ? "linear-gradient(180deg, rgba(15,23,42,0.82), rgba(2,6,23,0.92))"
+                        : "linear-gradient(180deg, rgba(56,18,66,0.78), rgba(16,6,24,0.92))",
+                    boxShadow:
+                      level === 1
+                        ? "inset 0 0 0 1px rgba(148,163,184,0.12), 0 0 18px rgba(59,130,246,0.10)"
+                        : "inset 0 0 0 1px rgba(244,114,182,0.14), 0 0 18px rgba(217,70,239,0.12)",
+                  }}
+                />
+
+                <div
+                  className="absolute rounded-full"
+                  style={{
+                    left: tileSize * 0.22,
+                    top: tileSize * 0.28,
+                    width: tileSize * 0.18,
+                    height: tileSize * 1.65,
+                    background:
+                      level === 1
+                        ? "linear-gradient(180deg, rgba(96,165,250,0.95), rgba(37,99,235,0.95))"
+                        : "linear-gradient(180deg, rgba(232,121,249,0.95), rgba(192,38,211,0.95))",
+                    boxShadow:
+                      level === 1
+                        ? "0 0 14px rgba(96,165,250,0.65)"
+                        : "0 0 14px rgba(232,121,249,0.65)",
+                  }}
+                />
+
+                <div
+                  className="absolute rounded-full"
+                  style={{
+                    right: tileSize * 0.22,
+                    top: tileSize * 0.28,
+                    width: tileSize * 0.18,
+                    height: tileSize * 1.65,
+                    background:
+                      level === 1
+                        ? "linear-gradient(180deg, rgba(96,165,250,0.95), rgba(37,99,235,0.95))"
+                        : "linear-gradient(180deg, rgba(232,121,249,0.95), rgba(192,38,211,0.95))",
+                    boxShadow:
+                      level === 1
+                        ? "0 0 14px rgba(96,165,250,0.65)"
+                        : "0 0 14px rgba(232,121,249,0.65)",
+                  }}
+                />
+
+                <div
+                  className="absolute rounded-full"
+                  style={{
+                    left: tileSize * 0.42,
+                    right: tileSize * 0.42,
+                    bottom: tileSize * 0.24,
+                    height: tileSize * 0.18,
+                    background:
+                      level === 1
+                        ? "linear-gradient(90deg, rgba(96,165,250,0.95), rgba(37,99,235,0.95))"
+                        : "linear-gradient(90deg, rgba(232,121,249,0.95), rgba(192,38,211,0.95))",
+                    boxShadow:
+                      level === 1
+                        ? "0 0 14px rgba(96,165,250,0.65)"
+                        : "0 0 14px rgba(232,121,249,0.65)",
+                  }}
+                />
+
+                <div
+                  className="absolute rounded-full"
+                  style={{
+                    left: tileSize * 0.95,
+                    right: tileSize * 0.95,
+                    top: tileSize * 0.18,
+                    height: tileSize * 0.12,
+                    background:
+                      level === 1
+                        ? "rgba(191,219,254,0.9)"
+                        : "rgba(245,208,254,0.9)",
+                    boxShadow:
+                      level === 1
+                        ? "0 0 10px rgba(191,219,254,0.7)"
+                        : "0 0 10px rgba(245,208,254,0.7)",
+                    opacity: 0.9,
+                  }}
+                />
               </div>
 
               {enemies
@@ -792,8 +872,8 @@ export default function ChefChase({
                     key={enemy.id}
                     className="absolute flex items-center justify-center"
                     style={{
-                      left: (6.65 + (idx % 2) * 1.2) * tileSize,
-                      top: (6.85 + Math.floor(idx / 2) * 0.9) * tileSize,
+                      left: (6.35 + (idx % 2) * 1.05) * tileSize,
+                      top: (6.9 + Math.floor(idx / 2) * 0.78) * tileSize,
                       width: tileSize,
                       height: tileSize,
                     }}
