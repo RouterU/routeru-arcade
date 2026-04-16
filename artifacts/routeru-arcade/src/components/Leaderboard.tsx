@@ -11,7 +11,7 @@ const GAME_LABELS: Record<LeaderboardEntry["game"], string> = {
   quiz: "Route Blitz",
   scenario: "What Would You Do?",
   "data-challenge": "Issue Hunter",
-  "Routing Game Zone": "Route Runner",
+  "Routing Game Zone": "Game Zone",
 };
 
 const GAME_COLORS: Record<LeaderboardEntry["game"], string> = {
