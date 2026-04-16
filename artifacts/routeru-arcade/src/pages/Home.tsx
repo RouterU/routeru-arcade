@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   Zap,
   BookOpen,
@@ -10,6 +10,7 @@ import {
   FileSearch,
   ShieldCheck,
   Truck,
+  Crown,
 } from "lucide-react";
 import QuizGame from "@/components/QuizGame";
 import DataChallengeGame from "@/components/DataChallengeGame";
@@ -89,6 +90,51 @@ export default function Home() {
   const [pending, setPending] = useState<PendingScore | null>(null);
   const [sessionScore, setSessionScore] = useState(0);
   const { topEntries, addEntry, refreshLeaderboard } = useLeaderboard();
+
+  const lifetimeTopByGame = useMemo(() => {
+    const gameMap = [
+      {
+        label: "Route Blitz",
+        matches: ["quiz"],
+        icon: Route,
+        color: "hsl(5 84% 48%)",
+      },
+      {
+        label: "What Would You Do?",
+        matches: ["scenario"],
+        icon: ShieldCheck,
+        color: "hsl(5 84% 48%)",
+      },
+      {
+        label: "Issue Hunter",
+        matches: ["data-challenge"],
+        icon: FileSearch,
+        color: "hsl(38 95% 55%)",
+      },
+      {
+        label: "Routing Game Zone",
+        matches: ["route-runner", "Route Runner", "Routing Game Zone"],
+        icon: Truck,
+        color: "hsl(5 84% 48%)",
+      },
+    ];
+
+    return gameMap.map(({ label, matches, icon, color }) => {
+      const gameEntries = [...topEntries]
+        .filter((entry: any) => {
+          const gameValue = entry.game ?? "";
+          return matches.includes(gameValue);
+        })
+        .sort((a: any, b: any) => b.score - a.score);
+
+      return {
+        game: label,
+        icon,
+        color,
+        topEntry: gameEntries[0] ?? null,
+      };
+    });
+  }, [topEntries]);
 
   const handleQuizComplete = (score: number, streak: number) => {
     setSessionScore((s) => s + score);
@@ -376,7 +422,7 @@ export default function Home() {
           })}
         </div>
 
-        <div className="grid md:grid-cols-2 gap-6">
+        <div className="grid md:grid-cols-2 gap-6 items-start">
           <div className="space-y-3">
             <div
               className="rounded-3xl border"
@@ -406,78 +452,155 @@ export default function Home() {
             </button>
           </div>
 
-          <div
-            className="p-5 space-y-4 rounded-3xl border"
-            style={{
-              background: "linear-gradient(180deg, hsl(0 0% 15%), hsl(0 0% 11%))",
-              borderColor: "hsl(128 20% 28%)",
-              boxShadow: "0 14px 32px rgba(0,0,0,0.30)",
-            }}
-          >
-            <div className="flex items-center gap-2">
-              <Star size={18} style={{ color: "hsl(5 84% 48%)" }} />
-              <h3
-                className="font-bold"
-                style={{ color: "hsl(38 45% 96%)" }}
-              >
-                How Scoring Works
-              </h3>
-            </div>
+          <div className="space-y-6">
+            <div
+              className="p-5 space-y-4 rounded-3xl border"
+              style={{
+                background: "linear-gradient(180deg, hsl(0 0% 15%), hsl(0 0% 11%))",
+                borderColor: "hsl(128 20% 28%)",
+                boxShadow: "0 14px 32px rgba(0,0,0,0.30)",
+              }}
+            >
+              <div className="flex items-center gap-2">
+                <Crown size={18} style={{ color: "hsl(38 95% 58%)" }} />
+                <h3
+                  className="font-bold"
+                  style={{ color: "hsl(38 45% 96%)" }}
+                >
+                  Lifetime Top Rankings
+                </h3>
+              </div>
 
-            <div className="space-y-4">
-              {[
-                {
-                  icon: Zap,
-                  color: "hsl(5 84% 48%)",
-                  title: "Route Blitz",
-                  desc: "Base points per question + time bonus + streak multipliers.",
-                },
-                {
-                  icon: BookOpen,
-                  color: "hsl(5 84% 48%)",
-                  title: "What Would You Do?",
-                  desc: "Best operational choice earns the most points.",
-                },
-                {
-                  icon: Database,
-                  color: "hsl(38 95% 55%)",
-                  title: "Issue Hunter",
-                  desc: "Spot issues accurately to maximize your audit score.",
-                },
-                {
-                  icon: Truck,
-                  color: "hsl(5 84% 48%)",
-                  title: "Route Runner",
-                  desc: "6 questions, 3 drive rounds, and bonus points from packages and survival.",
-                },
-              ].map(({ icon: Icon, color, title, desc }) => (
-                <div key={title} className="flex gap-3">
+              <div className="space-y-3">
+                {lifetimeTopByGame.map(({ game, topEntry, icon: Icon, color }) => (
                   <div
-                    className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 mt-0.5"
+                    key={game}
+                    className="rounded-2xl border px-4 py-3 flex items-center justify-between"
                     style={{
-                      background: `${color}18`,
-                      border: `1px solid ${color}25`,
+                      background: "hsl(0 0% 13%)",
+                      borderColor: "hsl(128 20% 24%)",
                     }}
                   >
-                    <Icon size={14} style={{ color }} />
-                  </div>
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div
+                        className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+                        style={{
+                          background: `${color}18`,
+                          border: `1px solid ${color}25`,
+                        }}
+                      >
+                        <Icon size={16} style={{ color }} />
+                      </div>
 
-                  <div>
-                    <div
-                      className="text-sm font-semibold mb-1"
-                      style={{ color: "hsl(38 45% 96%)" }}
-                    >
-                      {title}
+                      <div className="min-w-0">
+                        <div
+                          className="text-sm font-semibold truncate"
+                          style={{ color: "hsl(38 45% 96%)" }}
+                        >
+                          {game}
+                        </div>
+
+                        <div
+                          className="text-xs mt-1 truncate"
+                          style={{ color: "hsl(0 0% 68%)" }}
+                        >
+                          {topEntry ? topEntry.name : "No scores yet"}
+                        </div>
+                      </div>
                     </div>
-                    <div
-                      className="text-xs leading-relaxed"
-                      style={{ color: "hsl(0 0% 72%)" }}
-                    >
-                      {desc}
+
+                    <div className="text-right shrink-0 ml-3">
+                      <div
+                        className="text-sm font-bold score-number"
+                        style={{ color: "hsl(38 95% 58%)" }}
+                      >
+                        {topEntry ? topEntry.score.toLocaleString() : "--"}
+                      </div>
+                      <div
+                        className="text-[11px]"
+                        style={{ color: "hsl(0 0% 56%)" }}
+                      >
+                        All-time best
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
+            </div>
+
+            <div
+              className="p-5 space-y-4 rounded-3xl border"
+              style={{
+                background: "linear-gradient(180deg, hsl(0 0% 15%), hsl(0 0% 11%))",
+                borderColor: "hsl(128 20% 28%)",
+                boxShadow: "0 14px 32px rgba(0,0,0,0.30)",
+              }}
+            >
+              <div className="flex items-center gap-2">
+                <Star size={18} style={{ color: "hsl(5 84% 48%)" }} />
+                <h3
+                  className="font-bold"
+                  style={{ color: "hsl(38 45% 96%)" }}
+                >
+                  How Scoring Works
+                </h3>
+              </div>
+
+              <div className="space-y-4">
+                {[
+                  {
+                    icon: Zap,
+                    color: "hsl(5 84% 48%)",
+                    title: "Route Blitz",
+                    desc: "Base points per question + time bonus + streak multipliers.",
+                  },
+                  {
+                    icon: BookOpen,
+                    color: "hsl(5 84% 48%)",
+                    title: "What Would You Do?",
+                    desc: "Best operational choice earns the most points.",
+                  },
+                  {
+                    icon: Database,
+                    color: "hsl(38 95% 55%)",
+                    title: "Issue Hunter",
+                    desc: "Spot issues accurately to maximize your audit score.",
+                  },
+                  {
+                    icon: Truck,
+                    color: "hsl(5 84% 48%)",
+                    title: "Routing Game Zone",
+                    desc: "6 questions, 3 game rounds, and bonus points from correct answers, survival, and mini-game performance.",
+                  },
+                ].map(({ icon: Icon, color, title, desc }) => (
+                  <div key={title} className="flex gap-3">
+                    <div
+                      className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 mt-0.5"
+                      style={{
+                        background: `${color}18`,
+                        border: `1px solid ${color}25`,
+                      }}
+                    >
+                      <Icon size={14} style={{ color }} />
+                    </div>
+
+                    <div>
+                      <div
+                        className="text-sm font-semibold mb-1"
+                        style={{ color: "hsl(38 45% 96%)" }}
+                      >
+                        {title}
+                      </div>
+                      <div
+                        className="text-xs leading-relaxed"
+                        style={{ color: "hsl(0 0% 72%)" }}
+                      >
+                        {desc}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
