@@ -13,23 +13,18 @@ const ALLOWED_GAMES = new Set([
   "route-runner",
 ]);
 
-function normalizePlayerName(name: string) {
+function normalizePlayerName(name) {
   return name.trim().replace(/\s+/g, " ");
 }
 
-function makePlayerKey(name: string) {
+function makePlayerKey(name) {
   return normalizePlayerName(name).toLowerCase();
 }
 
 export default async function handler(req, res) {
   try {
-
-    // 👇 ADD THIS LINE RIGHT HERE
-    return res.status(200).json({ test: "leaderboard route is live" });
-
-    // everything below will be ignored for now
     if (req.method === "GET") {
-      const scope = req.query?.scope;
+      const scope = req.query && req.query.scope;
 
       if (scope === "lifetime") {
         const rows = await sql`
@@ -71,7 +66,11 @@ export default async function handler(req, res) {
     }
 
     if (req.method === "POST") {
-      const { name, score, game } = req.body || {};
+      const body = req.body || {};
+      const name = body.name;
+      const score = body.score;
+      const game = body.game;
+
       const trimmedName = typeof name === "string" ? normalizePlayerName(name) : "";
 
       if (!trimmedName || typeof score !== "number" || !ALLOWED_GAMES.has(game)) {
@@ -124,7 +123,8 @@ export default async function handler(req, res) {
     }
 
     if (req.method === "DELETE") {
-      const { passcode } = req.body || {};
+      const body = req.body || {};
+      const passcode = body.passcode;
       const expectedToken = process.env.LEADERBOARD_ADMIN_TOKEN;
 
       if (!expectedToken || passcode !== expectedToken) {
@@ -132,6 +132,7 @@ export default async function handler(req, res) {
       }
 
       await sql`DELETE FROM leaderboard`;
+
       return res.status(200).json({
         success: true,
         message: "Current leaderboard reset. Lifetime totals preserved.",
@@ -141,6 +142,9 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "Method not allowed" });
   } catch (error) {
     console.error("Leaderboard API error:", error);
-    return res.status(500).json({ error: "Internal server error" });
+    return res.status(500).json({
+      error: "Internal server error",
+      details: error && error.message ? error.message : String(error),
+    });
   }
 }
