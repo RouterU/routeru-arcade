@@ -23,6 +23,11 @@ function makePlayerKey(name: string) {
 
 export default async function handler(req, res) {
   try {
+
+    // 👇 ADD THIS LINE RIGHT HERE
+    return res.status(200).json({ test: "leaderboard route is live" });
+
+    // everything below will be ignored for now
     if (req.method === "GET") {
       const scope = req.query?.scope;
 
