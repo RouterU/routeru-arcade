@@ -89,7 +89,7 @@ export default function Home() {
   const [view, setView] = useState<GameView>("hub");
   const [pending, setPending] = useState<PendingScore | null>(null);
   const [sessionScore, setSessionScore] = useState(0);
-  const { topEntries, addEntry, refreshLeaderboard } = useLeaderboard();
+  const { topEntries, lifetimeEntries, addEntry, refreshLeaderboard } = useLeaderboard();
 
   const lifetimeTopByGame = useMemo(() => {
     const gameMap = [
@@ -113,19 +113,16 @@ export default function Home() {
       },
       {
         label: "Routing Game Zone",
-        matches: ["route-runner", "Route Runner", "Routing Game Zone"],
+        matches: ["route-runner"],
         icon: Truck,
         color: "hsl(5 84% 48%)",
       },
     ];
 
     return gameMap.map(({ label, matches, icon, color }) => {
-      const gameEntries = [...topEntries]
-        .filter((entry: any) => {
-          const gameValue = entry.game ?? "";
-          return matches.includes(gameValue);
-        })
-        .sort((a: any, b: any) => b.score - a.score);
+      const gameEntries = [...lifetimeEntries]
+        .filter((entry) => matches.includes(entry.game))
+        .sort((a, b) => b.totalScore - a.totalScore);
 
       return {
         game: label,
@@ -134,7 +131,7 @@ export default function Home() {
         topEntry: gameEntries[0] ?? null,
       };
     });
-  }, [topEntries]);
+  }, [lifetimeEntries]);
 
   const handleQuizComplete = (score: number, streak: number) => {
     setSessionScore((s) => s + score);
@@ -514,7 +511,7 @@ export default function Home() {
                         className="text-sm font-bold score-number"
                         style={{ color: "hsl(38 95% 58%)" }}
                       >
-                        {topEntry ? topEntry.score.toLocaleString() : "--"}
+                        {topEntry ? topEntry.totalScore.toLocaleString() : "--"}
                       </div>
                       <div
                         className="text-[11px]"
