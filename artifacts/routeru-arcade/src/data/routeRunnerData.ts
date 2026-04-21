@@ -11,7 +11,7 @@ export interface RouteRunnerQuestion {
 export const routeRunnerQuestions = [
   {
     "id": 1,
-    "question": "A route is showing unassigned stops marked with 'U' before publish. What should happen first?",
+    "question": "Before publishing the last route, the map is still showing unassigned stops marked with 'U'. What should happen first?",
     "options": [
       "Publish anyway and fix later",
       "Assign the stops to a valid route or place non-shipping stops on a 999 route",
