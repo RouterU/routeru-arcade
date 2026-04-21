@@ -1,1 +1,267 @@
-{"quiz":[{"id":1,"question":"What does the gray circle icon mean?","options":["DG_1 customer with no liftgate requirement","DG_1 customer with a liftgate requirement","Published route sent to Tandem with no errors","Shuttle stop or route"],"correctIndex":0,"explanation":"The gray circle icon in Route Planner signifies a DG_1 customer with no liftgate requirement.","difficulty":"easy","points":100},{"id":2,"question":"What does the blue triangle icon mean?","options":["DG_2 customer with no liftgate requirement","DG_2 customer with a liftgate requirement","Cross dock (XDA)","Status 20 order"],"correctIndex":1,"explanation":"The blue triangle icon in Route Planner signifies a DG_2 customer with a liftgate requirement.","difficulty":"easy","points":100},{"id":3,"question":"What does the black square icon mean?","options":["Key drop or dark delivery","Shuttle stop or route","Off day order","Child account"],"correctIndex":0,"explanation":"The black square icon in Route Planner signifies a key drop or dark delivery.","difficulty":"easy","points":100},{"id":4,"question":"What does the green square icon mean?","options":["Published route sent to Omnitracs with no errors","Child account","Layover order","Backhaul or pickup"],"correctIndex":1,"explanation":"The green square icon in Route Planner signifies a child account.","difficulty":"easy","points":100},{"id":5,"question":"What does the blue star icon mean?","options":["Will call delivery (WCD)","Backhaul or pickup","Missing SOUS setup (DV)","Cross dock (XDB)"],"correctIndex":0,"explanation":"The blue star icon in Route Planner signifies a will call delivery (WCD).","difficulty":"easy","points":100},{"id":6,"question":"What does the dark red or maroon star icon mean?","options":["Layover order","Status 30 or 40 order","Backhaul or pickup","Bill-to-ship-to customer"],"correctIndex":2,"explanation":"The dark red or maroon star icon in Route Planner signifies a backhaul/pickup.","difficulty":"medium","points":150},{"id":7,"question":"What does the red star icon mean?","options":["Stop is missing SOUS setup (DV)","Stop is on an off day order","Customer has a liftgate requirement","Route is already archived"],"correctIndex":0,"explanation":"The red star icon in Route Planner signifies a stop is missing SOUS setup (DV).","difficulty":"medium","points":150},{"id":8,"question":"What does the yellow diamond icon mean?","options":["Published route sent to Omnitracs with no errors","Status 20 order","Published route sent to Tandem with no errors","HazMat stop or route over 999 lbs"],"correctIndex":2,"explanation":"The yellow diamond icon in Route Planner signifies a published route that was sent to Tandem with no errors.","difficulty":"medium","points":150},{"id":9,"question":"What does the green diamond icon mean?","options":["Published route sent to Omnitracs with no errors","Published route sent to Tandem with no errors","Key drop or dark delivery","Status 30 or 40 order"],"correctIndex":0,"explanation":"The green diamond icon in Route Planner signifies a published route that was sent to Omnitracs with no errors.","difficulty":"medium","points":150},{"id":10,"question":"What does a red hexagon icon mean?","options":["Status 30 or 40 order","HazMat stop or route over 999 lbs","Status 20 order","Backhaul or pickup"],"correctIndex":2,"explanation":"A red hexagon icon in Route Planner signifies a status 20 order.","difficulty":"medium","points":150},{"id":11,"question":"How can you add options when you right-click on a route, such as printing driver manifests?","options":["Use Data > Templates > Routes","Go to App Setup > UI Setting > Context Menu and edit the Routes quadrant","Republish the route after cut is taken","Enable the option from the driver profile"],"correctIndex":1,"explanation":"On the side menu, go to App Setup > UI Setting > Context Menu and select the quadrant you want to edit. The Routes quadrant is where you can add the option to print a driver manifest.","difficulty":"hard","points":200},{"id":12,"question":"Routes are not being optimized by BGO. What should you check first?","options":["Whether the route is already published to Omnitracs","Whether there is an 'X' in UDFString 4 and whether 'Exclude From Optimization' is checked in the resource","Whether the route is marked as a key drop","Whether the driver has a delivery photo attached"],"correctIndex":1,"explanation":"Before assuming it is a BGO issue, make sure there is not an 'X' in UDFString 4 and check whether 'Exclude From Optimization' is checked inside the resource.","difficulty":"hard","points":200}],"scenarios":[{"id":1,"title":"Special Instructions Update","situation":"You need to update special instructions for an account, but you do not want to open each daily attribute one by one. What should you do?","choices":[{"text":"Submit a router update","outcome":"good","explanation":"The SOUS source indicates the right path is a router update.","points":300},{"text":"Edit every daily attribute manually","outcome":"ok","explanation":"This could work, but it is not the recommended answer from the source.","points":100},{"text":"Delete and recreate the routing attributes","outcome":"bad","explanation":"Recreating attributes is unnecessary and risky for this type of request.","points":0}]},{"id":2,"title":"Bill-To-Ship-To Policy Check","situation":"A seller wants to Bill-To-Ship-To to a pronto customer for a non-pronto customer. What is the best response?","choices":[{"text":"Assume it is always allowed","outcome":"bad","explanation":"The source does not say this is always allowed.","points":0},{"text":"Check with local sales leadership to confirm policy","outcome":"good","explanation":"The SOUS source says to check with local sales leadership to see what their policy is.","points":300},{"text":"Let the driver decide at dispatch","outcome":"bad","explanation":"This should be resolved through policy, not left to dispatch improvisation.","points":0}]},{"id":3,"title":"Tandem Date Looks Wrong","situation":"An order for today in Tandem is showing tomorrow in Route Planner. What should you check first?","choices":[{"text":"Republish the route and ignore SOUS","outcome":"bad","explanation":"Republishing does not address the attribute driving the date.","points":0},{"text":"Check the customer's Days to Delivery in SOUS","outcome":"good","explanation":"The SOUS source says to double check Days to Delivery. 0 = today, 1 = next day, and so on.","points":300},{"text":"Change the order date in Tandem only","outcome":"ok","explanation":"Tandem may not be the source of truth for routing attributes during order flow.","points":100}]},{"id":4,"title":"Adding Delivery Photos","situation":"A customer wants pictures added to delivery instructions in SOUS. What should you do?","choices":[{"text":"Add them in the Delivery Photos section under the related tab and drag-and-drop the files","outcome":"good","explanation":"The SOUS source directs users to the Delivery Photos section underneath the routing attributes.","points":300},{"text":"Paste the image into order comments","outcome":"bad","explanation":"The source points to Delivery Photos, not comments.","points":0},{"text":"Upload the images to the driver manifest screen","outcome":"bad","explanation":"That location is not the source-recommended place for delivery photos in SOUS.","points":0}]},{"id":5,"title":"Route Locking Confusion","situation":"A user attempts to lock a customer’s route directly in Route Planner, but it does not persist. Why?","choices":[{"text":"Route Planner does not allow locking","outcome":"bad","explanation":"Route Planner supports routing, but lock persistence is handled elsewhere.","points":0},{"text":"Locks must be maintained in SOUS Routing Attributes","outcome":"good","explanation":"The QRG specifies that route and sequence locks are managed in SOUS, not directly in Route Planner.","points":300},{"text":"The route must be published first","outcome":"ok","explanation":"Publishing does not control lock persistence.","points":100}]}],"dataChallenges":[{"id":1,"title":"Map Icon Recognition Audit","description":"Review these Route Planner icon interpretations and identify every row where the meaning is incorrect.","hint":"Focus on circles vs triangles, squares vs stars, and publish/status indicators.","routingTable":[{"id":1,"prefix":"Stop 1101","nextHop":"Gray circle","metric":"DG_1","protocol":"No liftgate","age":"Ready","flags":"OK","hasIssue":false},{"id":2,"prefix":"Stop 1102","nextHop":"Gray triangle","metric":"DG_1","protocol":"No liftgate","age":"Review","flags":"⚠","issue":"Gray triangle means DG_1 with a liftgate requirement, not no liftgate","hasIssue":true},{"id":3,"prefix":"Route 2201","nextHop":"Yellow diamond","metric":"Published","protocol":"Omnitracs","age":"Sent","flags":"⚠","issue":"Yellow diamond means sent to Tandem with no errors, not Omnitracs","hasIssue":true},{"id":4,"prefix":"Stop 1104","nextHop":"Black square","metric":"Special stop","protocol":"Key drop","age":"Ready","flags":"OK","hasIssue":false},{"id":5,"prefix":"Order 1105","nextHop":"Red hexagon","metric":"Status","protocol":"30/40","age":"Blocked","flags":"⚠","issue":"Red hexagon means a status 20 order","hasIssue":true}],"correctIssueIds":[2,3,5],"explanation":"Rows 2, 3, and 5 are incorrect based on the Route Planner icon definitions in the source tab."},{"id":2,"title":"Publish & Routing Setup Audit","description":"Review the route setup notes and identify each row that could block expected Route Planner behavior.","hint":"Look for optimization exclusions, missing context-menu setup, and backhaul publish steps.","routingTable":[{"id":1,"prefix":"Route 3301","nextHop":"Resource config","metric":"UDFString4 blank","protocol":"Exclude From Optimization = ON","age":"Planning","flags":"⚠","issue":"Exclude From Optimization being checked can prevent BGO from optimizing the route","hasIssue":true},{"id":2,"prefix":"Route 3302","nextHop":"Resource config","metric":"UDFString4 blank","protocol":"Exclude From Optimization = OFF","age":"Planning","flags":"OK","hasIssue":false},{"id":3,"prefix":"Route 3303","nextHop":"Context menu","metric":"Routes quadrant","protocol":"Print manifest missing","age":"Setup","flags":"⚠","issue":"Add route right-click options from App Setup > UI Setting > Context Menu in the Routes quadrant","hasIssue":true},{"id":4,"prefix":"Route 3304","nextHop":"Backhaul publish","metric":"Empty truck symbol still showing","protocol":"Republished immediately","age":"Review","flags":"⚠","issue":"For backhaul routes not sending to Omnitracs, refresh until the empty truck symbol goes away before republishing","hasIssue":true},{"id":5,"prefix":"Route 3305","nextHop":"Resource config","metric":"No X in UDFString4","protocol":"Optimization allowed","age":"Ready","flags":"OK","hasIssue":false}],"correctIssueIds":[1,3,4],"explanation":"Rows 1, 3, and 4 describe setup problems that can stop optimization or successful publish behavior."},{"id":3,"title":"Assignment Audit","description":"Review the order assignment setup and identify which rows are likely to stop Batch Processor assignment or hide key visibility.","hint":"Check PreferredResource, Requirements, Dates, and RP field selection.","routingTable":[{"id":1,"prefix":"Order 4401","nextHop":"Assignment check","metric":"PreferredResource matches","protocol":"Requirements and dates align","age":"Ready","flags":"OK","hasIssue":false},{"id":2,"prefix":"Order 4402","nextHop":"Assignment check","metric":"PreferredResource mismatch","protocol":"Resource does not match requirements","age":"Blocked","flags":"⚠","issue":"If PreferredResource, Requirements, or Dates do not match a resource, Batch Processor may not attach the order","hasIssue":true},{"id":3,"prefix":"RP Grid","nextHop":"Visibility","metric":"OrderUDFString7 added","protocol":"Customer tier visible","age":"Ready","flags":"OK","hasIssue":false},{"id":4,"prefix":"Order 4404","nextHop":"Assignment check","metric":"Dates mismatch","protocol":"No matching resource on those dates","age":"Blocked","flags":"⚠","issue":"Date mismatches can keep Batch Processor from assigning the order","hasIssue":true},{"id":5,"prefix":"Order 4405","nextHop":"Assignment check","metric":"PreferredResource matches","protocol":"Requirements and dates align","age":"Ready","flags":"OK","hasIssue":false}],"correctIssueIds":[2,4],"explanation":"Rows 2 and 4 have assignment mismatches that can keep Batch Processor from attaching the order."}],"routeRunner":[{"id":1,"question":"A route is showing unassigned stops marked with 'U' before publish. What should happen first?","options":["Publish anyway and fix later","Assign the stops to a valid route or place non-shipping stops on a 999 route","Archive the stops","Delete the stops from the schedule"],"correctIndex":1,"explanation":"All stops must be accounted for before publish. Non-shipping stops should be placed on a 999 route.","difficulty":"easy","points":100},{"id":2,"question":"A yellow diamond appears after publish. What does it indicate?","options":["Publish failed","Route is locked","Successful send to Tandem","Successful publish to Omni"],"correctIndex":2,"explanation":"A yellow diamond indicates the route was successfully sent to Tandem.","difficulty":"medium","points":150},{"id":3,"question":"Where should route and sequence locks be maintained long-term?","options":["Route Planner map settings","SOUS Routing Attributes","Driver profile notes","Dispatch comments"],"correctIndex":1,"explanation":"Persistent route and sequence locks are maintained in SOUS Routing Attributes.","difficulty":"hard","points":200},{"id":4,"question":"A route will not publish and some orders remain in status 20. What should you check?","options":["Route Detail for blocked orders","Archive schedule","Driver meal break settings","Map zoom level"],"correctIndex":0,"explanation":"Orders stuck in status 20 can block publishing and should be reviewed in Route Detail.","difficulty":"medium","points":150},{"id":5,"question":"After cut is taken, how long should routers generally wait for BGO to complete before moving routes and stops?","options":["5 minutes","10 minutes","15 minutes","30 minutes"],"correctIndex":2,"explanation":"Routers should generally wait about 15 minutes after cut for BGO processing to complete.","difficulty":"easy","points":100},{"id":6,"question":"A route is under minimum before publish. What is the best action?","options":["Ignore it","Review it for consolidation or operational need before publishing","Move it to Archive immediately","Publish it no matter what"],"correctIndex":1,"explanation":"Under-minimum routes should be reviewed before publish to determine whether they should be consolidated or adjusted.","difficulty":"medium","points":150}]}
+{
+  "quiz": [
+    {
+      "id": 1,
+      "question": "What does the gray circle icon mean?",
+      "options": ["DG_1 customer with no liftgate requirement", "DG_1 customer with a liftgate requirement", "Published route sent to Tandem with no errors", "Shuttle stop or route"],
+      "correctIndex": 0,
+      "explanation": "The gray circle icon in Route Planner signifies a DG_1 customer with no liftgate requirement.",
+      "difficulty": "easy",
+      "points": 100
+    },
+    {
+      "id": 2,
+      "question": "What does the blue triangle icon mean?",
+      "options": ["DG_2 customer with no liftgate requirement", "DG_2 customer with a liftgate requirement", "Cross dock (XDA)", "Status 20 order"],
+      "correctIndex": 1,
+      "explanation": "The blue triangle icon in Route Planner signifies a DG_2 customer with a liftgate requirement.",
+      "difficulty": "easy",
+      "points": 100
+    },
+    {
+      "id": 3,
+      "question": "What does the black square icon mean?",
+      "options": ["Key drop or dark delivery", "Shuttle stop or route", "Off day order", "Child account"],
+      "correctIndex": 0,
+      "explanation": "The black square icon in Route Planner signifies a key drop or dark delivery.",
+      "difficulty": "easy",
+      "points": 100
+    },
+    {
+      "id": 4,
+      "question": "What does the green square icon mean?",
+      "options": ["Published route sent to Omnitracs with no errors", "Child account", "Layover order", "Backhaul or pickup"],
+      "correctIndex": 1,
+      "explanation": "The green square icon in Route Planner signifies a child account.",
+      "difficulty": "easy",
+      "points": 100
+    },
+    {
+      "id": 5,
+      "question": "What does the blue star icon mean?",
+      "options": ["Will call delivery (WCD)", "Backhaul or pickup", "Missing SOUS setup (DV)", "Cross dock (XDB)"],
+      "correctIndex": 0,
+      "explanation": "The blue star icon in Route Planner signifies a will call delivery (WCD).",
+      "difficulty": "easy",
+      "points": 100
+    },
+    {
+      "id": 6,
+      "question": "What does the dark red or maroon star icon mean?",
+      "options": ["Layover order", "Status 30 or 40 order", "Backhaul or pickup", "Bill-to-ship-to customer"],
+      "correctIndex": 2,
+      "explanation": "The dark red or maroon star icon in Route Planner signifies a backhaul/pickup.",
+      "difficulty": "medium",
+      "points": 150
+    },
+    {
+      "id": 7,
+      "question": "What does the red star icon mean?",
+      "options": ["Stop is missing SOUS setup (DV)", "Stop is on an off day order", "Customer has a liftgate requirement", "Route is already archived"],
+      "correctIndex": 0,
+      "explanation": "The red star icon in Route Planner signifies a stop is missing SOUS setup (DV).",
+      "difficulty": "medium",
+      "points": 150
+    },
+    {
+      "id": 8,
+      "question": "What does the yellow diamond icon mean?",
+      "options": ["Published route sent to Omnitracs with no errors", "Status 20 order", "Published route sent to Tandem with no errors", "HazMat stop or route over 999 lbs"],
+      "correctIndex": 2,
+      "explanation": "The yellow diamond icon in Route Planner signifies a published route that was sent to Tandem with no errors.",
+      "difficulty": "medium",
+      "points": 150
+    },
+    {
+      "id": 9,
+      "question": "What does the green diamond icon mean?",
+      "options": ["Published route sent to Omnitracs with no errors", "Published route sent to Tandem with no errors", "Key drop or dark delivery", "Status 30 or 40 order"],
+      "correctIndex": 0,
+      "explanation": "The green diamond icon in Route Planner signifies a published route that was sent to Omnitracs with no errors.",
+      "difficulty": "medium",
+      "points": 150
+    },
+    {
+      "id": 10,
+      "question": "What does a red hexagon icon mean?",
+      "options": ["Status 30 or 40 order", "HazMat stop or route over 999 lbs", "Status 20 order", "Backhaul or pickup"],
+      "correctIndex": 2,
+      "explanation": "A red hexagon icon in Route Planner signifies a status 20 order.",
+      "difficulty": "medium",
+      "points": 150
+    },
+    {
+      "id": 11,
+      "question": "How can you add options when you right-click on a route, such as printing driver manifests?",
+      "options": ["Use Data > Templates > Routes", "Go to App Setup > UI Setting > Context Menu and edit the Routes quadrant", "Republish the route after cut is taken", "Enable the option from the driver profile"],
+      "correctIndex": 1,
+      "explanation": "On the side menu, go to App Setup > UI Setting > Context Menu and select the quadrant you want to edit. The Routes quadrant is where you can add the option to print a driver manifest.",
+      "difficulty": "hard",
+      "points": 200
+    },
+    {
+      "id": 12,
+      "question": "Routes are not being optimized by BGO. What should you check first?",
+      "options": ["Whether the route is already published to Omnitracs", "Whether there is an 'X' in UDFString 4 and whether 'Exclude From Optimization' is checked in the resource", "Whether the route is marked as a key drop", "Whether the driver has a delivery photo attached"],
+      "correctIndex": 1,
+      "explanation": "Before assuming it is a BGO issue, make sure there is not an 'X' in UDFString 4 and check whether 'Exclude From Optimization' is checked inside the resource.",
+      "difficulty": "hard",
+      "points": 200
+    }
+  ],
+  "scenarios": [
+    {
+      "id": 1,
+      "title": "Special Instructions Update",
+      "situation": "You need to update special instructions for an account, but you do not want to open each daily attribute one by one. What should you do?",
+      "choices": [
+        {"text": "Submit a router update", "outcome": "good", "explanation": "The SOUS source indicates the right path is a router update.", "points": 300},
+        {"text": "Edit every daily attribute manually", "outcome": "ok", "explanation": "This could work, but it is not the recommended answer from the source.", "points": 100},
+        {"text": "Delete and recreate the routing attributes", "outcome": "bad", "explanation": "Recreating attributes is unnecessary and risky for this type of request.", "points": 0}
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Bill-To-Ship-To Policy Check",
+      "situation": "A seller wants to Bill-To-Ship-To to a pronto customer for a non-pronto customer. What is the best response?",
+      "choices": [
+        {"text": "Assume it is always allowed", "outcome": "bad", "explanation": "The source does not say this is always allowed.", "points": 0},
+        {"text": "Check with local sales leadership to confirm policy", "outcome": "good", "explanation": "The SOUS source says to check with local sales leadership to see what their policy is.", "points": 300},
+        {"text": "Let the driver decide at dispatch", "outcome": "bad", "explanation": "This should be resolved through policy, not left to dispatch improvisation.", "points": 0}
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Tandem Date Looks Wrong",
+      "situation": "An order for today in Tandem is showing tomorrow in Route Planner. What should you check first?",
+      "choices": [
+        {"text": "Republish the route and ignore SOUS", "outcome": "bad", "explanation": "Republishing does not address the attribute driving the date.", "points": 0},
+        {"text": "Check the customer's Days to Delivery in SOUS", "outcome": "good", "explanation": "The SOUS source says to double check Days to Delivery. 0 = today, 1 = next day, and so on.", "points": 300},
+        {"text": "Change the order date in Tandem only", "outcome": "ok", "explanation": "Tandem may not be the source of truth for routing attributes during order flow.", "points": 100}
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Adding Delivery Photos",
+      "situation": "A customer wants pictures added to delivery instructions in SOUS. What should you do?",
+      "choices": [
+        {"text": "Add them in the Delivery Photos section under the related tab and drag-and-drop the files", "outcome": "good", "explanation": "The SOUS source directs users to the Delivery Photos section underneath the routing attributes.", "points": 300},
+        {"text": "Paste the image into order comments", "outcome": "bad", "explanation": "The source points to Delivery Photos, not comments.", "points": 0},
+        {"text": "Upload the images to the driver manifest screen", "outcome": "bad", "explanation": "That location is not the source-recommended place for delivery photos in SOUS.", "points": 0}
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Route Locking Confusion",
+      "situation": "A user attempts to lock a customer’s route directly in Route Planner, but it does not persist. Why?",
+      "choices": [
+        {"text": "Route Planner does not allow locking", "outcome": "bad", "explanation": "Route Planner supports routing, but lock persistence is handled elsewhere.", "points": 0},
+        {"text": "Locks must be maintained in SOUS Routing Attributes", "outcome": "good", "explanation": "The QRG specifies that route and sequence locks are managed in SOUS, not directly in Route Planner.", "points": 300},
+        {"text": "The route must be published first", "outcome": "ok", "explanation": "Publishing does not control lock persistence.", "points": 100}
+      ]
+    }
+  ],
+  "dataChallenges": [
+    {
+      "id": 1,
+      "title": "Map Icon Recognition Audit",
+      "description": "Review these Route Planner icon interpretations and identify every row where the meaning is incorrect.",
+      "hint": "Focus on circles vs triangles, squares vs stars, and publish/status indicators.",
+      "routingTable": [
+        {"id": 1, "prefix": "Stop 1101", "nextHop": "Gray circle", "metric": "DG_1", "protocol": "No liftgate", "age": "Ready", "flags": "OK", "hasIssue": false},
+        {"id": 2, "prefix": "Stop 1102", "nextHop": "Gray triangle", "metric": "DG_1", "protocol": "No liftgate", "age": "Review", "flags": "⚠", "issue": "Gray triangle means DG_1 with a liftgate requirement, not no liftgate", "hasIssue": true},
+        {"id": 3, "prefix": "Route 2201", "nextHop": "Yellow diamond", "metric": "Published", "protocol": "Omnitracs", "age": "Sent", "flags": "⚠", "issue": "Yellow diamond means sent to Tandem with no errors, not Omnitracs", "hasIssue": true},
+        {"id": 4, "prefix": "Stop 1104", "nextHop": "Black square", "metric": "Special stop", "protocol": "Key drop", "age": "Ready", "flags": "OK", "hasIssue": false},
+        {"id": 5, "prefix": "Order 1105", "nextHop": "Red hexagon", "metric": "Status", "protocol": "30/40", "age": "Blocked", "flags": "⚠", "issue": "Red hexagon means a status 20 order", "hasIssue": true}
+      ],
+      "correctIssueIds": [2, 3, 5],
+      "explanation": "Rows 2, 3, and 5 are incorrect based on the Route Planner icon definitions in the source tab."
+    },
+    {
+      "id": 2,
+      "title": "Publish & Routing Setup Audit",
+      "description": "Review the route setup notes and identify each row that could block expected Route Planner behavior.",
+      "hint": "Look for optimization exclusions, missing context-menu setup, and backhaul publish steps.",
+      "routingTable": [
+        {"id": 1, "prefix": "Route 3301", "nextHop": "Resource config", "metric": "UDFString4 blank", "protocol": "Exclude From Optimization = ON", "age": "Planning", "flags": "⚠", "issue": "Exclude From Optimization being checked can prevent BGO from optimizing the route", "hasIssue": true},
+        {"id": 2, "prefix": "Route 3302", "nextHop": "Resource config", "metric": "UDFString4 blank", "protocol": "Exclude From Optimization = OFF", "age": "Planning", "flags": "OK", "hasIssue": false},
+        {"id": 3, "prefix": "Route 3303", "nextHop": "Context menu", "metric": "Routes quadrant", "protocol": "Print manifest missing", "age": "Setup", "flags": "⚠", "issue": "Add route right-click options from App Setup > UI Setting > Context Menu in the Routes quadrant", "hasIssue": true},
+        {"id": 4, "prefix": "Route 3304", "nextHop": "Backhaul publish", "metric": "Empty truck symbol still showing", "protocol": "Republished immediately", "age": "Review", "flags": "⚠", "issue": "For backhaul routes not sending to Omnitracs, refresh until the empty truck symbol goes away before republishing", "hasIssue": true},
+        {"id": 5, "prefix": "Route 3305", "nextHop": "Resource config", "metric": "No X in UDFString4", "protocol": "Optimization allowed", "age": "Ready", "flags": "OK", "hasIssue": false}
+      ],
+      "correctIssueIds": [1, 3, 4],
+      "explanation": "Rows 1, 3, and 4 describe setup problems that can stop optimization or successful publish behavior."
+    },
+    {
+      "id": 3,
+      "title": "Assignment Audit",
+      "description": "Review the order assignment setup and identify which rows are likely to stop Batch Processor assignment or hide key visibility.",
+      "hint": "Check PreferredResource, Requirements, Dates, and RP field selection.",
+      "routingTable": [
+        {"id": 1, "prefix": "Order 4401", "nextHop": "Assignment check", "metric": "PreferredResource matches", "protocol": "Requirements and dates align", "age": "Ready", "flags": "OK", "hasIssue": false},
+        {"id": 2, "prefix": "Order 4402", "nextHop": "Assignment check", "metric": "PreferredResource mismatch", "protocol": "Resource does not match requirements", "age": "Blocked", "flags": "⚠", "issue": "If PreferredResource, Requirements, or Dates do not match a resource, Batch Processor may not attach the order", "hasIssue": true},
+        {"id": 3, "prefix": "RP Grid", "nextHop": "Visibility", "metric": "OrderUDFString7 added", "protocol": "Customer tier visible", "age": "Ready", "flags": "OK", "hasIssue": false},
+        {"id": 4, "prefix": "Order 4404", "nextHop": "Assignment check", "metric": "Dates mismatch", "protocol": "No matching resource on those dates", "age": "Blocked", "flags": "⚠", "issue": "Date mismatches can keep Batch Processor from assigning the order", "hasIssue": true},
+        {"id": 5, "prefix": "Order 4405", "nextHop": "Assignment check", "metric": "PreferredResource matches", "protocol": "Requirements and dates align", "age": "Ready", "flags": "OK", "hasIssue": false}
+      ],
+      "correctIssueIds": [2, 4],
+      "explanation": "Rows 2 and 4 have assignment mismatches that can keep Batch Processor from attaching the order."
+    }
+  ],
+  "routeRunner": [
+    {
+      "id": 1,
+      "question": "Before publishing the last route, the map is still showing unassigned stops marked with 'U'. What should happen first?",
+      "options": ["Publish anyway and fix later", "Assign the stops to a valid route or place non-shipping stops on a 999 route", "Archive the stops", "Delete the stops from the schedule"],
+      "correctIndex": 1,
+      "explanation": "All stops must be accounted for before publish. Non-shipping stops should be placed on a 999 route.",
+      "difficulty": "easy",
+      "points": 100
+    },
+    {
+      "id": 2,
+      "question": "A yellow diamond appears after publish. What does it indicate?",
+      "options": ["Publish failed", "Route is locked", "Successful send to Tandem", "Successful publish to Omni"],
+      "correctIndex": 2,
+      "explanation": "A yellow diamond indicates the route was successfully sent to Tandem.",
+      "difficulty": "medium",
+      "points": 150
+    },
+    {
+      "id": 3,
+      "question": "Where should route and sequence locks be maintained long-term?",
+      "options": ["Route Planner map settings", "SOUS Routing Attributes", "Driver profile notes", "Dispatch comments"],
+      "correctIndex": 1,
+      "explanation": "Persistent route and sequence locks are maintained in SOUS Routing Attributes.",
+      "difficulty": "hard",
+      "points": 200
+    },
+    {
+      "id": 4,
+      "question": "A route will not publish and some orders remain in status 20. What should you check?",
+      "options": ["Route Detail for blocked orders", "Archive schedule", "Driver meal break settings", "Map zoom level"],
+      "correctIndex": 0,
+      "explanation": "Orders stuck in status 20 can block publishing and should be reviewed in Route Detail.",
+      "difficulty": "medium",
+      "points": 150
+    },
+    {
+      "id": 5,
+      "question": "After cut is taken, how long should routers generally wait for BGO to complete before moving routes and stops?",
+      "options": ["5 minutes", "10 minutes", "15 minutes", "30 minutes"],
+      "correctIndex": 2,
+      "explanation": "Routers should generally wait about 15 minutes after cut for BGO processing to complete.",
+      "difficulty": "easy",
+      "points": 100
+    },
+    {
+      "id": 6,
+      "question": "A route is under minimum before publish. What is the best action?",
+      "options": ["Ignore it", "Review it for consolidation or operational need before publishing", "Move it to Archive immediately", "Publish it no matter what"],
+      "correctIndex": 1,
+      "explanation": "Under-minimum routes should be reviewed before publish to determine whether they should be consolidated or adjusted.",
+      "difficulty": "medium",
+      "points": 150
+    }
+  ]
+}
