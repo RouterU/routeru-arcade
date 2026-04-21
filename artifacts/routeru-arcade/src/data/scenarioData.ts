@@ -17,100 +17,100 @@ export interface Scenario {
 export const scenarios = [
   {
     "id": 1,
-    "title": "Unassigned Stops Before Publish",
-    "situation": "You are preparing to publish routes, but you notice several stops still showing as unassigned (marked with 'U'). What should you do?",
+    "title": "Special Instructions Update",
+    "situation": "You need to update special instructions for an account, but you do not want to open each daily attribute one by one. What should you do?",
     "choices": [
       {
-        "text": "Ignore them and publish the routes anyway",
-        "outcome": "bad",
-        "explanation": "All stops must be accounted for before publishing. Leaving unassigned stops will create service failures.",
-        "points": 0
-      },
-      {
-        "text": "Assign all stops to routes, or if they are not shipping today, move them to a 999 route and publish",
+        "text": "Submit a router update",
         "outcome": "good",
-        "explanation": "The QRG requires all stops to be either routed or placed on a 999 route if not shipping for the day.",
+        "explanation": "The SOUS source indicates the right path is a router update.",
         "points": 300
       },
       {
-        "text": "Move them to Archive",
+        "text": "Edit every daily attribute manually",
+        "outcome": "ok",
+        "explanation": "This could work, but it is not the recommended answer from the source.",
+        "points": 100
+      },
+      {
+        "text": "Delete and recreate the routing attributes",
         "outcome": "bad",
-        "explanation": "Archive is for completed routes, not unassigned stops.",
+        "explanation": "Recreating attributes is unnecessary and risky for this type of request.",
         "points": 0
       }
     ]
   },
   {
     "id": 2,
-    "title": "Route Will Not Publish",
-    "situation": "A route is failing to publish. You retry multiple times but it still fails. What is your next step?",
+    "title": "Bill-To-Ship-To Policy Check",
+    "situation": "A seller wants to Bill-To-Ship-To to a pronto customer for a non-pronto customer. What is the best response?",
     "choices": [
       {
-        "text": "Keep retrying until it works",
+        "text": "Assume it is always allowed",
         "outcome": "bad",
-        "explanation": "Retrying without diagnosing wastes time and does not fix the root issue.",
+        "explanation": "The source does not say this is always allowed.",
         "points": 0
       },
       {
-        "text": "Check Route Detail to see if any orders are stuck in status 20",
+        "text": "Check with local sales leadership to confirm policy",
         "outcome": "good",
-        "explanation": "Orders stuck in status 20 can block publishing and must be resolved before the route will publish.",
+        "explanation": "The SOUS source says to check with local sales leadership to see what their policy is.",
         "points": 300
       },
       {
-        "text": "Move the route back to Planning",
-        "outcome": "ok",
-        "explanation": "This may help reset the route, but does not directly address the root cause.",
-        "points": 100
+        "text": "Let the driver decide at dispatch",
+        "outcome": "bad",
+        "explanation": "This should be resolved through policy, not left to dispatch improvisation.",
+        "points": 0
       }
     ]
   },
   {
     "id": 3,
-    "title": "Cut Complete - What Next?",
-    "situation": "Cut has just been taken and routes are starting to populate. What should you do before moving routes into Review?",
+    "title": "Tandem Date Looks Wrong",
+    "situation": "An order for today in Tandem is showing tomorrow in Route Planner. What should you check first?",
     "choices": [
       {
-        "text": "Immediately move everything to Review",
+        "text": "Republish the route and ignore SOUS",
         "outcome": "bad",
-        "explanation": "Moving too early can result in incomplete or inaccurate routing.",
+        "explanation": "Republishing does not address the attribute driving the date.",
         "points": 0
       },
       {
-        "text": "Wait approximately 15 minutes for BGO to complete before moving routes and stops",
+        "text": "Check the customer's Days to Delivery in SOUS",
         "outcome": "good",
-        "explanation": "The QRG states you should wait 15 minutes after cut for BGO processing before finalizing routes.",
+        "explanation": "The SOUS source says to double check Days to Delivery. 0 = today, 1 = next day, and so on.",
         "points": 300
       },
       {
-        "text": "Only move routes with drivers assigned",
+        "text": "Change the order date in Tandem only",
         "outcome": "ok",
-        "explanation": "While partially correct, this does not address the need to wait for BGO completion.",
+        "explanation": "Tandem may not be the source of truth for routing attributes during order flow.",
         "points": 100
       }
     ]
   },
   {
     "id": 4,
-    "title": "Publishing Status Check",
-    "situation": "You publish a route and see a yellow diamond appear. What does this mean?",
+    "title": "Adding Delivery Photos",
+    "situation": "A customer wants pictures added to delivery instructions in SOUS. What should you do?",
     "choices": [
       {
-        "text": "The route failed to publish",
-        "outcome": "bad",
-        "explanation": "Yellow does not indicate failure.",
-        "points": 0
-      },
-      {
-        "text": "The route was successfully sent to Tandem",
+        "text": "Add them in the Delivery Photos section under the related tab and drag-and-drop the files",
         "outcome": "good",
-        "explanation": "A yellow diamond indicates a successful send to Tandem.",
+        "explanation": "The SOUS source directs users to the Delivery Photos section underneath the routing attributes.",
         "points": 300
       },
       {
-        "text": "The route is locked",
+        "text": "Paste the image into order comments",
         "outcome": "bad",
-        "explanation": "Locks are unrelated to publish indicators.",
+        "explanation": "The source points to Delivery Photos, not comments.",
+        "points": 0
+      },
+      {
+        "text": "Upload the images to the driver manifest screen",
+        "outcome": "bad",
+        "explanation": "That location is not the source-recommended place for delivery photos in SOUS.",
         "points": 0
       }
     ]

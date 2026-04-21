@@ -11,169 +11,169 @@ export interface QuizQuestion {
 export const quizQuestions = [
   {
     "id": 1,
-    "question": "Which four schedules should users add to Favorites to begin routing?",
+    "question": "What does the gray circle icon mean?",
     "options": [
-      "Planning, Dispatch, Review, and Archive",
-      "Planning, Publish, Route, and Archive",
-      "Planning, Dashboard, Review, and Trash",
-      "Review, Dispatch, Audit, and Archive"
+      "DG_1 customer with no liftgate requirement",
+      "DG_1 customer with a liftgate requirement",
+      "Published route sent to Tandem with no errors",
+      "Shuttle stop or route"
     ],
     "correctIndex": 0,
-    "explanation": "The QRG says users should add their market’s Planning, Dispatch, Review, and Archive schedules to Favorites before routing.",
+    "explanation": "The gray circle icon in Route Planner signifies a DG_1 customer with no liftgate requirement.",
     "difficulty": "easy",
     "points": 100
   },
   {
     "id": 2,
-    "question": "What is the Planning schedule primarily used for?",
+    "question": "What does the blue triangle icon mean?",
     "options": [
-      "Viewing completed routes only",
-      "Monitoring live published routes only",
-      "Visibility to future-dated orders and routes before final review",
-      "Deleting routes from the system"
+      "DG_2 customer with no liftgate requirement",
+      "DG_2 customer with a liftgate requirement",
+      "Cross dock (XDA)",
+      "Status 20 order"
     ],
-    "correctIndex": 2,
-    "explanation": "The QRG describes Planning as the schedule that provides visibility to future orders and routes that have not yet been fully managed by a router.",
+    "correctIndex": 1,
+    "explanation": "The blue triangle icon in Route Planner signifies a DG_2 customer with a liftgate requirement.",
     "difficulty": "easy",
     "points": 100
   },
   {
     "id": 3,
-    "question": "What should a router do before removing a route from a schedule?",
+    "question": "What does the black square icon mean?",
     "options": [
-      "Publish it first",
-      "Freeze it and move it to Dispatch",
-      "Unassign all stops from the route",
-      "Clone the driver assigned to it"
+      "Key drop or dark delivery",
+      "Shuttle stop or route",
+      "Off day order",
+      "Child account"
     ],
-    "correctIndex": 2,
-    "explanation": "The QRG says to use caution when removing routes and to unassign all stops before reassigning the route to Trash.",
+    "correctIndex": 0,
+    "explanation": "The black square icon in Route Planner signifies a key drop or dark delivery.",
     "difficulty": "easy",
     "points": 100
   },
   {
     "id": 4,
-    "question": "How are unassigned stops shown on the map?",
+    "question": "What does the green square icon mean?",
     "options": [
-      "A red diamond",
-      "A yellow route line",
-      "A U marker",
-      "A stop number 0"
+      "Published route sent to Omnitracs with no errors",
+      "Child account",
+      "Layover order",
+      "Backhaul or pickup"
     ],
-    "correctIndex": 2,
-    "explanation": "The QRG states that unassigned stops can be shown on the map and are marked with a 'U'.",
+    "correctIndex": 1,
+    "explanation": "The green square icon in Route Planner signifies a child account.",
     "difficulty": "easy",
     "points": 100
   },
   {
     "id": 5,
-    "question": "After cut is taken and before finalizing routes in Review, how long should routers wait for BGO to complete?",
+    "question": "What does the blue star icon mean?",
     "options": [
-      "5 minutes",
-      "10 minutes",
-      "15 minutes",
-      "30 minutes"
+      "Will call delivery (WCD)",
+      "Backhaul or pickup",
+      "Missing SOUS setup (DV)",
+      "Cross dock (XDB)"
     ],
-    "correctIndex": 2,
-    "explanation": "The QRG instructs routers to wait 15 minutes after cut is taken for BGO to complete before manually moving routes and stops to Review.",
-    "difficulty": "medium",
-    "points": 150
+    "correctIndex": 0,
+    "explanation": "The blue star icon in Route Planner signifies a will call delivery (WCD).",
+    "difficulty": "easy",
+    "points": 100
   },
   {
     "id": 6,
-    "question": "If a stop cannot ship on the current delivery day, what should happen to it?",
+    "question": "What does the dark red or maroon star icon mean?",
     "options": [
-      "Leave it in Review until the next day",
-      "Move it to Archive",
-      "Add it to a 999 route and publish it",
-      "Delete the order and recreate it later"
+      "Layover order",
+      "Status 30 or 40 order",
+      "Backhaul or pickup",
+      "Bill-to-ship-to customer"
     ],
     "correctIndex": 2,
-    "explanation": "The QRG says all unassigned stops must either be assigned to a route and published, or—if they are not shipping on the current delivery day—added to a 999 route and published.",
+    "explanation": "The dark red or maroon star icon in Route Planner signifies a backhaul/pickup.",
     "difficulty": "medium",
     "points": 150
   },
   {
     "id": 7,
-    "question": "What is the recommended action if a route will not publish and some orders remain in status 20?",
+    "question": "What does the red star icon mean?",
     "options": [
-      "Ignore it and publish again later",
-      "Check the Route Detail quadrant because orders stuck in status 20 can prevent publishing",
-      "Move the route back to Archive",
-      "Deactivate the driver and retry"
+      "Stop is missing SOUS setup (DV)",
+      "Stop is on an off day order",
+      "Customer has a liftgate requirement",
+      "Route is already archived"
     ],
-    "correctIndex": 1,
-    "explanation": "The QRG notes that if a route will not publish, you should check Route Detail 1 to see whether any orders are still in status 20, which can block publishing.",
+    "correctIndex": 0,
+    "explanation": "The red star icon in Route Planner signifies a stop is missing SOUS setup (DV).",
     "difficulty": "medium",
     "points": 150
   },
   {
     "id": 8,
-    "question": "What indicates that the first publish to Tandem was successful?",
+    "question": "What does the yellow diamond icon mean?",
     "options": [
-      "A green diamond appears immediately",
-      "A red diamond appears on the route",
-      "A yellow diamond appears and Tandem Route Status confirms success",
-      "The route moves automatically to Archive"
+      "Published route sent to Omnitracs with no errors",
+      "Status 20 order",
+      "Published route sent to Tandem with no errors",
+      "HazMat stop or route over 999 lbs"
     ],
     "correctIndex": 2,
-    "explanation": "The QRG explains that the first publish sends routes to Tandem and a yellow diamond appears when the send to Tandem is successful.",
+    "explanation": "The yellow diamond icon in Route Planner signifies a published route that was sent to Tandem with no errors.",
     "difficulty": "medium",
     "points": 150
   },
   {
     "id": 9,
-    "question": "What should appear after a successful publish to Omni?",
+    "question": "What does the green diamond icon mean?",
     "options": [
-      "A blue square",
-      "A green diamond",
-      "A yellow triangle",
-      "A gray circle"
+      "Published route sent to Omnitracs with no errors",
+      "Published route sent to Tandem with no errors",
+      "Key drop or dark delivery",
+      "Status 30 or 40 order"
     ],
-    "correctIndex": 1,
-    "explanation": "The QRG says a green diamond signifies the publish to Omni was successful.",
+    "correctIndex": 0,
+    "explanation": "The green diamond icon in Route Planner signifies a published route that was sent to Omnitracs with no errors.",
     "difficulty": "medium",
     "points": 150
   },
   {
     "id": 10,
-    "question": "Where should routers maintain customer route and sequence locks?",
+    "question": "What does a red hexagon icon mean?",
     "options": [
-      "Only in Route Planner route details",
-      "In Omni equipment settings",
-      "In SOUS Routing Attributes",
-      "In the public filter menu"
+      "Status 30 or 40 order",
+      "HazMat stop or route over 999 lbs",
+      "Status 20 order",
+      "Backhaul or pickup"
     ],
     "correctIndex": 2,
-    "explanation": "The QRG states that locking a customer to a route or sequence is maintained in SOUS via Routing Attributes, not directly in Route Planner.",
-    "difficulty": "hard",
-    "points": 200
+    "explanation": "A red hexagon icon in Route Planner signifies a status 20 order.",
+    "difficulty": "medium",
+    "points": 150
   },
   {
     "id": 11,
-    "question": "What does a Preferred Route Position of 50 generally indicate?",
+    "question": "How can you add options when you right-click on a route, such as printing driver manifests?",
     "options": [
-      "The customer must be the first stop",
-      "The customer is dynamic within the route sequence",
-      "The order is published to Dispatch",
-      "The stop is a backhaul pickup only"
+      "Use Data > Templates > Routes",
+      "Go to App Setup > UI Setting > Context Menu and edit the Routes quadrant",
+      "Republish the route after cut is taken",
+      "Enable the option from the driver profile"
     ],
     "correctIndex": 1,
-    "explanation": "The QRG explains that a '50' Preferred Route Position means the customer is dynamic and can move within a route sequence, while still respecting lower sequence locks.",
+    "explanation": "On the side menu, go to App Setup > UI Setting > Context Menu and select the quadrant you want to edit. The Routes quadrant is where you can add the option to print a driver manifest.",
     "difficulty": "hard",
     "points": 200
   },
   {
     "id": 12,
-    "question": "Where can you track detailed user and system updates to orders and routes in Route Planner?",
+    "question": "Routes are not being optimized by BGO. What should you check first?",
     "options": [
-      "Summary Reports",
-      "Data > API Tracking > API Tracking",
-      "App Setup > UI Settings",
-      "Data > Templates > Route"
+      "Whether the route is already published to Omnitracs",
+      "Whether there is an 'X' in UDFString 4 and whether 'Exclude From Optimization' is checked in the resource",
+      "Whether the route is marked as a key drop",
+      "Whether the driver has a delivery photo attached"
     ],
     "correctIndex": 1,
-    "explanation": "The QRG says API Tracking is found under Data > API Tracking > API Tracking and is used to review detailed history of system and user updates.",
+    "explanation": "Before assuming it is a BGO issue, make sure there is not an 'X' in UDFString 4 and check whether 'Exclude From Optimization' is checked inside the resource.",
     "difficulty": "hard",
     "points": 200
   }
