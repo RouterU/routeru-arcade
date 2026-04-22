@@ -69,13 +69,13 @@ export const quizQuestions = [
     "id": 5,
     "question": "What does the blue star icon mean?",
     "options": [
-      "Will call delivery (WCD)",
+      "Recovery Express",
       "Backhaul or pickup",
       "Missing SOUS setup (DV)",
       "Cross dock (XDB)"
     ],
     "correctIndex": 0,
-    "explanation": "The blue star icon in Route Planner signifies a will call delivery (WCD).",
+    "explanation": "The blue star icon in Route Planner signifies a Recovery Express.",
     "difficulty": "easy",
     "points": 100
   },
