@@ -34,11 +34,11 @@ type Enemy = {
   homeY: number;
 };
 
-const DEFAULT_TIMED_SECONDS = 15;
+const DEFAULT_TIMED_SECONDS = 20;
 const BASE_MOVE_MS = 165;
 const ENEMY_BASE_MS = 250;
-const FINAL_LEVEL_1_SECONDS = 12;
-const FINAL_LEVEL_2_SECONDS = 12;
+const FINAL_LEVEL_1_SECONDS = 20;
+const FINAL_LEVEL_2_SECONDS = 25;
 
 const CHEF_SIZE = 98;
 const ENEMY_SIZE = 98;
