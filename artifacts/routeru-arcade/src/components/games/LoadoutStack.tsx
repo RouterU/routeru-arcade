@@ -49,7 +49,7 @@ const BOARD_WIDTH = 10;
 const BOARD_HEIGHT = 16;
 const NORMAL_DROP_MS = 650;
 const FAST_DROP_MS = 60;
-const DEFAULT_TIMED_SECONDS = 15;
+const DEFAULT_TIMED_SECONDS = 20;
 
 let persistedStackState: PersistedStackState = null;
 
