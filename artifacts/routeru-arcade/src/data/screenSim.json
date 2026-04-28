@@ -1,0 +1,17 @@
+[
+  {
+    "id": 1,
+    "title": "Route Start Time",
+    "image": "/screenshots/route-planner-1.png",
+    "question": "Where would you click to update the route start time?",
+    "correctZones": [
+      {
+        "x": 410,
+        "y": 220,
+        "width": 160,
+        "height": 45
+      }
+    ],
+    "explanation": "This is the planned route start time field. Routers update this when adjusting route timing."
+  }
+]
