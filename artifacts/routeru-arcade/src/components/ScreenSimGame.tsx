@@ -82,7 +82,7 @@ const QUESTIONS: ScreenSimQuestion[] = [
       },
     ],
     explanation:
-      "Unassigned stops on the map will have a "U" displayed.",
+      "Unassigned stops on the map will have a 'U' displayed.",
   },
 ];
 
