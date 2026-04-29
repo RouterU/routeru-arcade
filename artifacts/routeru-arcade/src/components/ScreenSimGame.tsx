@@ -32,7 +32,7 @@ const QUESTIONS: ScreenSimQuestion[] = [
       {
         x: 82,
         y: 11,
-        width: 11,
+        width: 14,
         height: 9,
       },
     ],
@@ -47,20 +47,20 @@ const QUESTIONS: ScreenSimQuestion[] = [
       "Where would you click to correctly change the route start time? You must click all required areas.",
     correctZones: [
       {
-        x: 5,
-        y: 87,
+        x: 2,
+        y: 85,
         width: 14,
         height: 7,
       },
       {
         x: 26,
-        y: 15,
+        y: 12,
         width: 10,
         height: 7,
       },
       {
-        x: 28,
-        y: 32,
+        x: 25,
+        y: 30,
         width: 12,
         height: 8,
       },
