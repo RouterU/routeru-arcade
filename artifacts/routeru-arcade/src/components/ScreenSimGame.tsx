@@ -66,7 +66,7 @@ const QUESTIONS: ScreenSimQuestion[] = [
       },
     ],
     explanation:
-      "These are the required areas involved in correctly changing the route start time. Easiest step to forget, is the "Latest" start time change.",
+      "These are the required areas involved in correctly changing the route start time. Easiest step to forget, is the 'Latest' start time change.",
   },
 ];
 
