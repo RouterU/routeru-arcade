@@ -12,6 +12,7 @@ const GAME_LABELS: Record<LeaderboardEntry["game"], string> = {
   scenario: "What Would You Do?",
   "data-challenge": "Issue Hunter",
   "route-runner": "Game Zone",
+  "screen-sim": "Find the Fix",
 };
 
 const GAME_COLORS: Record<LeaderboardEntry["game"], string> = {
@@ -19,6 +20,7 @@ const GAME_COLORS: Record<LeaderboardEntry["game"], string> = {
   scenario: "hsl(128 30% 58%)",
   "data-challenge": "hsl(38 95% 55%)",
   "route-runner": "hsl(5 84% 48%)",
+  "screen-sim": "hsl(38 95% 55%)",
 };
 
 export default function Leaderboard({
@@ -30,10 +32,7 @@ export default function Leaderboard({
     <div className="p-5 space-y-4">
       <div className="flex items-center gap-2">
         <Trophy size={18} style={{ color: "hsl(38 95% 58%)" }} />
-        <h3
-          className="font-bold"
-          style={{ color: "hsl(38 45% 96%)" }}
-        >
+        <h3 className="font-bold" style={{ color: "hsl(38 45% 96%)" }}>
           {title}
         </h3>
       </div>
@@ -47,16 +46,10 @@ export default function Leaderboard({
               border: "1px solid hsl(128 20% 24%)",
             }}
           >
-            <div
-              className="text-sm font-medium"
-              style={{ color: "hsl(38 45% 96%)" }}
-            >
+            <div className="text-sm font-medium" style={{ color: "hsl(38 45% 96%)" }}>
               No scores yet
             </div>
-            <div
-              className="text-xs mt-1"
-              style={{ color: "hsl(0 0% 68%)" }}
-            >
+            <div className="text-xs mt-1" style={{ color: "hsl(0 0% 68%)" }}>
               Be the first to post a score.
             </div>
           </div>
@@ -88,63 +81,39 @@ export default function Leaderboard({
               >
                 <div className="w-8 shrink-0 text-center">
                   {isTop ? (
-                    <span
-                      style={{ color: "hsl(38 95% 58%)" }}
-                      className="font-bold text-sm"
-                    >
+                    <span style={{ color: "hsl(38 95% 58%)" }} className="font-bold text-sm">
                       🥇
                     </span>
                   ) : isSecond ? (
-                    <span
-                      style={{ color: "hsl(210 10% 70%)" }}
-                      className="font-bold text-sm"
-                    >
+                    <span style={{ color: "hsl(210 10% 70%)" }} className="font-bold text-sm">
                       🥈
                     </span>
                   ) : isThird ? (
-                    <span
-                      style={{ color: "hsl(28 65% 55%)" }}
-                      className="font-bold text-sm"
-                    >
+                    <span style={{ color: "hsl(28 65% 55%)" }} className="font-bold text-sm">
                       🥉
                     </span>
                   ) : (
-                    <span
-                      className="text-xs font-semibold"
-                      style={{ color: "hsl(0 0% 68%)" }}
-                    >
+                    <span className="text-xs font-semibold" style={{ color: "hsl(0 0% 68%)" }}>
                       #{rank}
                     </span>
                   )}
                 </div>
 
                 <div className="flex-1 min-w-0">
-                  <div
-                    className="text-sm font-semibold truncate"
-                    style={{ color: "hsl(38 45% 96%)" }}
-                  >
+                  <div className="text-sm font-semibold truncate" style={{ color: "hsl(38 45% 96%)" }}>
                     {entry.name}
                   </div>
 
-                  <div
-                    className="text-xs"
-                    style={{ color: GAME_COLORS[entry.game] ?? "hsl(0 0% 60%)" }}
-                  >
+                  <div className="text-xs" style={{ color: GAME_COLORS[entry.game] ?? "hsl(0 0% 60%)" }}>
                     {GAME_LABELS[entry.game] ?? entry.game}
                   </div>
                 </div>
 
                 <div className="text-right shrink-0">
-                  <div
-                    className="text-sm font-bold score-number"
-                    style={{ color: "hsl(38 88% 61%)" }}
-                  >
+                  <div className="text-sm font-bold score-number" style={{ color: "hsl(38 88% 61%)" }}>
                     {entry.score.toLocaleString()}
                   </div>
-                  <div
-                    className="text-xs"
-                    style={{ color: "hsl(0 0% 62%)" }}
-                  >
+                  <div className="text-xs" style={{ color: "hsl(0 0% 62%)" }}>
                     {entry.date}
                   </div>
                 </div>
