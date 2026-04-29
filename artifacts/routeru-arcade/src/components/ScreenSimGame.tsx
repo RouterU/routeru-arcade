@@ -75,10 +75,10 @@ const QUESTIONS: ScreenSimQuestion[] = [
     question: "Where is the Unassigned stop on the map?",
     correctZones: [
       {
-        x: 82,
-        y: 11,
-        width: 14,
-        height: 9,
+        x: 58,
+        y: 42,
+        width: 2,
+        height: 3,
       },
     ],
     explanation:
