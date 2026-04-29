@@ -62,11 +62,11 @@ const QUESTIONS: ScreenSimQuestion[] = [
         x: 26,
         y: 18,
         width: 12,
-        height: 5,
+        height: 4,
       },
     ],
     explanation:
-      "These are the required areas involved in correctly changing the route start time. The user must identify each required screen location to complete the task.",
+      "These are the required areas involved in correctly changing the route start time. Easiest step to forget, is the "Latest" start time change.",
   },
 ];
 
