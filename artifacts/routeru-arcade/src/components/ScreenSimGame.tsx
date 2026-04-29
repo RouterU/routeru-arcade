@@ -68,6 +68,22 @@ const QUESTIONS: ScreenSimQuestion[] = [
     explanation:
       "These are the required areas involved in correctly changing the route start time. Easiest step to forget, is the 'Latest' start time change.",
   },
+    {
+    id: 3,
+    title: "Unassigned Stop",
+    image: "/screenshots/route-planner-map-unassignedstop.jpg",
+    question: "Where is the Unassigned stop on the map?",
+    correctZones: [
+      {
+        x: 82,
+        y: 11,
+        width: 14,
+        height: 9,
+      },
+    ],
+    explanation:
+      "Unassigned stops on the map will have a "U" displayed.",
+  },
 ];
 
 export default function ScreenSimGame({ onComplete, onBack }: ScreenSimGameProps) {
