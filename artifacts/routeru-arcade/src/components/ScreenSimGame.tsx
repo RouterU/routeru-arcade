@@ -30,8 +30,8 @@ const QUESTIONS: ScreenSimQuestion[] = [
     question: "Where would you click to select your schedule?",
     correctZones: [
       {
-        x: 82,
-        y: 14,
+        x: 83,
+        y: 13,
         width: 22,
         height: 9,
       },
