@@ -37,20 +37,33 @@ const QUESTIONS: ScreenSimQuestion[] = [
       },
     ],
     explanation:
-      "This is the planned route start time field. Routers update this area when adjusting route timing.",
+      "This is favorites dropdown. You can add multiple schedules to appear in this dropdown.",
   },
   {
     id: 2,
     title: "Route Resource",
-    image: "/screenshots/route-planner-1.jpg",
-    question: "Where would you click to review or change the assigned resource?",
-    correctZones: [
-      {
-        x: 18,
-        y: 35,
-        width: 16,
-        height: 8,
-      },
+    image: "/screenshots/route-planner-resource-1.jpg",
+    question: "Where would you click to correctly change the route start time? Multiple clicks are accepted",
+correctZones: [
+  {
+    x: 38,
+    y: 24,
+    width: 14,
+    height: 7,
+  },
+  {
+    x: 62,
+    y: 24,
+    width: 10,
+    height: 7,
+  },
+  {
+    x: 75,
+    y: 40,
+    width: 12,
+    height: 8,
+  },
+],
     ],
     explanation:
       "The resource area is where the assigned truck, driver, or route resource information is reviewed.",
