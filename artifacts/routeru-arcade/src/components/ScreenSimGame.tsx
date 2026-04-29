@@ -361,8 +361,7 @@ if (!isCorrectClick) {
 
         {!result && (
           <div className="mt-4 text-xs" style={{ color: "hsl(0 0% 56%)" }}>
-            Tip: For setup/testing, open the browser console. Every click logs the
-            x/y percentage so you can adjust the correct zones.
+            Tip: Take your time, theres no rush!
           </div>
         )}
       </div>
