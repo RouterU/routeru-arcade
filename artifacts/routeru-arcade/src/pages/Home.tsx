@@ -11,11 +11,13 @@ import {
   ShieldCheck,
   Truck,
   Crown,
+  MousePointerClick,
 } from "lucide-react";
 import QuizGame from "@/components/QuizGame";
 import DataChallengeGame from "@/components/DataChallengeGame";
 import RouteRunnerGame from "@/components/RouteRunnerGame";
 import ScenarioGame from "@/components/ScenarioGame";
+import ScreenSimGame from "@/components/ScreenSimGame";
 import Leaderboard from "@/components/Leaderboard";
 import ScoreSubmit from "@/components/ScoreSubmit";
 import { useLeaderboard } from "@/store/gameStore";
@@ -27,15 +29,17 @@ type GameView =
   | "scenario"
   | "data-challenge"
   | "route-runner"
+  | "screen-sim"
   | "submit-quiz"
   | "submit-scenario"
   | "submit-data"
-  | "submit-route-runner";
+  | "submit-route-runner"
+  | "submit-screen-sim";
 
 interface PendingScore {
   score: number;
   streak?: number;
-  game: "quiz" | "scenario" | "data-challenge" | "route-runner";
+  game: "quiz" | "scenario" | "data-challenge" | "route-runner" | "screen-sim";
 }
 
 const GAMES = [
@@ -83,6 +87,17 @@ const GAMES = [
     difficulty: "Arcade",
     cta: "Play Now!",
   },
+  {
+    id: "screen-sim" as const,
+    icon: MousePointerClick,
+    title: "Find the Fix",
+    description:
+      "Study a software screenshot, click the correct area, and learn why that action matters.",
+    color: "hsl(38 95% 55%)",
+    badge: "Click Simulation",
+    difficulty: "Hands-On",
+    cta: "Start",
+  },
 ];
 
 export default function Home() {
@@ -116,6 +131,12 @@ export default function Home() {
         matches: ["route-runner"],
         icon: Truck,
         color: "hsl(5 84% 48%)",
+      },
+      {
+        label: "Find the Fix",
+        matches: ["screen-sim"],
+        icon: MousePointerClick,
+        color: "hsl(38 95% 55%)",
       },
     ];
 
@@ -155,6 +176,12 @@ export default function Home() {
     setSessionScore((s) => s + score);
     setPending({ score, game: "route-runner" });
     setView("submit-route-runner");
+  };
+
+  const handleScreenSimComplete = (score: number) => {
+    setSessionScore((s) => s + score);
+    setPending({ score, game: "screen-sim" });
+    setView("submit-screen-sim");
   };
 
   const handleSubmitScore = (name: string) => {
@@ -241,11 +268,23 @@ export default function Home() {
     );
   }
 
+  if (view === "screen-sim") {
+    return (
+      <div className="min-h-screen px-4 py-8" style={pageBackground}>
+        <ScreenSimGame
+          onComplete={handleScreenSimComplete}
+          onBack={() => setView("hub")}
+        />
+      </div>
+    );
+  }
+
   if (
     view === "submit-quiz" ||
     view === "submit-scenario" ||
     view === "submit-data" ||
-    view === "submit-route-runner"
+    view === "submit-route-runner" ||
+    view === "submit-screen-sim"
   ) {
     return (
       <div
@@ -339,7 +378,7 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-6">
+        <div className="grid md:grid-cols-2 xl:grid-cols-5 gap-6">
           {GAMES.map((game, i) => {
             const Icon = game.icon;
 
@@ -568,6 +607,12 @@ export default function Home() {
                     color: "hsl(5 84% 48%)",
                     title: "Routing Game Zone",
                     desc: "6 questions, 3 game rounds, and bonus points from correct answers, survival, and mini-game performance.",
+                  },
+                  {
+                    icon: MousePointerClick,
+                    color: "hsl(38 95% 55%)",
+                    title: "Find the Fix",
+                    desc: "Click the correct area of a software screenshot to prove you know where the fix should happen.",
                   },
                 ].map(({ icon: Icon, color, title, desc }) => (
                   <div key={title} className="flex gap-3">
