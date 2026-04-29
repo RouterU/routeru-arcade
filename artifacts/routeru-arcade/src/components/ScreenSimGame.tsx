@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ArrowLeft, CheckCircle, XCircle, MousePointerClick } from "lucide-react";
+import { ArrowLeft, CheckCircle, MousePointerClick } from "lucide-react";
 
 interface CorrectZone {
   x: number;
@@ -25,7 +25,7 @@ interface ScreenSimGameProps {
 const QUESTIONS: ScreenSimQuestion[] = [
   {
     id: 1,
-    title: "Route Start Time",
+    title: "Schedule Change",
     image: "/screenshots/route-planner-1.jpg",
     question: "Where would you click to select your schedule?",
     correctZones: [
@@ -37,44 +37,47 @@ const QUESTIONS: ScreenSimQuestion[] = [
       },
     ],
     explanation:
-      "This is favorites dropdown. You can add multiple schedules to appear in this dropdown.",
+      "This is the favorites dropdown. You can add multiple schedules to appear in this dropdown.",
   },
   {
     id: 2,
     title: "Route Resource",
     image: "/screenshots/route-planner-resource-1.jpg",
-    question: "Where would you click to correctly change the route start time? Multiple clicks are accepted",
-correctZones: [
-  {
-    x: 38,
-    y: 24,
-    width: 14,
-    height: 7,
-  },
-  {
-    x: 62,
-    y: 24,
-    width: 10,
-    height: 7,
-  },
-  {
-    x: 75,
-    y: 40,
-    width: 12,
-    height: 8,
-  },
-],
+    question:
+      "Where would you click to correctly change the route start time? You must click all required areas.",
+    correctZones: [
+      {
+        x: 38,
+        y: 24,
+        width: 14,
+        height: 7,
+      },
+      {
+        x: 62,
+        y: 24,
+        width: 10,
+        height: 7,
+      },
+      {
+        x: 75,
+        y: 40,
+        width: 12,
+        height: 8,
+      },
     ],
     explanation:
-      "The resource area is where the assigned truck, driver, or route resource information is reviewed.",
+      "These are the required areas involved in correctly changing the route start time. The user must identify each required screen location to complete the task.",
   },
 ];
 
 export default function ScreenSimGame({ onComplete, onBack }: ScreenSimGameProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [score, setScore] = useState(0);
-  const [result, setResult] = useState<"correct" | "incorrect" | null>(null);
-  const [clickPoint, setClickPoint] = useState<{ x: number; y: number } | null>(null);
+  const [result, setResult] = useState<"correct" | null>(null);
+  const [clickPoints, setClickPoints] = useState<
+    { x: number; y: number; correct: boolean }[]
+  >([]);
+  const [foundZones, setFoundZones] = useState<number[]>([]);
   const [showZones, setShowZones] = useState(false);
 
   const current = QUESTIONS[currentIndex];
@@ -95,30 +98,47 @@ export default function ScreenSimGame({ onComplete, onBack }: ScreenSimGameProps
       y: Math.round(clickY),
     });
 
-    setClickPoint({ x: clickX, y: clickY });
+    let matchedZoneIndex = -1;
 
-    const isCorrect = current.correctZones.some((zone) => {
-      return (
+    current.correctZones.forEach((zone, index) => {
+      const isInside =
         clickX >= zone.x &&
         clickX <= zone.x + zone.width &&
         clickY >= zone.y &&
-        clickY <= zone.y + zone.height
-      );
+        clickY <= zone.y + zone.height;
+
+      if (isInside && !foundZones.includes(index)) {
+        matchedZoneIndex = index;
+      }
     });
 
-    if (isCorrect) {
+    const isCorrectClick = matchedZoneIndex !== -1;
+
+    setClickPoints((previous) => [
+      ...previous,
+      {
+        x: clickX,
+        y: clickY,
+        correct: isCorrectClick,
+      },
+    ]);
+
+    if (!isCorrectClick) return;
+
+    const updatedFoundZones = [...foundZones, matchedZoneIndex];
+    setFoundZones(updatedFoundZones);
+
+    if (updatedFoundZones.length === current.correctZones.length) {
       setScore((previous) => previous + 100);
       setResult("correct");
-      setShowZones(true);
-    } else {
-      setResult("incorrect");
       setShowZones(true);
     }
   };
 
   const handleNext = () => {
     setResult(null);
-    setClickPoint(null);
+    setClickPoints([]);
+    setFoundZones([]);
     setShowZones(false);
 
     if (currentIndex < QUESTIONS.length - 1) {
@@ -126,11 +146,10 @@ export default function ScreenSimGame({ onComplete, onBack }: ScreenSimGameProps
       return;
     }
 
-    const finalScore = result === "correct" ? score + 100 : score;
-    onComplete(finalScore);
+    onComplete(score);
   };
 
-  const currentDisplayScore = result === "correct" ? score + 100 : score;
+  const currentDisplayScore = score;
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
@@ -189,10 +208,7 @@ export default function ScreenSimGame({ onComplete, onBack }: ScreenSimGameProps
               {current.title}
             </h1>
 
-            <p
-              className="mt-2 text-sm"
-              style={{ color: "hsl(0 0% 70%)" }}
-            >
+            <p className="mt-2 text-sm" style={{ color: "hsl(0 0% 70%)" }}>
               Question {questionNumber} of {totalQuestions}
             </p>
           </div>
@@ -222,11 +238,15 @@ export default function ScreenSimGame({ onComplete, onBack }: ScreenSimGameProps
           >
             {current.question}
           </h2>
-          <p
-            className="text-sm mt-2"
-            style={{ color: "hsl(0 0% 68%)" }}
-          >
-            Click directly on the screenshot where the user should make the change.
+
+          <p className="text-sm mt-2" style={{ color: "hsl(0 0% 68%)" }}>
+            Click directly on the screenshot where the user should make the
+            change.
+          </p>
+
+          <p className="text-sm mt-2 font-semibold" style={{ color: "hsl(38 95% 55%)" }}>
+            Found {foundZones.length} of {current.correctZones.length} required area
+            {current.correctZones.length === 1 ? "" : "s"}.
           </p>
         </div>
 
@@ -245,20 +265,21 @@ export default function ScreenSimGame({ onComplete, onBack }: ScreenSimGameProps
             draggable={false}
           />
 
-          {clickPoint && (
+          {clickPoints.map((point, index) => (
             <div
+              key={index}
               className={`absolute w-6 h-6 rounded-full border-2 -translate-x-1/2 -translate-y-1/2 ${
-                result === "correct"
+                point.correct
                   ? "bg-green-500 border-white"
                   : "bg-red-500 border-white"
               }`}
               style={{
-                left: `${clickPoint.x}%`,
-                top: `${clickPoint.y}%`,
+                left: `${point.x}%`,
+                top: `${point.y}%`,
                 boxShadow: "0 0 18px rgba(255,255,255,0.65)",
               }}
             />
-          )}
+          ))}
 
           {showZones &&
             current.correctZones.map((zone, index) => (
@@ -279,29 +300,19 @@ export default function ScreenSimGame({ onComplete, onBack }: ScreenSimGameProps
           <div
             className="mt-5 rounded-2xl p-5 border"
             style={{
-              background:
-                result === "correct"
-                  ? "hsl(128 42% 18% / 0.9)"
-                  : "hsl(5 55% 20% / 0.9)",
-              borderColor:
-                result === "correct"
-                  ? "hsl(128 55% 42%)"
-                  : "hsl(5 84% 48%)",
+              background: "hsl(128 42% 18% / 0.9)",
+              borderColor: "hsl(128 55% 42%)",
             }}
           >
             <div className="flex items-start gap-3">
-              {result === "correct" ? (
-                <CheckCircle size={24} style={{ color: "hsl(128 70% 60%)" }} />
-              ) : (
-                <XCircle size={24} style={{ color: "hsl(5 84% 62%)" }} />
-              )}
+              <CheckCircle size={24} style={{ color: "hsl(128 70% 60%)" }} />
 
               <div className="flex-1">
                 <h3
                   className="text-xl font-bold"
                   style={{ color: "hsl(38 45% 96%)" }}
                 >
-                  {result === "correct" ? "Correct!" : "Not quite."}
+                  Correct!
                 </h3>
 
                 <p
@@ -320,7 +331,9 @@ export default function ScreenSimGame({ onComplete, onBack }: ScreenSimGameProps
                     color: "hsl(0 0% 8%)",
                   }}
                 >
-                  {currentIndex < QUESTIONS.length - 1 ? "Next Question" : "Finish Training"}
+                  {currentIndex < QUESTIONS.length - 1
+                    ? "Next Question"
+                    : "Finish Training"}
                 </button>
               </div>
             </div>
@@ -328,12 +341,9 @@ export default function ScreenSimGame({ onComplete, onBack }: ScreenSimGameProps
         )}
 
         {!result && (
-          <div
-            className="mt-4 text-xs"
-            style={{ color: "hsl(0 0% 56%)" }}
-          >
-            Tip: For setup/testing, open the browser console. Every click logs the x/y percentage
-            so you can adjust the correct zones.
+          <div className="mt-4 text-xs" style={{ color: "hsl(0 0% 56%)" }}>
+            Tip: For setup/testing, open the browser console. Every click logs the
+            x/y percentage so you can adjust the correct zones.
           </div>
         )}
       </div>
