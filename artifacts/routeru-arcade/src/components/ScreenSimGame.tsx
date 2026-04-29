@@ -27,11 +27,11 @@ const QUESTIONS: ScreenSimQuestion[] = [
     id: 1,
     title: "Route Start Time",
     image: "/screenshots/route-planner-1.jpg",
-    question: "Where would you click to update the route start time?",
+    question: "Where would you click to select your schedule?",
     correctZones: [
       {
-        x: 38,
-        y: 24,
+        x: 89,
+        y: 15,
         width: 14,
         height: 7,
       },
