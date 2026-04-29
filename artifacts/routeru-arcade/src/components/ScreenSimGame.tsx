@@ -139,7 +139,9 @@ export default function ScreenSimGame({ onComplete, onBack }: ScreenSimGameProps
       },
     ]);
 
-    if (!isCorrectClick) return;
+    if (!isCorrectClick) {
+  setScore((prev) => Math.max(0, prev - 10));
+  return;
 
     const updatedFoundZones = [...foundZones, matchedZoneIndex];
     setFoundZones(updatedFoundZones);
