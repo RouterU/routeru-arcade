@@ -48,7 +48,7 @@ const QUESTIONS: ScreenSimQuestion[] = [
     correctZones: [
       {
         x: 0,
-        y: 84,
+        y: 81,
         width: 14,
         height: 7,
       },
