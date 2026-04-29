@@ -26,7 +26,7 @@ const QUESTIONS: ScreenSimQuestion[] = [
   {
     id: 1,
     title: "Route Start Time",
-    image: "/screenshots/route-planner-1.png",
+    image: "/screenshots/route-planner-1.jpg",
     question: "Where would you click to update the route start time?",
     correctZones: [
       {
@@ -42,7 +42,7 @@ const QUESTIONS: ScreenSimQuestion[] = [
   {
     id: 2,
     title: "Route Resource",
-    image: "/screenshots/route-planner-1.png",
+    image: "/screenshots/route-planner-1.jpg",
     question: "Where would you click to review or change the assigned resource?",
     correctZones: [
       {
