@@ -1,10 +1,17 @@
 import { useState, useCallback, useEffect } from "react";
 
+export type GameType =
+  | "quiz"
+  | "scenario"
+  | "data-challenge"
+  | "route-runner"
+  | "screen-sim";
+
 export interface LeaderboardEntry {
   id: string;
   name: string;
   score: number;
-  game: "quiz" | "scenario" | "data-challenge" | "route-runner";
+  game: GameType;
   date: string;
 }
 
@@ -12,11 +19,21 @@ export interface LifetimeLeaderboardEntry {
   id: string;
   name: string;
   nameKey: string;
-  game: "quiz" | "scenario" | "data-challenge" | "route-runner";
+  game: GameType;
   totalScore: number;
   plays: number;
   bestScore: number;
   date: string;
+}
+
+function isValidGame(game: unknown): game is GameType {
+  return (
+    game === "quiz" ||
+    game === "scenario" ||
+    game === "data-challenge" ||
+    game === "route-runner" ||
+    game === "screen-sim"
+  );
 }
 
 function isValidEntry(entry: unknown): entry is LeaderboardEntry {
@@ -28,10 +45,7 @@ function isValidEntry(entry: unknown): entry is LeaderboardEntry {
     typeof e.id === "string" &&
     typeof e.name === "string" &&
     typeof e.score === "number" &&
-    (e.game === "quiz" ||
-      e.game === "scenario" ||
-      e.game === "data-challenge" ||
-      e.game === "route-runner") &&
+    isValidGame(e.game) &&
     typeof e.date === "string"
   );
 }
@@ -45,13 +59,10 @@ function isValidLifetimeEntry(entry: unknown): entry is LifetimeLeaderboardEntry
     typeof e.id === "string" &&
     typeof e.name === "string" &&
     typeof e.nameKey === "string" &&
+    isValidGame(e.game) &&
     typeof e.totalScore === "number" &&
     typeof e.plays === "number" &&
     typeof e.bestScore === "number" &&
-    (e.game === "quiz" ||
-      e.game === "scenario" ||
-      e.game === "data-challenge" ||
-      e.game === "route-runner") &&
     typeof e.date === "string"
   );
 }
@@ -162,29 +173,32 @@ export function useLeaderboard() {
     [loadLeaderboard]
   );
 
-  const resetLeaderboard = useCallback(async (passcode: string) => {
-    try {
-      const res = await fetch("/api/leaderboard", {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ passcode }),
-      });
+  const resetLeaderboard = useCallback(
+    async (passcode: string) => {
+      try {
+        const res = await fetch("/api/leaderboard", {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ passcode }),
+        });
 
-      const data = await res.json();
+        const data = await res.json();
 
-      if (!res.ok) {
-        throw new Error(data.error || `Failed to reset leaderboard: ${res.status}`);
+        if (!res.ok) {
+          throw new Error(data.error || `Failed to reset leaderboard: ${res.status}`);
+        }
+
+        setEntries([]);
+        await loadLeaderboard();
+      } catch (error) {
+        console.error("Failed to reset leaderboard:", error);
+        throw error;
       }
-
-      setEntries([]);
-      await loadLeaderboard();
-    } catch (error) {
-      console.error("Failed to reset leaderboard:", error);
-      throw error;
-    }
-  }, [loadLeaderboard]);
+    },
+    [loadLeaderboard]
+  );
 
   const topEntries = entries.slice(0, 10);
 
