@@ -90,7 +90,7 @@ const GAMES = [
   {
     id: "screen-sim" as const,
     icon: MousePointerClick,
-    title: "Hands On How-To",
+    title: "Find The Fix",
     description:
       "Think you know your way around Descartes Route Planner? Test your knowledge with a simulation, click the correct area, and learn why that action matters.",
     color: "hsl(38 95% 55%)",
