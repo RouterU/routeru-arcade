@@ -50,7 +50,7 @@ const QUESTIONS: ScreenSimQuestion[] = [
         x: 0,
         y: 81,
         width: 14,
-        height: 7,
+        height: 9,
       },
       {
         x: 26,
