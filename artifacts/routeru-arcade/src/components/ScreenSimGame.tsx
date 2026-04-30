@@ -104,8 +104,8 @@ const QUESTIONS: ScreenSimQuestion[] = [
       "What columns/areas make you aware that there is a possible issue with a route?",
     correctZones: [
       { x: 0, y: 18, width: 2, height: 25 },
-      { x: 7, y: 17, width: 3, height: 20 },
-      { x: 10, y: 17, width: 3, height: 20 },
+      { x: 7, y: 17, width: 3, height: 26 },
+      { x: 10, y: 17, width: 5, height: 26 },
     ],
           explanation:
       "Although there are several other areas you can check route issues, these are the most useful because they clearly point out that there is a problem.",
