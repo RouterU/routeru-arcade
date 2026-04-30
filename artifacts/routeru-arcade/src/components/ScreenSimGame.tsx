@@ -90,7 +90,7 @@ const QUESTIONS: ScreenSimQuestion[] = [
     question:
       "I have nothing in my Planning Schedule, I need help!!!. Can you find where the issue is showing? Hint: There's more than 1 spot.",
     correctZones: [
-      { x: 80, y: 1, width: 18, height: 6 },
+      { x: 80, y: 1, width: 19, height: 6 },
       { x: 33, y: 7, width: 13, height: 4 },
     ],
     explanation:
