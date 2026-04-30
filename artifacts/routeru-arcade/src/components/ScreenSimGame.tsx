@@ -74,7 +74,7 @@ const QUESTIONS: ScreenSimQuestion[] = [
     steps: [
       {
         image: "/screenshots/route-planner-1.jpg",
-        correctZones: [{ x: 14, y: 21.3, width: 10, height: 8 }],
+        correctZones: [{ x: 0, y: 30, width: 10, height: 8 }],
       },
       {
         image: "/screenshots/route-planner-menu-datafilter.jpg",
