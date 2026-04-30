@@ -31,7 +31,7 @@ interface ScreenSimGameProps {
 }
 
 const MAX_WRONG_CLICKS = 3;
-const SHOW_HOTSPOT_DEBUG = false;
+const SHOW_HOTSPOT_DEBUG = true;
 
 const QUESTIONS: ScreenSimQuestion[] = [
   {
@@ -64,7 +64,7 @@ const QUESTIONS: ScreenSimQuestion[] = [
     title: "Unassigned Stop",
     image: "/screenshots/route-planner-map-unassignedstop.jpg",
     question: "Where is the Unassigned stop on the map?",
-    correctZones: [{ x: 58, y: 41, width: 3, height: 3 }],
+    correctZones: [{ x: 42, y: 37, width: 3, height: 3 }],
     maxWidth: "400px",
     explanation: "Unassigned stops on the map will have a 'U' displayed.",
   },
