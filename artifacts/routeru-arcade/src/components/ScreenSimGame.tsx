@@ -30,6 +30,10 @@ interface ScreenSimGameProps {
 
 const MAX_WRONG_CLICKS = 3;
 
+// Set this to true when testing hotspot placement.
+// Set to false when you're ready for users.
+const SHOW_HOTSPOT_DEBUG = true;
+
 const QUESTIONS: ScreenSimQuestion[] = [
   {
     id: 1,
@@ -63,24 +67,28 @@ const QUESTIONS: ScreenSimQuestion[] = [
     explanation: "Unassigned stops on the map will have a 'U' displayed.",
   },
   {
-  id: 4,
-  title: "Data Filter Options",
-  question: "I can't see the icons like my coworkers, can you show me where to fix it?",
-  steps: [
-    {
-      image: "/screenshots/route-planner-1.jpg",
-      correctZones: [{ x: 14, y: 213, width: 10, height: 8 }]
-    },
-    {
-      image: "/screenshots/route-planner-menu-datafilter.jpg",
-      correctZones: [{ x: 40, y: 30, width: 20, height: 10 }]
-    }
-  ],
-  explanation: "Open the Data Filters, then select 'Options'."
-},
+    id: 4,
+    title: "Data Filter Options",
+    question:
+      "I can't see the icons like my coworkers, can you show me where to fix it?",
+    steps: [
+      {
+        image: "/screenshots/route-planner-1.jpg",
+        correctZones: [{ x: 14, y: 21.3, width: 10, height: 8 }],
+      },
+      {
+        image: "/screenshots/route-planner-menu-datafilter.jpg",
+        correctZones: [{ x: 40, y: 30, width: 20, height: 10 }],
+      },
+    ],
+    explanation: "Open the Data Filters, then select 'Options'.",
+  },
 ];
 
-export default function ScreenSimGame({ onComplete, onBack }: ScreenSimGameProps) {
+export default function ScreenSimGame({
+  onComplete,
+  onBack,
+}: ScreenSimGameProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [stepIndex, setStepIndex] = useState(0);
   const [score, setScore] = useState(0);
@@ -110,16 +118,24 @@ export default function ScreenSimGame({ onComplete, onBack }: ScreenSimGameProps
     const clickX = ((event.clientX - rect.left) / rect.width) * 100;
     const clickY = ((event.clientY - rect.top) / rect.height) * 100;
 
+    console.log({
+      questionId: current.id,
+      title: current.title,
+      step: current.steps ? stepIndex + 1 : 1,
+      x: Number(clickX.toFixed(1)),
+      y: Number(clickY.toFixed(1)),
+    });
+
     let matchedZoneIndex = -1;
 
     currentStep.correctZones.forEach((zone, index) => {
-      if (
+      const isInside =
         clickX >= zone.x &&
         clickX <= zone.x + zone.width &&
         clickY >= zone.y &&
-        clickY <= zone.y + zone.height &&
-        !foundZones.includes(index)
-      ) {
+        clickY <= zone.y + zone.height;
+
+      if (isInside && !foundZones.includes(index)) {
         matchedZoneIndex = index;
       }
     });
@@ -131,7 +147,6 @@ export default function ScreenSimGame({ onComplete, onBack }: ScreenSimGameProps
       { x: clickX, y: clickY, correct: isCorrectClick },
     ]);
 
-    // ❌ WRONG
     if (!isCorrectClick) {
       const updatedWrong = wrongClicks + 1;
       setWrongClicks(updatedWrong);
@@ -146,20 +161,18 @@ export default function ScreenSimGame({ onComplete, onBack }: ScreenSimGameProps
       return;
     }
 
-    // ✅ CORRECT
     const updatedFoundZones = [...foundZones, matchedZoneIndex];
     setFoundZones(updatedFoundZones);
 
     if (updatedFoundZones.length === currentStep.correctZones.length) {
-      // 🔁 NEXT STEP
       if (current.steps && stepIndex < current.steps.length - 1) {
         setStepIndex((prev) => prev + 1);
         setFoundZones([]);
         setClickPoints([]);
+        setShowWrongPopup(false);
         return;
       }
 
-      // 🎯 COMPLETE QUESTION
       let newScore = score + 100;
       let newStreak = perfectStreak;
 
@@ -220,22 +233,48 @@ export default function ScreenSimGame({ onComplete, onBack }: ScreenSimGameProps
         Perfect Streak: {perfectStreak}
       </p>
 
-      <div className="relative">
+      <div
+        className="relative rounded-2xl overflow-hidden border"
+        style={{
+          borderColor: "hsl(128 20% 28%)",
+          background: "hsl(0 0% 8%)",
+        }}
+      >
         <img
           src={currentStep.image}
+          alt={current.title}
           onClick={handleImageClick}
-          className="w-full cursor-crosshair"
+          className="w-full block cursor-crosshair select-none"
+          draggable={false}
         />
 
         {clickPoints.map((p, i) => (
           <div
             key={i}
-            className={`absolute w-5 h-5 rounded-full ${
+            className={`absolute w-5 h-5 rounded-full border-2 border-white -translate-x-1/2 -translate-y-1/2 ${
               p.correct ? "bg-green-500" : "bg-red-500"
             }`}
-            style={{ left: `${p.x}%`, top: `${p.y}%` }}
+            style={{
+              left: `${p.x}%`,
+              top: `${p.y}%`,
+              boxShadow: "0 0 14px rgba(255,255,255,0.55)",
+            }}
           />
         ))}
+
+        {SHOW_HOTSPOT_DEBUG &&
+          currentStep.correctZones.map((zone, index) => (
+            <div
+              key={index}
+              className="absolute rounded-lg border-4 border-green-400 bg-green-400/20 pointer-events-none"
+              style={{
+                left: `${zone.x}%`,
+                top: `${zone.y}%`,
+                width: `${zone.width}%`,
+                height: `${zone.height}%`,
+              }}
+            />
+          ))}
       </div>
 
       {showWrongPopup && !result && (
@@ -257,7 +296,10 @@ export default function ScreenSimGame({ onComplete, onBack }: ScreenSimGameProps
             </div>
           )}
 
-          <button onClick={handleNext} className="mt-3 bg-white text-black px-4 py-2 rounded">
+          <button
+            onClick={handleNext}
+            className="mt-3 bg-white text-black px-4 py-2 rounded"
+          >
             Next
           </button>
         </div>
