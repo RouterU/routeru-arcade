@@ -80,7 +80,7 @@ const QUESTIONS: ScreenSimQuestion[] = [
       },
       {
         image: "/screenshots/route-planner-datafilter-options1.jpg",
-        correctZones: [{ x: 0, y: 38, width: 38, height: 6 }],
+        correctZones: [{ x: 10, y: 45, width: 38, height: 6 }],
         maxWidth: "250px",
       },
       {
