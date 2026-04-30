@@ -96,6 +96,20 @@ const QUESTIONS: ScreenSimQuestion[] = [
     explanation:
       "Saved filters or bad filters are the most common reasons people can't find their data.",
   },
+    {
+    id: 6,
+    title: "Route Alerts",
+    image: "/screenshots/route-planner-routes.jpg",
+    question:
+      "What columns/areas make you aware that there is a possible issue with a route?",
+    correctZones: [
+      { x: 0, y: 81, width: 14, height: 9 },
+      { x: 26, y: 13, width: 12, height: 5 },
+      { x: 26, y: 18, width: 12, height: 4 },
+    ],
+          explanation:
+      "Although there are several other areas you can check route issues, these are the most useful because they clearly point out that there is a problem.",
+  },
 ];
 
 export default function ScreenSimGame({
