@@ -70,7 +70,7 @@ const QUESTIONS: ScreenSimQuestion[] = [
     id: 4,
     title: "Data Filter Options",
     question:
-      "I can't see the icons like my coworkers, can you show me where to fix it?",
+      "I can't see the icons like my coworkers, can you show me the steps to fix it?",
     steps: [
       {
         image: "/screenshots/route-planner-1.jpg",
