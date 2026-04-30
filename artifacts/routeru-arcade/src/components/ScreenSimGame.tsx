@@ -11,7 +11,7 @@ interface CorrectZone {
 interface ScreenStep {
   image: string;
   correctZones: CorrectZone[];
-  maxWidth?: string; // ✅ NEW
+  maxWidth?: string;
 }
 
 interface ScreenSimQuestion {
@@ -80,7 +80,7 @@ const QUESTIONS: ScreenSimQuestion[] = [
       {
         image: "/screenshots/route-planner-datafilter-options1.jpg",
         correctZones: [{ x: 6, y: 50, width: 38, height: 6 }],
-        maxWidth: "850px", // ✅ FIXED ZOOM HERE
+        maxWidth: "850px",
       },
       {
         image: "/screenshots/route-planner-menu-datafilter.jpg",
@@ -151,16 +151,24 @@ export default function ScreenSimGame({
     const clickX = ((event.clientX - rect.left) / rect.width) * 100;
     const clickY = ((event.clientY - rect.top) / rect.height) * 100;
 
+    console.log({
+      questionId: current.id,
+      title: current.title,
+      step: current.steps ? stepIndex + 1 : 1,
+      x: Number(clickX.toFixed(1)),
+      y: Number(clickY.toFixed(1)),
+    });
+
     let matchedZoneIndex = -1;
 
     currentStep.correctZones.forEach((zone, index) => {
-      if (
+      const isInside =
         clickX >= zone.x &&
         clickX <= zone.x + zone.width &&
         clickY >= zone.y &&
-        clickY <= zone.y + zone.height &&
-        !foundZones.includes(index)
-      ) {
+        clickY <= zone.y + zone.height;
+
+      if (isInside && !foundZones.includes(index)) {
         matchedZoneIndex = index;
       }
     });
@@ -200,6 +208,8 @@ export default function ScreenSimGame({
 
       let newScore = score + 100;
       let newStreak = perfectStreak;
+
+      setBonusTriggered(false);
 
       if (wrongClicks === 0) {
         newStreak += 1;
@@ -252,6 +262,10 @@ export default function ScreenSimGame({
         </p>
       )}
 
+      <p className="text-sm text-yellow-300">
+        Perfect Streak: {perfectStreak}
+      </p>
+
       <div
         className="relative rounded-2xl overflow-hidden border"
         style={{
@@ -265,19 +279,90 @@ export default function ScreenSimGame({
           src={currentStep.image}
           alt={current.title}
           onClick={handleImageClick}
-          className="w-full block cursor-crosshair"
+          className="w-full block cursor-crosshair select-none"
+          draggable={false}
         />
 
         {clickPoints.map((p, i) => (
           <div
             key={i}
-            className={`absolute w-5 h-5 rounded-full ${
+            className={`absolute w-5 h-5 rounded-full border-2 border-white -translate-x-1/2 -translate-y-1/2 ${
               p.correct ? "bg-green-500" : "bg-red-500"
             }`}
-            style={{ left: `${p.x}%`, top: `${p.y}%` }}
+            style={{
+              left: `${p.x}%`,
+              top: `${p.y}%`,
+              boxShadow: "0 0 14px rgba(255,255,255,0.55)",
+            }}
           />
         ))}
+
+        {SHOW_HOTSPOT_DEBUG &&
+          currentStep.correctZones.map((zone, index) => (
+            <div
+              key={index}
+              className="absolute rounded-lg border-4 border-green-400 bg-green-400/20 pointer-events-none"
+              style={{
+                left: `${zone.x}%`,
+                top: `${zone.y}%`,
+                width: `${zone.width}%`,
+                height: `${zone.height}%`,
+              }}
+            />
+          ))}
       </div>
+
+      {showWrongPopup && !result && (
+        <div className="bg-red-900 p-4 rounded-xl text-white">
+          Not the right place, try again.
+          <br />
+          {MAX_WRONG_CLICKS - wrongClicks} of {MAX_WRONG_CLICKS} attempts left.
+        </div>
+      )}
+
+      {result === "correct" && (
+        <div className="bg-green-900 p-4 rounded-xl text-white space-y-4">
+          <div>
+            <CheckCircle /> Correct!
+            <p className="mt-2">{current.explanation}</p>
+          </div>
+
+          {current.video && (
+            <div className="rounded-xl overflow-hidden border border-white/20 bg-black">
+              <video src={current.video} controls className="w-full block">
+                Your browser does not support the video tag.
+              </video>
+            </div>
+          )}
+
+          {bonusTriggered && (
+            <div className="mt-2 text-yellow-300">
+              🎉 Perfect streak bonus +15!
+            </div>
+          )}
+
+          <button
+            onClick={handleNext}
+            className="mt-3 bg-white text-black px-4 py-2 rounded"
+          >
+            Next
+          </button>
+        </div>
+      )}
+
+      {result === "failed" && (
+        <div className="bg-red-800 p-5 rounded-xl text-white">
+          <XCircle />
+          <h3 className="text-xl font-bold mt-2">Training Failed</h3>
+          <p>You used all attempts. Restart training to try again.</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="mt-4 bg-white text-black px-4 py-2 rounded"
+          >
+            Restart Training
+          </button>
+        </div>
+      )}
     </div>
   );
 }
