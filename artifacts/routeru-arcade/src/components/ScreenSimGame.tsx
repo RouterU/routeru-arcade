@@ -64,19 +64,19 @@ const QUESTIONS: ScreenSimQuestion[] = [
   },
   {
   id: 4,
-  title: "Open Route Settings",
-  question: "Show how to open route settings",
+  title: "Data Filter Options",
+  question: "I can't see the icons like my coworkers, can you show me where to fix it?",
   steps: [
     {
-      image: "/screenshots/route-planner-1.jpg",
+      image: "/screenshots/route-planner-resource-1.jpg",
       correctZones: [{ x: 82, y: 11, width: 10, height: 8 }]
     },
     {
-      image: "/screenshots/route-planner-resource-1.jpg",
+      image: "/screenshots/route-planner-menu-datafilter.jpg",
       correctZones: [{ x: 40, y: 30, width: 20, height: 10 }]
     }
   ],
-  explanation: "Open the menu first, then select Route Settings."
+  explanation: "Open the Data Filters, then select 'Options'."
 },
 ];
 
