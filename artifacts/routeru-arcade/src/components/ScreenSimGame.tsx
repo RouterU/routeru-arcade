@@ -49,7 +49,7 @@ const QUESTIONS: ScreenSimQuestion[] = [
     title: "Route Resource",
     image: "/screenshots/route-planner-resource-1.jpg",
     question:
-      "Where would you click to correctly change the route start time? You must click all required areas.",
+      "What are the steps in order to change this routes start time? You must click all required areas.",
     correctZones: [
       { x: 0, y: 81, width: 14, height: 9 },
       { x: 26, y: 13, width: 12, height: 5 },
@@ -78,7 +78,7 @@ const QUESTIONS: ScreenSimQuestion[] = [
       },
       {
         image: "/screenshots/route-planner-datafilter-options1.jpg",
-        correctZones: [{ x: 1, y: 46, width: 12, height: 8 }],
+        correctZones: [{ x: 6, y: 50, width: 12, height: 8 }],
       },
       {
         image: "/screenshots/route-planner-menu-datafilter.jpg",
