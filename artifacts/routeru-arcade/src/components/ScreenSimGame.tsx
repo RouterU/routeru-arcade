@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ArrowLeft, CheckCircle, MousePointerClick } from "lucide-react";
+import { ArrowLeft, CheckCircle, XCircle, MousePointerClick } from "lucide-react";
 
 interface CorrectZone {
   x: number;
@@ -22,20 +22,15 @@ interface ScreenSimGameProps {
   onBack: () => void;
 }
 
+const MAX_WRONG_CLICKS = 3;
+
 const QUESTIONS: ScreenSimQuestion[] = [
   {
     id: 1,
     title: "Schedule Change",
     image: "/screenshots/route-planner-1.jpg",
     question: "Where would you click to select your schedule?",
-    correctZones: [
-      {
-        x: 82,
-        y: 11,
-        width: 14,
-        height: 9,
-      },
-    ],
+    correctZones: [{ x: 82, y: 11, width: 14, height: 9 }],
     explanation:
       "This is the favorites dropdown. You can add multiple schedules to appear in this dropdown.",
   },
@@ -46,59 +41,38 @@ const QUESTIONS: ScreenSimQuestion[] = [
     question:
       "Where would you click to correctly change the route start time? You must click all required areas.",
     correctZones: [
-      {
-        x: 0,
-        y: 81,
-        width: 14,
-        height: 9,
-      },
-      {
-        x: 26,
-        y: 12,
-        width: 12,
-        height: 6,
-      },
-      {
-        x: 26,
-        y: 18,
-        width: 12,
-        height: 4,
-      },
+      { x: 0, y: 81, width: 14, height: 9 },
+      { x: 26, y: 12, width: 12, height: 6 },
+      { x: 26, y: 18, width: 12, height: 4 },
     ],
     explanation:
-      "These are the required areas involved in correctly changing the route start time. Easiest step to forget, is the 'Latest' start time change.",
+      "These are the required areas involved in correctly changing the route start time.",
   },
-    {
+  {
     id: 3,
     title: "Unassigned Stop",
     image: "/screenshots/route-planner-map-unassignedstop.jpg",
     question: "Where is the Unassigned stop on the map?",
-    correctZones: [
-      {
-        x: 58,
-        y: 42,
-        width: 3,
-        height: 3,
-      },
-    ],
-    explanation:
-      "Unassigned stops on the map will have a 'U' displayed.",
+    correctZones: [{ x: 58, y: 42, width: 3, height: 3 }],
+    explanation: "Unassigned stops on the map will have a 'U' displayed.",
   },
 ];
 
 export default function ScreenSimGame({ onComplete, onBack }: ScreenSimGameProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [score, setScore] = useState(0);
-  const [result, setResult] = useState<"correct" | null>(null);
+  const [result, setResult] = useState<"correct" | "failed" | null>(null);
   const [clickPoints, setClickPoints] = useState<
     { x: number; y: number; correct: boolean }[]
   >([]);
   const [foundZones, setFoundZones] = useState<number[]>([]);
+  const [wrongClicks, setWrongClicks] = useState(0);
+  const [perfectStreak, setPerfectStreak] = useState(0);
   const [showZones, setShowZones] = useState(false);
+  const [showWrongPopup, setShowWrongPopup] = useState(false);
+  const [bonusTriggered, setBonusTriggered] = useState(false);
 
   const current = QUESTIONS[currentIndex];
-  const questionNumber = currentIndex + 1;
-  const totalQuestions = QUESTIONS.length;
 
   const handleImageClick = (event: React.MouseEvent<HTMLImageElement>) => {
     if (result) return;
@@ -107,12 +81,6 @@ export default function ScreenSimGame({ onComplete, onBack }: ScreenSimGameProps
 
     const clickX = ((event.clientX - rect.left) / rect.width) * 100;
     const clickY = ((event.clientY - rect.top) / rect.height) * 100;
-
-    console.log({
-      questionId: current.id,
-      x: Math.round(clickX),
-      y: Math.round(clickY),
-    });
 
     let matchedZoneIndex = -1;
 
@@ -130,25 +98,50 @@ export default function ScreenSimGame({ onComplete, onBack }: ScreenSimGameProps
 
     const isCorrectClick = matchedZoneIndex !== -1;
 
-    setClickPoints((previous) => [
-      ...previous,
-      {
-        x: clickX,
-        y: clickY,
-        correct: isCorrectClick,
-      },
+    setClickPoints((prev) => [
+      ...prev,
+      { x: clickX, y: clickY, correct: isCorrectClick },
     ]);
 
-if (!isCorrectClick) {
-  setScore((prev) => Math.max(0, prev - 10));
-  return;
-}
+    // ❌ WRONG CLICK
+    if (!isCorrectClick) {
+      const updatedWrong = wrongClicks + 1;
+      setWrongClicks(updatedWrong);
+      setScore((prev) => Math.max(0, prev - 10));
+      setShowWrongPopup(true);
 
+      if (updatedWrong >= MAX_WRONG_CLICKS) {
+        setPerfectStreak(0);
+        setResult("failed");
+      }
+
+      return;
+    }
+
+    // ✅ CORRECT CLICK
     const updatedFoundZones = [...foundZones, matchedZoneIndex];
     setFoundZones(updatedFoundZones);
 
     if (updatedFoundZones.length === current.correctZones.length) {
-      setScore((previous) => previous + 100);
+      let newScore = score + 100;
+      let newStreak = perfectStreak;
+
+      setBonusTriggered(false);
+
+      if (wrongClicks === 0) {
+        newStreak += 1;
+        setPerfectStreak(newStreak);
+
+        if (newStreak % 3 === 0) {
+          newScore += 15;
+          setBonusTriggered(true);
+        }
+      } else {
+        setPerfectStreak(0);
+        newStreak = 0;
+      }
+
+      setScore(newScore);
       setResult("correct");
       setShowZones(true);
     }
@@ -158,213 +151,86 @@ if (!isCorrectClick) {
     setResult(null);
     setClickPoints([]);
     setFoundZones([]);
+    setWrongClicks(0);
     setShowZones(false);
+    setShowWrongPopup(false);
+    setBonusTriggered(false);
 
     if (currentIndex < QUESTIONS.length - 1) {
-      setCurrentIndex((previous) => previous + 1);
+      setCurrentIndex((prev) => prev + 1);
       return;
     }
 
     onComplete(score);
   };
 
-  const currentDisplayScore = score;
-
   return (
     <div className="max-w-6xl mx-auto space-y-6">
-      <div className="flex items-center justify-between gap-4">
-        <button
-          type="button"
-          onClick={onBack}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all hover:opacity-90"
-          style={{
-            background: "hsl(0 0% 13%)",
-            color: "hsl(38 45% 96%)",
-            border: "1px solid hsl(128 20% 28%)",
-          }}
-        >
-          <ArrowLeft size={16} />
-          Back
+      <div className="flex justify-between">
+        <button onClick={onBack} className="text-white flex gap-2 items-center">
+          <ArrowLeft /> Back
         </button>
-
-        <div
-          className="px-4 py-2 rounded-xl text-sm font-bold"
-          style={{
-            background: "hsl(5 84% 48%)",
-            color: "white",
-          }}
-        >
-          Score: {currentDisplayScore.toLocaleString()}
-        </div>
+        <div className="text-white font-bold">Score: {score}</div>
       </div>
 
-      <div
-        className="rounded-3xl p-6 border"
-        style={{
-          background: "linear-gradient(180deg, hsl(0 0% 15%), hsl(0 0% 11%))",
-          borderColor: "hsl(128 20% 28%)",
-          boxShadow: "0 14px 32px rgba(0,0,0,0.30)",
-        }}
-      >
-        <div className="flex items-start justify-between gap-4 mb-5">
-          <div>
-            <div
-              className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest mb-3"
-              style={{
-                background: "hsl(38 95% 55% / 0.14)",
-                color: "hsl(38 45% 96%)",
-                border: "1px solid hsl(38 95% 55% / 0.28)",
-              }}
-            >
-              <MousePointerClick size={13} />
-              Find the Fix
-            </div>
+      <h2 className="text-white text-xl">{current.question}</h2>
 
-            <h1
-              className="text-3xl font-bold"
-              style={{ color: "hsl(38 45% 96%)" }}
-            >
-              {current.title}
-            </h1>
+      <p className="text-sm text-yellow-300">
+        Perfect Streak: {perfectStreak}
+      </p>
 
-            <p className="mt-2 text-sm" style={{ color: "hsl(0 0% 70%)" }}>
-              Question {questionNumber} of {totalQuestions}
-            </p>
-          </div>
+      <div className="relative">
+        <img src={current.image} onClick={handleImageClick} className="w-full cursor-crosshair" />
 
+        {clickPoints.map((p, i) => (
           <div
-            className="text-sm font-semibold px-3 py-1.5 rounded-full"
-            style={{
-              background: "hsl(128 34% 22%)",
-              color: "hsl(38 45% 96%)",
-              border: "1px solid hsl(128 20% 32%)",
-            }}
-          >
-            Click Simulation
-          </div>
-        </div>
-
-        <div
-          className="rounded-2xl p-4 mb-5"
-          style={{
-            background: "hsl(0 0% 10%)",
-            border: "1px solid hsl(128 20% 24%)",
-          }}
-        >
-          <h2
-            className="text-xl font-semibold"
-            style={{ color: "hsl(38 45% 96%)" }}
-          >
-            {current.question}
-          </h2>
-
-          <p className="text-sm mt-2" style={{ color: "hsl(0 0% 68%)" }}>
-            Click directly on the screenshot where the user should make the
-            change.
-          </p>
-
-          <p className="text-sm mt-2 font-semibold" style={{ color: "hsl(38 95% 55%)" }}>
-            Found {foundZones.length} of {current.correctZones.length} required area
-            {current.correctZones.length === 1 ? "" : "s"}.
-          </p>
-        </div>
-
-        <div
-          className="relative rounded-2xl overflow-hidden border"
-          style={{
-            borderColor: "hsl(128 20% 28%)",
-            background: "hsl(0 0% 8%)",
-          }}
-        >
-          <img
-            src={current.image}
-            alt={current.title}
-            onClick={handleImageClick}
-            className="w-full block cursor-crosshair select-none"
-            draggable={false}
+            key={i}
+            className={`absolute w-5 h-5 rounded-full ${
+              p.correct ? "bg-green-500" : "bg-red-500"
+            }`}
+            style={{ left: `${p.x}%`, top: `${p.y}%` }}
           />
-
-          {clickPoints.map((point, index) => (
-            <div
-              key={index}
-              className={`absolute w-6 h-6 rounded-full border-2 -translate-x-1/2 -translate-y-1/2 ${
-                point.correct
-                  ? "bg-green-500 border-white"
-                  : "bg-red-500 border-white"
-              }`}
-              style={{
-                left: `${point.x}%`,
-                top: `${point.y}%`,
-                boxShadow: "0 0 18px rgba(255,255,255,0.65)",
-              }}
-            />
-          ))}
-
-          {showZones &&
-            current.correctZones.map((zone, index) => (
-              <div
-                key={index}
-                className="absolute rounded-lg border-4 border-green-400 bg-green-400/20"
-                style={{
-                  left: `${zone.x}%`,
-                  top: `${zone.y}%`,
-                  width: `${zone.width}%`,
-                  height: `${zone.height}%`,
-                }}
-              />
-            ))}
-        </div>
-
-        {result && (
-          <div
-            className="mt-5 rounded-2xl p-5 border"
-            style={{
-              background: "hsl(128 42% 18% / 0.9)",
-              borderColor: "hsl(128 55% 42%)",
-            }}
-          >
-            <div className="flex items-start gap-3">
-              <CheckCircle size={24} style={{ color: "hsl(128 70% 60%)" }} />
-
-              <div className="flex-1">
-                <h3
-                  className="text-xl font-bold"
-                  style={{ color: "hsl(38 45% 96%)" }}
-                >
-                  Correct!
-                </h3>
-
-                <p
-                  className="mt-2 text-sm leading-relaxed"
-                  style={{ color: "hsl(0 0% 86%)" }}
-                >
-                  {current.explanation}
-                </p>
-
-                <button
-                  type="button"
-                  onClick={handleNext}
-                  className="mt-4 px-5 py-2.5 rounded-xl text-sm font-bold transition-all hover:opacity-90"
-                  style={{
-                    background: "hsl(38 95% 55%)",
-                    color: "hsl(0 0% 8%)",
-                  }}
-                >
-                  {currentIndex < QUESTIONS.length - 1
-                    ? "Next Question"
-                    : "Finish Training"}
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {!result && (
-          <div className="mt-4 text-xs" style={{ color: "hsl(0 0% 56%)" }}>
-            Tip: Take your time, theres no rush!
-          </div>
-        )}
+        ))}
       </div>
+
+      {showWrongPopup && !result && (
+        <div className="bg-red-900 p-4 rounded-xl text-white">
+          Not the right place, try again.
+          <br />
+          {MAX_WRONG_CLICKS - wrongClicks} of {MAX_WRONG_CLICKS} attempts left.
+        </div>
+      )}
+
+      {result === "correct" && (
+        <div className="bg-green-900 p-4 rounded-xl text-white">
+          <CheckCircle /> Correct!
+          <p className="mt-2">{current.explanation}</p>
+
+          {bonusTriggered && (
+            <div className="mt-2 text-yellow-300">
+              🎉 Perfect streak bonus +15!
+            </div>
+          )}
+
+          <button onClick={handleNext} className="mt-3 bg-white text-black px-4 py-2 rounded">
+            Next
+          </button>
+        </div>
+      )}
+
+      {result === "failed" && (
+        <div className="bg-red-800 p-5 rounded-xl text-white">
+          <XCircle />
+          <h3 className="text-xl font-bold mt-2">Training Failed</h3>
+          <p>You used all attempts. Restart training to try again.</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="mt-4 bg-white text-black px-4 py-2 rounded"
+          >
+            Restart Training
+          </button>
+        </div>
+      )}
     </div>
   );
 }
