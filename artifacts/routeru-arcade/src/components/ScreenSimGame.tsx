@@ -31,7 +31,7 @@ interface ScreenSimGameProps {
 }
 
 const MAX_WRONG_CLICKS = 3;
-const SHOW_HOTSPOT_DEBUG = true;
+const SHOW_HOTSPOT_DEBUG = false;
 
 const QUESTIONS: ScreenSimQuestion[] = [
   {
