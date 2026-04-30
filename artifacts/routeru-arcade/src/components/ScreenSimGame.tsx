@@ -52,7 +52,7 @@ const QUESTIONS: ScreenSimQuestion[] = [
       "Where would you click to correctly change the route start time? You must click all required areas.",
     correctZones: [
       { x: 0, y: 81, width: 14, height: 9 },
-      { x: 26, y: 12, width: 12, height: 6 },
+      { x: 25, y: 12, width: 12, height: 5 },
       { x: 26, y: 18, width: 12, height: 4 },
     ],
     explanation:
@@ -63,7 +63,7 @@ const QUESTIONS: ScreenSimQuestion[] = [
     title: "Unassigned Stop",
     image: "/screenshots/route-planner-map-unassignedstop.jpg",
     question: "Where is the Unassigned stop on the map?",
-    correctZones: [{ x: 58, y: 42, width: 3, height: 3 }],
+    correctZones: [{ x: 58, y: 41, width: 3, height: 3 }],
     explanation: "Unassigned stops on the map will have a 'U' displayed.",
   },
   {
@@ -74,7 +74,7 @@ const QUESTIONS: ScreenSimQuestion[] = [
     steps: [
       {
         image: "/screenshots/route-planner-1.jpg",
-        correctZones: [{ x: 0, y: 30, width: 10, height: 8 }],
+        correctZones: [{ x: 0, y: 33, width: 10, height: 8 }],
       },
       {
         image: "/screenshots/route-planner-menu-datafilter.jpg",
