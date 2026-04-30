@@ -65,6 +65,7 @@ const QUESTIONS: ScreenSimQuestion[] = [
     image: "/screenshots/route-planner-map-unassignedstop.jpg",
     question: "Where is the Unassigned stop on the map?",
     correctZones: [{ x: 58, y: 41, width: 3, height: 3 }],
+    maxWidth: "450px",
     explanation: "Unassigned stops on the map will have a 'U' displayed.",
   },
   {
