@@ -90,8 +90,8 @@ const QUESTIONS: ScreenSimQuestion[] = [
     question:
       "I have nothing in my Planning Schedule, I need help!!!. Can you find where the issue is showing? Hint: There's more than 1 spot.",
     correctZones: [
-      { x: 80, y: 1, width: 14, height: 9 },
-      { x: 33, y: 8, width: 12, height: 4 },
+      { x: 80, y: 1, width: 16, height: 6 },
+      { x: 33, y: 7, width: 13, height: 4 },
     ],
     explanation:
       "Saved filters or bad filters are the most common reasons people can't find their data.",
