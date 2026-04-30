@@ -32,7 +32,7 @@ const MAX_WRONG_CLICKS = 3;
 
 // Set this to true when testing hotspot placement.
 // Set to false when you're ready for users.
-const SHOW_HOTSPOT_DEBUG = true;
+const SHOW_HOTSPOT_DEBUG = false;
 
 const QUESTIONS: ScreenSimQuestion[] = [
   {
