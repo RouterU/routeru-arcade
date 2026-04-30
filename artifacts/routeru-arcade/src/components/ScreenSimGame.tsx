@@ -21,6 +21,7 @@ interface ScreenSimQuestion {
   steps?: ScreenStep[];
   question: string;
   explanation: string;
+  video?: string;
 }
 
 interface ScreenSimGameProps {
@@ -29,9 +30,6 @@ interface ScreenSimGameProps {
 }
 
 const MAX_WRONG_CLICKS = 3;
-
-// Set this to true when testing hotspot placement.
-// Set to false when you're ready for users.
 const SHOW_HOTSPOT_DEBUG = false;
 
 const QUESTIONS: ScreenSimQuestion[] = [
@@ -57,6 +55,7 @@ const QUESTIONS: ScreenSimQuestion[] = [
     ],
     explanation:
       "These are the required areas involved in correctly changing the route start time.",
+    video: "/screenshots/How to change a date on a route.mp4",
   },
   {
     id: 3,
@@ -87,7 +86,7 @@ const QUESTIONS: ScreenSimQuestion[] = [
     ],
     explanation: "Open the Data Filters, then select 'Options'.",
   },
-    {
+  {
     id: 5,
     title: "Schedule Filter",
     image: "/screenshots/route-planner-data-filtered.jpg",
@@ -100,7 +99,7 @@ const QUESTIONS: ScreenSimQuestion[] = [
     explanation:
       "Saved filters or bad filters are the most common reasons people can't find their data.",
   },
-    {
+  {
     id: 6,
     title: "Route Alerts",
     image: "/screenshots/route-planner-routes.jpg",
@@ -111,7 +110,7 @@ const QUESTIONS: ScreenSimQuestion[] = [
       { x: 7, y: 17, width: 3, height: 26 },
       { x: 10, y: 17, width: 5, height: 26 },
     ],
-          explanation:
+    explanation:
       "Although there are several other areas you can check route issues, these are the most useful because they clearly point out that there is a problem.",
   },
 ];
@@ -317,9 +316,23 @@ export default function ScreenSimGame({
       )}
 
       {result === "correct" && (
-        <div className="bg-green-900 p-4 rounded-xl text-white">
-          <CheckCircle /> Correct!
-          <p className="mt-2">{current.explanation}</p>
+        <div className="bg-green-900 p-4 rounded-xl text-white space-y-4">
+          <div>
+            <CheckCircle /> Correct!
+            <p className="mt-2">{current.explanation}</p>
+          </div>
+
+          {current.video && (
+            <div className="rounded-xl overflow-hidden border border-white/20 bg-black">
+              <video
+                src={current.video}
+                controls
+                className="w-full block"
+              >
+                Your browser does not support the video tag.
+              </video>
+            </div>
+          )}
 
           {bonusTriggered && (
             <div className="mt-2 text-yellow-300">
