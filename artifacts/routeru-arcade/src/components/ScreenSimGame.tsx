@@ -41,6 +41,7 @@ const QUESTIONS: ScreenSimQuestion[] = [
     correctZones: [{ x: 82, y: 11, width: 14, height: 9 }],
     explanation:
       "This is the favorites dropdown. You can add multiple schedules to appear in this dropdown.",
+    video: "/screenshots/How to add a schedule to your favorites.mp4",
   },
   {
     id: 2,
