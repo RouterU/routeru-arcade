@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ArrowLeft, CheckCircle, XCircle, MousePointerClick } from "lucide-react";
+import { ArrowLeft, CheckCircle, XCircle } from "lucide-react";
 
 interface CorrectZone {
   x: number;
@@ -8,12 +8,18 @@ interface CorrectZone {
   height: number;
 }
 
+interface ScreenStep {
+  image: string;
+  correctZones: CorrectZone[];
+}
+
 interface ScreenSimQuestion {
   id: number;
   title: string;
-  image: string;
+  image?: string;
+  correctZones?: CorrectZone[];
+  steps?: ScreenStep[];
   question: string;
-  correctZones: CorrectZone[];
   explanation: string;
 }
 
@@ -56,10 +62,27 @@ const QUESTIONS: ScreenSimQuestion[] = [
     correctZones: [{ x: 58, y: 42, width: 3, height: 3 }],
     explanation: "Unassigned stops on the map will have a 'U' displayed.",
   },
+  {
+  id: 4,
+  title: "Open Route Settings",
+  question: "Show how to open route settings",
+  steps: [
+    {
+      image: "/screenshots/route-planner-1.jpg",
+      correctZones: [{ x: 82, y: 11, width: 10, height: 8 }]
+    },
+    {
+      image: "/screenshots/route-planner-resource-1.jpg",
+      correctZones: [{ x: 40, y: 30, width: 20, height: 10 }]
+    }
+  ],
+  explanation: "Open the menu first, then select Route Settings."
+},
 ];
 
 export default function ScreenSimGame({ onComplete, onBack }: ScreenSimGameProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [stepIndex, setStepIndex] = useState(0);
   const [score, setScore] = useState(0);
   const [result, setResult] = useState<"correct" | "failed" | null>(null);
   const [clickPoints, setClickPoints] = useState<
@@ -68,30 +91,35 @@ export default function ScreenSimGame({ onComplete, onBack }: ScreenSimGameProps
   const [foundZones, setFoundZones] = useState<number[]>([]);
   const [wrongClicks, setWrongClicks] = useState(0);
   const [perfectStreak, setPerfectStreak] = useState(0);
-  const [showZones, setShowZones] = useState(false);
   const [showWrongPopup, setShowWrongPopup] = useState(false);
   const [bonusTriggered, setBonusTriggered] = useState(false);
 
   const current = QUESTIONS[currentIndex];
 
+  const currentStep = current.steps
+    ? current.steps[stepIndex]
+    : {
+        image: current.image!,
+        correctZones: current.correctZones!,
+      };
+
   const handleImageClick = (event: React.MouseEvent<HTMLImageElement>) => {
     if (result) return;
 
     const rect = event.currentTarget.getBoundingClientRect();
-
     const clickX = ((event.clientX - rect.left) / rect.width) * 100;
     const clickY = ((event.clientY - rect.top) / rect.height) * 100;
 
     let matchedZoneIndex = -1;
 
-    current.correctZones.forEach((zone, index) => {
-      const isInside =
+    currentStep.correctZones.forEach((zone, index) => {
+      if (
         clickX >= zone.x &&
         clickX <= zone.x + zone.width &&
         clickY >= zone.y &&
-        clickY <= zone.y + zone.height;
-
-      if (isInside && !foundZones.includes(index)) {
+        clickY <= zone.y + zone.height &&
+        !foundZones.includes(index)
+      ) {
         matchedZoneIndex = index;
       }
     });
@@ -103,7 +131,7 @@ export default function ScreenSimGame({ onComplete, onBack }: ScreenSimGameProps
       { x: clickX, y: clickY, correct: isCorrectClick },
     ]);
 
-    // ❌ WRONG CLICK
+    // ❌ WRONG
     if (!isCorrectClick) {
       const updatedWrong = wrongClicks + 1;
       setWrongClicks(updatedWrong);
@@ -118,11 +146,20 @@ export default function ScreenSimGame({ onComplete, onBack }: ScreenSimGameProps
       return;
     }
 
-    // ✅ CORRECT CLICK
+    // ✅ CORRECT
     const updatedFoundZones = [...foundZones, matchedZoneIndex];
     setFoundZones(updatedFoundZones);
 
-    if (updatedFoundZones.length === current.correctZones.length) {
+    if (updatedFoundZones.length === currentStep.correctZones.length) {
+      // 🔁 NEXT STEP
+      if (current.steps && stepIndex < current.steps.length - 1) {
+        setStepIndex((prev) => prev + 1);
+        setFoundZones([]);
+        setClickPoints([]);
+        return;
+      }
+
+      // 🎯 COMPLETE QUESTION
       let newScore = score + 100;
       let newStreak = perfectStreak;
 
@@ -138,12 +175,10 @@ export default function ScreenSimGame({ onComplete, onBack }: ScreenSimGameProps
         }
       } else {
         setPerfectStreak(0);
-        newStreak = 0;
       }
 
       setScore(newScore);
       setResult("correct");
-      setShowZones(true);
     }
   };
 
@@ -152,7 +187,7 @@ export default function ScreenSimGame({ onComplete, onBack }: ScreenSimGameProps
     setClickPoints([]);
     setFoundZones([]);
     setWrongClicks(0);
-    setShowZones(false);
+    setStepIndex(0);
     setShowWrongPopup(false);
     setBonusTriggered(false);
 
@@ -175,12 +210,22 @@ export default function ScreenSimGame({ onComplete, onBack }: ScreenSimGameProps
 
       <h2 className="text-white text-xl">{current.question}</h2>
 
+      {current.steps && (
+        <p className="text-yellow-300 text-sm">
+          Step {stepIndex + 1} of {current.steps.length}
+        </p>
+      )}
+
       <p className="text-sm text-yellow-300">
         Perfect Streak: {perfectStreak}
       </p>
 
       <div className="relative">
-        <img src={current.image} onClick={handleImageClick} className="w-full cursor-crosshair" />
+        <img
+          src={currentStep.image}
+          onClick={handleImageClick}
+          className="w-full cursor-crosshair"
+        />
 
         {clickPoints.map((p, i) => (
           <div
