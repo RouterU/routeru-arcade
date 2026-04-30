@@ -612,7 +612,7 @@ export default function Home() {
                     icon: MousePointerClick,
                     color: "hsl(38 95% 55%)",
                     title: "Find the Fix",
-                    desc: "Click the correct area of a software screenshot to prove you know where the fix should happen.",
+                    desc: "Prove you know the correct steps, using real screenshots, click and watch your way to the leaderboard.",
                   },
                 ].map(({ icon: Icon, color, title, desc }) => (
                   <div key={title} className="flex gap-3">
