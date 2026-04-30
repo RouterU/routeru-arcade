@@ -52,7 +52,7 @@ const QUESTIONS: ScreenSimQuestion[] = [
       "Where would you click to correctly change the route start time? You must click all required areas.",
     correctZones: [
       { x: 0, y: 81, width: 14, height: 9 },
-      { x: 25, y: 12, width: 12, height: 5 },
+      { x: 26, y: 13, width: 12, height: 5 },
       { x: 26, y: 18, width: 12, height: 4 },
     ],
     explanation:
@@ -74,11 +74,11 @@ const QUESTIONS: ScreenSimQuestion[] = [
     steps: [
       {
         image: "/screenshots/route-planner-1.jpg",
-        correctZones: [{ x: 0, y: 33, width: 10, height: 8 }],
+        correctZones: [{ x: 0, y: 39, width: 10, height: 7 }],
       },
       {
         image: "/screenshots/route-planner-menu-datafilter.jpg",
-        correctZones: [{ x: 40, y: 30, width: 20, height: 10 }],
+        correctZones: [{ x: 1, y: 48, width: 10, height: 10 }],
       },
     ],
     explanation: "Open the Data Filters, then select 'Options'.",
