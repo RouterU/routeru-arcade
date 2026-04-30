@@ -74,11 +74,11 @@ const QUESTIONS: ScreenSimQuestion[] = [
     steps: [
       {
         image: "/screenshots/route-planner-1.jpg",
-        correctZones: [{ x: 0, y: 38, width: 10, height: 7 }],
+        correctZones: [{ x: 0, y: 38, width: 13, height: 7 }],
       },
       {
         image: "/screenshots/route-planner-menu-datafilter.jpg",
-        correctZones: [{ x: 1, y: 47, width: 12, height: 8 }],
+        correctZones: [{ x: 1, y: 46, width: 12, height: 8 }],
       },
     ],
     explanation: "Open the Data Filters, then select 'Options'.",
