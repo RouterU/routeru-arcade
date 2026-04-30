@@ -83,6 +83,19 @@ const QUESTIONS: ScreenSimQuestion[] = [
     ],
     explanation: "Open the Data Filters, then select 'Options'.",
   },
+    {
+    id: 5,
+    title: "Schedule Filter",
+    image: "/screenshots/route-planner-data-filtered.jpg",
+    question:
+      "I have nothing in my Planning Schedule, I need help!!!. Can you find where the issue is showing? Hint: There's more than 1 spot.",
+    correctZones: [
+      { x: 0, y: 81, width: 14, height: 9 },
+      { x: 26, y: 18, width: 12, height: 4 },
+    ],
+    explanation:
+      "Saved filters or bad filters are the most common reasons people can't find their data.",
+  },
 ];
 
 export default function ScreenSimGame({
