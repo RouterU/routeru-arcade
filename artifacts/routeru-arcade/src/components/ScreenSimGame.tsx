@@ -78,11 +78,11 @@ const QUESTIONS: ScreenSimQuestion[] = [
       },
       {
         image: "/screenshots/route-planner-datafilter-options1.jpg",
-        correctZones: [{ x: 6, y: 50, width: 28, height: 6 }],
+        correctZones: [{ x: 6, y: 50, width: 38, height: 6 }],
       },
       {
         image: "/screenshots/route-planner-menu-datafilter.jpg",
-        correctZones: [{ x: 18, y: 20, width: 20, height: 8 }],
+        correctZones: [{ x: 18, y: 20, width: 28, height: 8 }],
       },
     ],
     explanation: "Open the Data Filters, then select 'Options'.",
@@ -105,7 +105,7 @@ const QUESTIONS: ScreenSimQuestion[] = [
     title: "Route Alerts",
     image: "/screenshots/route-planner-routes.jpg",
     question:
-      "What columns/areas make you aware that there is a possible issue with a route?",
+      "What 3 columns/areas make you aware that there is a possible issue with a route?",
     correctZones: [
       { x: 0, y: 18, width: 2, height: 25 },
       { x: 7, y: 17, width: 3, height: 26 },
