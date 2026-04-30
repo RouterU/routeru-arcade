@@ -68,7 +68,7 @@ const QUESTIONS: ScreenSimQuestion[] = [
   question: "I can't see the icons like my coworkers, can you show me where to fix it?",
   steps: [
     {
-      image: "/screenshots/route-planner-resource-1.jpg",
+      image: "/screenshots/route-planner-1.jpg",
       correctZones: [{ x: 82, y: 11, width: 10, height: 8 }]
     },
     {
