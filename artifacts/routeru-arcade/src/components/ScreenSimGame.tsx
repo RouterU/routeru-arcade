@@ -220,19 +220,16 @@ const QUESTIONS: ScreenSimQuestion[] = [
         correctZones: [{ x: 36, y: 29, width: 10, height: 5 }],
       },
       {
-        image: "/screenshots/route-planner-create-resource.jpg",
-        correctZones: [
-      { x: 39, y: 44, width: 10, height: 5 },
-      { x: 56, y: 44, width: 10, height: 5 },
-      { x: 43, y: 55, width: 22, height: 5 },
-      { x: 43, y: 61, width: 22, height: 5 },    
-        coachTip: "💡 Coach Tip: Out of the 5 options, what are the 4 most important ones?",
-      },
-    ],
-    explanation:
-      "Correct, always double check these areas before creating your resource.",
-    video: "/screenshots/How to create resources.mp4",
-  },
+  image: "/screenshots/route-planner-create-resource.jpg",
+  correctZones: [
+    { x: 39, y: 44, width: 10, height: 5 },
+    { x: 56, y: 44, width: 10, height: 5 },
+    { x: 43, y: 55, width: 22, height: 5 },
+    { x: 43, y: 61, width: 22, height: 5 },
+  ],
+  coachTip:
+    "💡 Coach Tip: Out of the 5 options, what are the 4 most important ones?",
+}
 ];
 
 export default function ScreenSimGame({
