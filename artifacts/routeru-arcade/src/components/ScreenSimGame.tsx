@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ArrowLeft, CheckCircle, XCircle } from "lucide-react";
 
 interface CorrectZone {
@@ -12,6 +12,7 @@ interface ScreenStep {
   image: string;
   correctZones: CorrectZone[];
   maxWidth?: string;
+  coachTip?: string;
 }
 
 interface ScreenSimQuestion {
@@ -19,6 +20,7 @@ interface ScreenSimQuestion {
   title: string;
   image?: string;
   correctZones?: CorrectZone[];
+  maxWidth?: string;
   steps?: ScreenStep[];
   question: string;
   explanation: string;
@@ -30,8 +32,54 @@ interface ScreenSimGameProps {
   onBack: () => void;
 }
 
+interface SavedScreenSimProgress {
+  date: string;
+  currentIndex: number;
+  completedToday: boolean;
+}
+
 const MAX_WRONG_CLICKS = 3;
-const SHOW_HOTSPOT_DEBUG = false;
+const SHOW_HOTSPOT_DEBUG = true;
+
+// Toggle this OFF while testing.
+// Turn it ON when you want users limited to one scored attempt per day.
+const ENABLE_DAILY_ATTEMPT_LOCK = false;
+
+const STORAGE_KEY = "screenSimDailyProgress";
+
+function getTodayKey() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function loadSavedProgress(): SavedScreenSimProgress | null {
+  if (!ENABLE_DAILY_ATTEMPT_LOCK) return null;
+
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+
+    const parsed = JSON.parse(raw) as SavedScreenSimProgress;
+
+    if (parsed.date !== getTodayKey()) {
+      localStorage.removeItem(STORAGE_KEY);
+      return null;
+    }
+
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
+function saveProgress(progress: SavedScreenSimProgress) {
+  if (!ENABLE_DAILY_ATTEMPT_LOCK) return;
+
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+  } catch {
+    // localStorage may be unavailable in some browsers/settings.
+  }
+}
 
 const QUESTIONS: ScreenSimQuestion[] = [
   {
@@ -117,13 +165,83 @@ const QUESTIONS: ScreenSimQuestion[] = [
     explanation:
       "Although there are several other areas you can check route issues, these are the most useful because they clearly point out that there is a problem.",
   },
+  {
+    id: 7,
+    title: "Reassign Schedule",
+    question:
+      "What are the steps to reassign a route to a different schedule? Hint: Where do I right click?",
+    steps: [
+      {
+        image: "/screenshots/route-planner-2.jpg",
+        correctZones: [{ x: 0, y: 38, width: 14, height: 7 }],
+      },
+      {
+        image: "/screenshots/route-planner-routes-rightclick.jpg",
+        correctZones: [{ x: 10, y: 45, width: 45, height: 6 }],
+      },
+      {
+        image: "/screenshots/route-planner-reassign-schedule.jpg",
+        correctZones: [{ x: 18, y: 20, width: 28, height: 8 }],
+      },
+    ],
+    explanation:
+      "Correct, remember to always double check the schedule you are sending it to before double clicking.",
+    video: "/screenshots/Reassign Schedule.mp4",
+  },
+  {
+    id: 8,
+    title: "Create Resource 1",
+    question:
+      "I want to create a route from my template, can you show how to get there?",
+    steps: [
+      {
+        image: "/screenshots/route-planner-2.jpg",
+        correctZones: [{ x: 0, y: 38, width: 14, height: 7 }],
+      },
+      {
+        image: "/screenshots/route-planner-menu-data.jpg",
+        correctZones: [{ x: 10, y: 45, width: 45, height: 6 }],
+      },
+      {
+        image: "/screenshots/route-planner-menu-dataroute.jpg",
+        correctZones: [{ x: 18, y: 20, width: 28, height: 8 }],
+      },
+    ],
+    explanation:
+      "Correct, remember that ‘standards’ equals ‘templates’ in Route Planner.",
+  },
+  {
+    id: 9,
+    title: "Create Resource 2",
+    question:
+      "Now that you guided me to the right place, can you show me how to actually create the route, also known as ‘Resource’? I already right clicked on the route I want to create; I need help with the rest.",
+    steps: [
+      {
+        image: "/screenshots/route-planner-resource-templates.jpg",
+        correctZones: [{ x: 0, y: 38, width: 14, height: 7 }],
+      },
+      {
+        image: "/screenshots/route-planner-create-resource.jpg",
+        correctZones: [{ x: 10, y: 45, width: 45, height: 6 }],
+        coachTip:
+          "💡 Coach Tip: Before creating the resource, double-check the route/template details so you do not create the wrong resource.",
+      },
+    ],
+    explanation:
+      "Correct, always double check these areas before creating your resource.",
+    video: "/screenshots/How to create resources.mp4",
+  },
 ];
 
 export default function ScreenSimGame({
   onComplete,
   onBack,
 }: ScreenSimGameProps) {
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const savedProgress = loadSavedProgress();
+
+  const [currentIndex, setCurrentIndex] = useState(
+    savedProgress?.completedToday ? 0 : savedProgress?.currentIndex ?? 0
+  );
   const [stepIndex, setStepIndex] = useState(0);
   const [score, setScore] = useState(0);
   const [result, setResult] = useState<"correct" | "failed" | null>(null);
@@ -135,6 +253,9 @@ export default function ScreenSimGame({
   const [perfectStreak, setPerfectStreak] = useState(0);
   const [showWrongPopup, setShowWrongPopup] = useState(false);
   const [bonusTriggered, setBonusTriggered] = useState(false);
+  const [completedToday, setCompletedToday] = useState(
+    savedProgress?.completedToday ?? false
+  );
 
   const current = QUESTIONS[currentIndex];
 
@@ -143,10 +264,33 @@ export default function ScreenSimGame({
     : {
         image: current.image!,
         correctZones: current.correctZones!,
+        maxWidth: current.maxWidth,
+        coachTip: undefined,
       };
 
+  useEffect(() => {
+    if (!completedToday) {
+      saveProgress({
+        date: getTodayKey(),
+        currentIndex,
+        completedToday: false,
+      });
+    }
+  }, [currentIndex, completedToday]);
+
+  const saveScoreAndExit = () => {
+    saveProgress({
+      date: getTodayKey(),
+      currentIndex,
+      completedToday: true,
+    });
+
+    setCompletedToday(true);
+    onComplete(score);
+  };
+
   const handleImageClick = (event: React.MouseEvent<HTMLImageElement>) => {
-    if (result) return;
+    if (result || completedToday) return;
 
     const rect = event.currentTarget.getBoundingClientRect();
     const clickX = ((event.clientX - rect.left) / rect.width) * 100;
@@ -239,19 +383,62 @@ export default function ScreenSimGame({
     setBonusTriggered(false);
 
     if (currentIndex < QUESTIONS.length - 1) {
-      setCurrentIndex((prev) => prev + 1);
+      const nextIndex = currentIndex + 1;
+      setCurrentIndex(nextIndex);
+
+      saveProgress({
+        date: getTodayKey(),
+        currentIndex: nextIndex,
+        completedToday: false,
+      });
+
       return;
     }
 
+    saveProgress({
+      date: getTodayKey(),
+      currentIndex,
+      completedToday: true,
+    });
+
+    setCompletedToday(true);
     onComplete(score);
   };
 
-  return (
-    <div className="max-w-6xl mx-auto space-y-6">
-      <div className="flex justify-between">
+  if (completedToday && ENABLE_DAILY_ATTEMPT_LOCK) {
+    return (
+      <div className="max-w-3xl mx-auto space-y-6 text-white">
         <button onClick={onBack} className="text-white flex gap-2 items-center">
           <ArrowLeft /> Back
         </button>
+
+        <div className="bg-slate-900 border border-white/20 rounded-2xl p-6 space-y-3">
+          <h2 className="text-2xl font-bold">Today's simulation is complete</h2>
+          <p className="text-sm text-slate-300">
+            You already saved or completed your simulation score today. Come back
+            tomorrow for another scored attempt.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-6xl mx-auto space-y-6">
+      <div className="flex justify-between items-center gap-4">
+        <div className="flex items-center gap-3">
+          <button onClick={onBack} className="text-white flex gap-2 items-center">
+            <ArrowLeft /> Back
+          </button>
+
+          <button
+            onClick={saveScoreAndExit}
+            className="bg-yellow-400 text-black px-4 py-2 rounded font-bold"
+          >
+            Save Score & Exit
+          </button>
+        </div>
+
         <div className="text-white font-bold">Score: {score}</div>
       </div>
 
@@ -263,9 +450,26 @@ export default function ScreenSimGame({
         </p>
       )}
 
+      {currentStep.coachTip && (
+        <div className="bg-blue-900/60 border border-blue-400 text-white rounded-xl p-3 text-sm shadow-md">
+          {currentStep.coachTip}
+        </div>
+      )}
+
       <p className="text-sm text-yellow-300">
         Perfect Streak: {perfectStreak}
       </p>
+
+      {ENABLE_DAILY_ATTEMPT_LOCK &&
+        savedProgress &&
+        !savedProgress.completedToday &&
+        savedProgress.currentIndex > 0 &&
+        score === 0 && (
+          <div className="bg-slate-800 border border-white/20 text-white rounded-xl p-3 text-sm">
+            Resumed from Question {currentIndex + 1}. Your score has started
+            over for this attempt.
+          </div>
+        )}
 
       <div
         className="relative rounded-2xl overflow-hidden border"
