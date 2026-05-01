@@ -132,8 +132,10 @@ const QUESTIONS: ScreenSimQuestion[] = [
       },
       {
         image: "/screenshots/route-planner-menu-datafilter.jpg",
-        correctZones: [{ x: 18, y: 20, width: 28, height: 8 }],
-      },
+        correctZones: [{ x: 18, y: 20, width: 28, height: 8 }],      
+      coachTip:
+        "💡 Coach Tip: Out of the 5 options, what are the 4 most important ones?",
+    },
     ],
     explanation: "Open the Data Filters, then select 'Options'.",
   },
@@ -172,7 +174,7 @@ const QUESTIONS: ScreenSimQuestion[] = [
     steps: [
       {
         image: "/screenshots/route-planner-2.jpg",
-        correctZones: [{ x: 14, y: 28, width: 40, height: 30 }],
+        correctZones: [{ x: 14, y: 28, width: 40, height: 38 }],
       },
       {
         image: "/screenshots/route-planner-routes-rightclick.jpg",
