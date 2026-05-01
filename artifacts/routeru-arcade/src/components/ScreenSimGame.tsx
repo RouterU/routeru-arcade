@@ -229,7 +229,7 @@ const QUESTIONS: ScreenSimQuestion[] = [
   ],
   coachTip:
     "💡 Coach Tip: Out of the 5 options, what are the 4 most important ones?",
-}
+},
 ];
 
 export default function ScreenSimGame({
