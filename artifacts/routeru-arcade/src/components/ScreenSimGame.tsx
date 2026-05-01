@@ -172,15 +172,15 @@ const QUESTIONS: ScreenSimQuestion[] = [
     steps: [
       {
         image: "/screenshots/route-planner-2.jpg",
-        correctZones: [{ x: 14, y: 28, width: 24, height: 20 }],
+        correctZones: [{ x: 14, y: 28, width: 40, height: 30 }],
       },
       {
         image: "/screenshots/route-planner-routes-rightclick.jpg",
-        correctZones: [{ x: 42, y: 29, width: 8, height: 5 }],
+        correctZones: [{ x: 42, y: 28, width: 8, height: 5 }],
       },
       {
         image: "/screenshots/route-planner-reassign-schedule.jpg",
-        correctZones: [{ x: 37, y: 46, width: 27, height: 14 }],
+        correctZones: [{ x: 37, y: 46, width: 35, height: 26 }],
       },
     ],
     explanation:
@@ -195,15 +195,15 @@ const QUESTIONS: ScreenSimQuestion[] = [
     steps: [
       {
         image: "/screenshots/route-planner-2.jpg",
-        correctZones: [{ x: 0, y: 20, width: 14, height: 7 }],
+        correctZones: [{ x: 0, y: 19, width: 13, height: 6 }],
       },
       {
         image: "/screenshots/route-planner-menu-data.jpg",
-        correctZones: [{ x: 0, y: 50, width: 45, height: 6 }],
+        correctZones: [{ x: 0, y: 50, width: 13, height: 6 }],
       },
       {
         image: "/screenshots/route-planner-menu-dataroute.jpg",
-        correctZones: [{ x: 0, y: 56, width: 22, height: 6 }],
+        correctZones: [{ x: 0, y: 56, width: 19, height: 5 }],
       },
     ],
     explanation:
