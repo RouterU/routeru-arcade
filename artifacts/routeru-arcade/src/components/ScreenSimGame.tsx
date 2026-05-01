@@ -113,7 +113,6 @@ const QUESTIONS: ScreenSimQuestion[] = [
     image: "/screenshots/route-planner-map-unassignedstop.jpg",
     question: "Where is the Unassigned stop on the map?",
     correctZones: [{ x: 42, y: 37, width: 3, height: 3 }],
-    maxWidth: "400px",
     explanation: "Unassigned stops on the map will have a 'U' displayed.",
   },
   {
@@ -173,15 +172,15 @@ const QUESTIONS: ScreenSimQuestion[] = [
     steps: [
       {
         image: "/screenshots/route-planner-2.jpg",
-        correctZones: [{ x: 0, y: 38, width: 14, height: 7 }],
+        correctZones: [{ x: 14, y: 28, width: 24, height: 20 }],
       },
       {
         image: "/screenshots/route-planner-routes-rightclick.jpg",
-        correctZones: [{ x: 10, y: 45, width: 45, height: 6 }],
+        correctZones: [{ x: 42, y: 29, width: 8, height: 5 }],
       },
       {
         image: "/screenshots/route-planner-reassign-schedule.jpg",
-        correctZones: [{ x: 18, y: 20, width: 28, height: 8 }],
+        correctZones: [{ x: 37, y: 46, width: 27, height: 14 }],
       },
     ],
     explanation:
@@ -196,15 +195,15 @@ const QUESTIONS: ScreenSimQuestion[] = [
     steps: [
       {
         image: "/screenshots/route-planner-2.jpg",
-        correctZones: [{ x: 0, y: 38, width: 14, height: 7 }],
+        correctZones: [{ x: 0, y: 20, width: 14, height: 7 }],
       },
       {
         image: "/screenshots/route-planner-menu-data.jpg",
-        correctZones: [{ x: 10, y: 45, width: 45, height: 6 }],
+        correctZones: [{ x: 0, y: 50, width: 45, height: 6 }],
       },
       {
         image: "/screenshots/route-planner-menu-dataroute.jpg",
-        correctZones: [{ x: 18, y: 20, width: 28, height: 8 }],
+        correctZones: [{ x: 0, y: 56, width: 22, height: 6 }],
       },
     ],
     explanation:
@@ -218,13 +217,17 @@ const QUESTIONS: ScreenSimQuestion[] = [
     steps: [
       {
         image: "/screenshots/route-planner-resource-templates.jpg",
-        correctZones: [{ x: 0, y: 38, width: 14, height: 7 }],
+        correctZones: [{ x: 36, y: 29, width: 10, height: 5 }],
       },
       {
         image: "/screenshots/route-planner-create-resource.jpg",
-        correctZones: [{ x: 10, y: 45, width: 45, height: 6 }],
+        correctZones: [
+      { x: 39, y: 44, width: 10, height: 5 },
+      { x: 56, y: 44, width: 10, height: 5 },
+      { x: 43, y: 55, width: 22, height: 5 },
+      { x: 43, y: 61, width: 22, height: 5 },    
         coachTip:
-          "💡 Coach Tip: Before creating the resource, double-check the route/template details so you do not create the wrong resource.",
+          "💡 Coach Tip: Out of the 5 options, what are the 4 most important ones?",
       },
     ],
     explanation:
