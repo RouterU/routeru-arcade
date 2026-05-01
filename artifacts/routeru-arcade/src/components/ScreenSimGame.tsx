@@ -39,7 +39,7 @@ interface SavedScreenSimProgress {
 }
 
 const MAX_WRONG_CLICKS = 3;
-const SHOW_HOTSPOT_DEBUG = true;
+const SHOW_HOTSPOT_DEBUG = false;
 
 // Toggle this OFF while testing.
 // Turn it ON when you want users limited to one scored attempt per day.
@@ -134,7 +134,7 @@ const QUESTIONS: ScreenSimQuestion[] = [
         image: "/screenshots/route-planner-menu-datafilter.jpg",
         correctZones: [{ x: 18, y: 20, width: 28, height: 8 }],      
       coachTip:
-        "💡 Coach Tip: Out of the 5 options, what are the 4 most important ones?",
+        "💡 Coach Tip: After to getting here, what setting changes the Icon's we see?",
     },
     ],
     explanation: "Open the Data Filters, then select 'Options'.",
@@ -182,7 +182,7 @@ const QUESTIONS: ScreenSimQuestion[] = [
       },
       {
         image: "/screenshots/route-planner-reassign-schedule.jpg",
-        correctZones: [{ x: 37, y: 46, width: 35, height: 26 }],
+        correctZones: [{ x: 37, y: 46, width: 35, height: 31 }],
       },
     ],
     explanation:
