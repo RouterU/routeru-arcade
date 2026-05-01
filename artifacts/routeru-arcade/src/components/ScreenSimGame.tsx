@@ -226,8 +226,7 @@ const QUESTIONS: ScreenSimQuestion[] = [
       { x: 56, y: 44, width: 10, height: 5 },
       { x: 43, y: 55, width: 22, height: 5 },
       { x: 43, y: 61, width: 22, height: 5 },    
-        coachTip:
-          "💡 Coach Tip: Out of the 5 options, what are the 4 most important ones?",
+        coachTip: "💡 Coach Tip: Out of the 5 options, what are the 4 most important ones?",
       },
     ],
     explanation:
