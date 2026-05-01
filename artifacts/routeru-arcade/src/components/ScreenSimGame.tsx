@@ -214,21 +214,26 @@ const QUESTIONS: ScreenSimQuestion[] = [
     title: "Create Resource 2",
     question:
       "Now that you guided me to the right place, can you show me how to actually create the route, also known as ‘Resource’? I already right clicked on the route I want to create; I need help with the rest.",
-    steps: [
-      {
-        image: "/screenshots/route-planner-resource-templates.jpg",
-        correctZones: [{ x: 36, y: 29, width: 10, height: 5 }],
-      },
-      {
-  image: "/screenshots/route-planner-create-resource.jpg",
-  correctZones: [
-    { x: 39, y: 44, width: 10, height: 5 },
-    { x: 56, y: 44, width: 10, height: 5 },
-    { x: 43, y: 55, width: 22, height: 5 },
-    { x: 43, y: 61, width: 22, height: 5 },
+  steps: [
+    {
+      image: "/screenshots/route-planner-resource-templates.jpg",
+      correctZones: [{ x: 36, y: 29, width: 10, height: 5 }],
+    },
+    {
+      image: "/screenshots/route-planner-create-resource.jpg",
+      correctZones: [
+        { x: 39, y: 44, width: 10, height: 5 },
+        { x: 56, y: 44, width: 10, height: 5 },
+        { x: 43, y: 55, width: 22, height: 5 },
+        { x: 43, y: 61, width: 22, height: 5 },
+      ],
+      coachTip:
+        "💡 Coach Tip: Out of the 5 options, what are the 4 most important ones?",
+    },
   ],
-  coachTip:
-    "💡 Coach Tip: Out of the 5 options, what are the 4 most important ones?",
+  explanation:
+    "Correct, always double check these areas before creating your resource.",
+  video: "/screenshots/How to create resources.mp4",
 },
 ];
 
