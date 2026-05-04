@@ -113,54 +113,54 @@ export default function Home() {
   const [sessionScore, setSessionScore] = useState(0);
   const { topEntries, lifetimeEntries, refreshLeaderboard } = useLeaderboard();
 
- const lifetimeTopByGame = useMemo(() => {
-  const gameMap = [
-    {
-      label: "Route Blitz",
-      matches: ["quiz"],
-      icon: Route,
-      color: "hsl(5 84% 48%)",
-    },
-    {
-      label: "What Would You Do?",
-      matches: ["scenario"],
-      icon: ShieldCheck,
-      color: "hsl(5 84% 48%)",
-    },
-    {
-      label: "Issue Hunter",
-      matches: ["data-challenge"],
-      icon: FileSearch,
-      color: "hsl(38 95% 55%)",
-    },
-    {
-      label: "Routing Game Zone",
-      matches: ["route-runner"],
-      icon: Truck,
-      color: "hsl(5 84% 48%)",
-    },
-    {
-      label: "Find the Fix",
-      matches: ["screen-sim"],
-      icon: MousePointerClick,
-      color: "hsl(38 95% 55%)",
-    },
-  ];
+  const lifetimeTopByGame = useMemo(() => {
+    const gameMap = [
+      {
+        label: "Route Blitz",
+        matches: ["quiz"],
+        icon: Route,
+        color: "hsl(5 84% 48%)",
+      },
+      {
+        label: "What Would You Do?",
+        matches: ["scenario"],
+        icon: ShieldCheck,
+        color: "hsl(5 84% 48%)",
+      },
+      {
+        label: "Issue Hunter",
+        matches: ["data-challenge"],
+        icon: FileSearch,
+        color: "hsl(38 95% 55%)",
+      },
+      {
+        label: "Routing Game Zone",
+        matches: ["route-runner"],
+        icon: Truck,
+        color: "hsl(5 84% 48%)",
+      },
+      {
+        label: "Find the Fix",
+        matches: ["screen-sim"],
+        icon: MousePointerClick,
+        color: "hsl(38 95% 55%)",
+      },
+    ];
 
-  return gameMap.map(({ label, matches, icon, color }) => {
-    const gameEntries = [...lifetimeEntries]
-      .filter((entry) => matches.includes(entry.game))
-      .sort((a, b) => b.totalScore - a.totalScore);
+    return gameMap.map(({ label, matches, icon, color }) => {
+      const gameEntries = [...lifetimeEntries]
+        .filter((entry) => matches.includes(entry.game))
+        .sort((a, b) => b.totalScore - a.totalScore);
 
-    return {
-      game: label,
-      icon,
-      color,
-      topEntry: gameEntries[0] ?? null,
-    };
-  });
-}, [lifetimeEntries]);
-  
+      return {
+        game: label,
+        icon,
+        color,
+        topEntry: gameEntries[0] ?? null,
+      };
+    });
+  }, [lifetimeEntries]);
+
   const handleQuizComplete = (score: number, streak: number) => {
     setSessionScore((s) => s + score);
     setPending({ score, streak, game: "quiz" });
@@ -238,197 +238,6 @@ export default function Home() {
     } catch (error) {
       console.error("Leaderboard request error:", error);
       window.alert(`Request error:\n${String(error)}`);
-    }
-  };
-
-  const handleSkipSubmit = () => {
-    setPending(null);
-    setView("hub");
-  };
-
-  const handleResetLeaderboard = async () => {
-    const passcode = window.prompt("Enter admin passcode to reset the leaderboard:");
-    if (!passcode) return;
-
-    try {
-      const res = await fetch("/api/leaderboard", {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ passcode }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        window.alert(data.error || "Reset failed");
-        return;
-      }
-
-      window.alert("Leaderboard reset successfully.");
-      await refreshLeaderboard();
-    } catch (error) {
-      console.error("Failed to reset leaderboard:", error);
-      window.alert("Reset failed");
-    }
-  };
-
-  const pageBackground = {
-    background: `
-      radial-gradient(circle at 18% 18%, hsla(128, 46%, 30%, 0.65), transparent 32%),
-      radial-gradient(circle at 82% 6%, hsla(5, 84%, 42%, 0.38), transparent 26%),
-      radial-gradient(circle at 50% 45%, hsla(128, 32%, 18%, 0.35), transparent 42%),
-      linear-gradient(180deg, hsl(128 38% 14%), hsl(0 0% 7%) 58%, hsl(0 0% 5%))
-    `,
-  } as const;
-
-  if (view === "quiz") {
-    return (
-      <div className="min-h-screen px-4 py-8" style={pageBackground}>
-        <QuizGame onComplete={handleQuizComplete} onBack={() => setView("hub")} />
-      </div>
-    );
-  }
-
-  if (view === "scenario") {
-    return (
-      <div className="min-h-screen px-4 py-8" style={pageBackground}>
-        <ScenarioGame onComplete={handleScenarioComplete} onBack={() => setView("hub")} />
-      </div>
-    );
-  }
-
-  if (view === "data-challenge") {
-    return (
-      <div className="min-h-screen px-4 py-8" style={pageBackground}>
-        <DataChallengeGame onComplete={handleDataComplete} onBack={() => setView("hub")} />
-      </div>
-    );
-  }
-
-  if (view === "route-runner") {
-    return (
-      <div className="min-h-screen px-4 py-8" style={pageBackground}>
-        <RouteRunnerGame
-          onComplete={handleRouteRunnerComplete}
-          onBack={() => setView("hub")}
-        />
-      </div>
-    );
-  }
-
-  if (view === "screen-sim") {
-    return (
-      <div className="min-h-screen px-4 py-8" style={pageBackground}>
-        <ScreenSimGame
-          onComplete={handleScreenSimComplete}
-          onBack={() => setView("hub")}
-        />
-      </div>
-    );
-  }
-
-  if (
-    view === "submit-quiz" ||
-    view === "submit-scenario" ||
-    view === "submit-data" ||
-    view === "submit-route-runner" ||
-    view === "submit-screen-sim"
-  ) {
-    return (
-      <div
-        className="min-h-screen px-4 py-8 flex items-center justify-center"
-        style={pageBackground}
-      >
-        <ScoreSubmit
-          score={pending?.score ?? 0}
-          game={pending?.game ?? "quiz"}
-          onSubmit={handleSubmitScore}
-          onSkip={handleSkipSubmit}
-        />
-      </div>
-    );
-  }
-
-  return (
-    <div className="min-h-screen px-4 py-8" style={pageBackground}>
-      <div className="max-w-6xl mx-auto space-y-10">
-        {/* REST OF YOUR EXISTING JSX STAYS THE SAME HERE */}
-      </div>
-    </div>
-  );
-}
-
-      return {
-        game: label,
-        icon,
-        color,
-        topEntry: gameEntries[0] ?? null,
-      };
-    });
-  }, [lifetimeEntries]);
-
-  const handleQuizComplete = (score: number, streak: number) => {
-    setSessionScore((s) => s + score);
-    setPending({ score, streak, game: "quiz" });
-    setView("submit-quiz");
-  };
-
-  const handleScenarioComplete = (score: number) => {
-    setSessionScore((s) => s + score);
-    setPending({ score, game: "scenario" });
-    setView("submit-scenario");
-  };
-
-  const handleDataComplete = (score: number) => {
-    setSessionScore((s) => s + score);
-    setPending({ score, game: "data-challenge" });
-    setView("submit-data");
-  };
-
-  const handleRouteRunnerComplete = (score: number) => {
-    setSessionScore((s) => s + score);
-    setPending({ score, game: "route-runner" });
-    setView("submit-route-runner");
-  };
-
-  const handleScreenSimComplete = (score: number) => {
-    setSessionScore((s) => s + score);
-    setPending({ score, game: "screen-sim" });
-    setView("submit-screen-sim");
-  };
-
-  const handleSubmitScore = async (name: string) => {
-    if (!pending) return;
-
-    try {
-      const res = await fetch("/api/leaderboard", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name,
-          score: pending.score,
-          game: pending.game,
-        }),
-      });
-
-      const data = await res.json().catch(() => null);
-
-      if (!res.ok) {
-        console.error("Leaderboard save failed:", data);
-        window.alert(data?.error || "Score save failed.");
-        return;
-      }
-
-      await refreshLeaderboard();
-      setPending(null);
-      setView("hub");
-    } catch (error) {
-      console.error("Leaderboard request error:", error);
-      window.alert("Score save failed.");
     }
   };
 
