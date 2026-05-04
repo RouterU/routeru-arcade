@@ -113,54 +113,54 @@ export default function Home() {
   const [sessionScore, setSessionScore] = useState(0);
   const { topEntries, lifetimeEntries, refreshLeaderboard } = useLeaderboard();
 
-  const lifetimeTopByGame = useMemo(() => {
-    const gameMap = [
-      {
-        label: "Route Blitz",
-        matches: ["quiz"],
-        icon: Route,
-        color: "hsl(5 84% 48%)",
-      },
-      {
-        label: "What Would You Do?",
-        matches: ["scenario"],
-        icon: ShieldCheck,
-        color: "hsl(5 84% 48%)",
-      },
-      {
-        label: "Issue Hunter",
-        matches: ["data-challenge"],
-        icon: FileSearch,
-        color: "hsl(38 95% 55%)",
-      },
-      {
-        label: "Routing Game Zone",
-        matches: ["route-runner"],
-        icon: Truck,
-        color: "hsl(5 84% 48%)",
-      },
-      {
-        label: "Find the Fix",
-        matches: ["screen-sim"],
-        icon: MousePointerClick,
-        color: "hsl(38 95% 55%)",
-      },
-    ];
+ const lifetimeTopByGame = useMemo(() => {
+  const gameMap = [
+    {
+      label: "Route Blitz",
+      matches: ["quiz"],
+      icon: Route,
+      color: "hsl(5 84% 48%)",
+    },
+    {
+      label: "What Would You Do?",
+      matches: ["scenario"],
+      icon: ShieldCheck,
+      color: "hsl(5 84% 48%)",
+    },
+    {
+      label: "Issue Hunter",
+      matches: ["data-challenge"],
+      icon: FileSearch,
+      color: "hsl(38 95% 55%)",
+    },
+    {
+      label: "Routing Game Zone",
+      matches: ["route-runner"],
+      icon: Truck,
+      color: "hsl(5 84% 48%)",
+    },
+    {
+      label: "Find the Fix",
+      matches: ["screen-sim"],
+      icon: MousePointerClick,
+      color: "hsl(38 95% 55%)",
+    },
+  ];
 
-    return gameMap.map(({ label, matches, icon, color }) => {
-      const gameEntries = [...lifetimeEntries]
-        .filter((entry) => matches.includes(entry.game))
-        .sort((a, b) => b.totalScore - a.totalScore);
+  return gameMap.map(({ label, matches, icon, color }) => {
+    const gameEntries = [...lifetimeEntries]
+      .filter((entry) => matches.includes(entry.game))
+      .sort((a, b) => b.totalScore - a.totalScore);
 
-      return {
-        game: label,
-        icon,
-        color,
-        topEntry: gameEntries[0] ?? null,
-      };
-    });
-  }, [lifetimeEntries]);
-
+    return {
+      game: label,
+      icon,
+      color,
+      topEntry: gameEntries[0] ?? null,
+    };
+  });
+}, [lifetimeEntries]);
+  
   const handleQuizComplete = (score: number, streak: number) => {
     setSessionScore((s) => s + score);
     setPending({ score, streak, game: "quiz" });
