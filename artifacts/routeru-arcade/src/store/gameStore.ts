@@ -5,7 +5,8 @@ export type GameType =
   | "scenario"
   | "data-challenge"
   | "route-runner"
-  | "screen-sim";
+  | "screen-sim"
+  | "find-the-fix";
 
 export interface LeaderboardEntry {
   id: string;
@@ -32,39 +33,43 @@ function isValidGame(game: unknown): game is GameType {
     game === "scenario" ||
     game === "data-challenge" ||
     game === "route-runner" ||
-    game === "screen-sim"
+    game === "screen-sim" ||
+    game === "find-the-fix"
   );
 }
 
-function isValidEntry(entry: unknown): entry is LeaderboardEntry {
-  if (!entry || typeof entry !== "object") return false;
-
-  const e = entry as LeaderboardEntry;
-
-  return (
-    typeof e.id === "string" &&
-    typeof e.name === "string" &&
-    typeof e.score === "number" &&
-    isValidGame(e.game) &&
-    typeof e.date === "string"
-  );
+function toNumber(value: unknown): number {
+  const n = Number(value);
+  return Number.isFinite(n) ? n : 0;
 }
 
-function isValidLifetimeEntry(entry: unknown): entry is LifetimeLeaderboardEntry {
-  if (!entry || typeof entry !== "object") return false;
+function normalizeEntry(entry: any): LeaderboardEntry | null {
+  if (!entry || typeof entry !== "object") return null;
+  if (!isValidGame(entry.game)) return null;
 
-  const e = entry as LifetimeLeaderboardEntry;
+  return {
+    id: String(entry.id),
+    name: String(entry.name ?? ""),
+    score: toNumber(entry.score),
+    game: entry.game,
+    date: String(entry.date ?? ""),
+  };
+}
 
-  return (
-    typeof e.id === "string" &&
-    typeof e.name === "string" &&
-    typeof e.nameKey === "string" &&
-    isValidGame(e.game) &&
-    typeof e.totalScore === "number" &&
-    typeof e.plays === "number" &&
-    typeof e.bestScore === "number" &&
-    typeof e.date === "string"
-  );
+function normalizeLifetimeEntry(entry: any): LifetimeLeaderboardEntry | null {
+  if (!entry || typeof entry !== "object") return null;
+  if (!isValidGame(entry.game)) return null;
+
+  return {
+    id: String(entry.id),
+    name: String(entry.name ?? ""),
+    nameKey: String(entry.nameKey ?? ""),
+    game: entry.game,
+    totalScore: toNumber(entry.totalScore),
+    plays: toNumber(entry.plays),
+    bestScore: toNumber(entry.bestScore),
+    date: String(entry.date ?? ""),
+  };
 }
 
 export function useLeaderboard() {
@@ -77,14 +82,8 @@ export function useLeaderboard() {
       setIsLoading(true);
 
       const [currentRes, lifetimeRes] = await Promise.all([
-        fetch("/api/leaderboard", {
-          method: "GET",
-          headers: { "Content-Type": "application/json" },
-        }),
-        fetch("/api/leaderboard?scope=lifetime", {
-          method: "GET",
-          headers: { "Content-Type": "application/json" },
-        }),
+        fetch("/api/leaderboard"),
+        fetch("/api/leaderboard?scope=lifetime"),
       ]);
 
       if (!currentRes.ok) {
@@ -95,19 +94,16 @@ export function useLeaderboard() {
         throw new Error(`Failed to load lifetime leaderboard: ${lifetimeRes.status}`);
       }
 
-      const currentData: unknown = await currentRes.json();
-      const lifetimeData: unknown = await lifetimeRes.json();
+      const currentData = await currentRes.json();
+      const lifetimeData = await lifetimeRes.json();
 
-      if (!Array.isArray(currentData)) {
-        throw new Error("Leaderboard response was not an array");
-      }
+      const validEntries = Array.isArray(currentData)
+        ? currentData.map(normalizeEntry).filter(Boolean) as LeaderboardEntry[]
+        : [];
 
-      if (!Array.isArray(lifetimeData)) {
-        throw new Error("Lifetime leaderboard response was not an array");
-      }
-
-      const validEntries = currentData.filter(isValidEntry);
-      const validLifetimeEntries = lifetimeData.filter(isValidLifetimeEntry);
+      const validLifetimeEntries = Array.isArray(lifetimeData)
+        ? lifetimeData.map(normalizeLifetimeEntry).filter(Boolean) as LifetimeLeaderboardEntry[]
+        : [];
 
       setEntries(
         validEntries
@@ -132,7 +128,7 @@ export function useLeaderboard() {
   }, [loadLeaderboard]);
 
   const addEntry = useCallback(
-    async (name: string, score: number, game: LeaderboardEntry["game"]) => {
+    async (name: string, score: number, game: GameType) => {
       const trimmed = name.trim();
       if (!trimmed) return;
 
@@ -149,21 +145,11 @@ export function useLeaderboard() {
           }),
         });
 
+        const data = await res.json().catch(() => null);
+
         if (!res.ok) {
-          throw new Error(`Failed to save score: ${res.status}`);
+          throw new Error(data?.error || `Failed to save score: ${res.status}`);
         }
-
-        const savedEntry: unknown = await res.json();
-
-        if (!isValidEntry(savedEntry)) {
-          throw new Error("Saved leaderboard entry was invalid");
-        }
-
-        setEntries((prev) =>
-          [...prev, savedEntry]
-            .sort((a, b) => b.score - a.score)
-            .slice(0, 20)
-        );
 
         await loadLeaderboard();
       } catch (error) {
@@ -190,7 +176,6 @@ export function useLeaderboard() {
           throw new Error(data.error || `Failed to reset leaderboard: ${res.status}`);
         }
 
-        setEntries([]);
         await loadLeaderboard();
       } catch (error) {
         console.error("Failed to reset leaderboard:", error);
