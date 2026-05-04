@@ -26,7 +26,7 @@ const GAME_COLORS: Record<LeaderboardEntry["game"], string> = {
 export default function Leaderboard({
   entries,
   currentScore,
-  title = "Top Players",
+  title = "Top Players Of The Week",
 }: LeaderboardProps) {
   return (
     <div className="p-5 space-y-4">
