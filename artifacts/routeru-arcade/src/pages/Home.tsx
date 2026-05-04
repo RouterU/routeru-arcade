@@ -36,10 +36,17 @@ type GameView =
   | "submit-route-runner"
   | "submit-screen-sim";
 
+type GameKey =
+  | "quiz"
+  | "scenario"
+  | "data-challenge"
+  | "route-runner"
+  | "screen-sim";
+
 interface PendingScore {
   score: number;
   streak?: number;
-  game: "quiz" | "scenario" | "data-challenge" | "route-runner" | "screen-sim";
+  game: GameKey;
 }
 
 const GAMES = [
@@ -104,7 +111,7 @@ export default function Home() {
   const [view, setView] = useState<GameView>("hub");
   const [pending, setPending] = useState<PendingScore | null>(null);
   const [sessionScore, setSessionScore] = useState(0);
-  const { topEntries, lifetimeEntries, addEntry, refreshLeaderboard } = useLeaderboard();
+  const { topEntries, lifetimeEntries, refreshLeaderboard } = useLeaderboard();
 
   const lifetimeTopByGame = useMemo(() => {
     const gameMap = [
@@ -184,11 +191,37 @@ export default function Home() {
     setView("submit-screen-sim");
   };
 
-  const handleSubmitScore = (name: string) => {
+  const handleSubmitScore = async (name: string) => {
     if (!pending) return;
-    addEntry(name, pending.score, pending.game);
-    setPending(null);
-    setView("hub");
+
+    try {
+      const res = await fetch("/api/leaderboard", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name,
+          score: pending.score,
+          game: pending.game,
+        }),
+      });
+
+      const data = await res.json().catch(() => null);
+
+      if (!res.ok) {
+        console.error("Leaderboard save failed:", data);
+        window.alert(data?.error || "Score save failed.");
+        return;
+      }
+
+      await refreshLeaderboard();
+      setPending(null);
+      setView("hub");
+    } catch (error) {
+      console.error("Leaderboard request error:", error);
+      window.alert("Score save failed.");
+    }
   };
 
   const handleSkipSubmit = () => {
