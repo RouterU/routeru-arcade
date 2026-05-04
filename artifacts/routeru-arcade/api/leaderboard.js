@@ -12,6 +12,7 @@ const ALLOWED_GAMES = new Set([
   "data-challenge",
   "route-runner",
   "screen-sim",
+  "find-the-fix",
 ]);
 
 function normalizePlayerName(name: string) {
