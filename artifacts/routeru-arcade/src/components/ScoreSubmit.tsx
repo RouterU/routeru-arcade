@@ -3,7 +3,7 @@ import { User, Send, Trophy } from "lucide-react";
 
 interface ScoreSubmitProps {
   score: number;
-  game: "quiz" | "scenario" | "data-challenge";
+  game: "quiz" | "scenario" | "data-challenge" | "route-runner" | "screen-sim";
   onSubmit: (name: string) => void;
   onSkip: () => void;
 }
@@ -12,6 +12,8 @@ const GAME_LABELS: Record<ScoreSubmitProps["game"], string> = {
   quiz: "Route Blitz",
   scenario: "What Would You Do?",
   "data-challenge": "Issue Hunter",
+  "route-runner": "Routing Game Zone",
+  "screen-sim": "Find The Fix",
 };
 
 export default function ScoreSubmit({
