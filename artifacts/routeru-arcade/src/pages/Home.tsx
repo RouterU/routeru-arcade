@@ -192,6 +192,214 @@ export default function Home() {
   };
 
   const handleSubmitScore = async (name: string) => {
+    if (!pending) {
+      window.alert("No pending score found.");
+      return;
+    }
+
+    const payload = {
+      name,
+      score: Number(pending.score),
+      game: pending.game,
+    };
+
+    console.log("Submitting leaderboard payload:", payload);
+    window.alert(`Submitting:\n${JSON.stringify(payload, null, 2)}`);
+
+    try {
+      const res = await fetch("/api/leaderboard", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json().catch(() => null);
+
+      console.log("Leaderboard API response:", {
+        status: res.status,
+        ok: res.ok,
+        data,
+      });
+
+      window.alert(
+        `API Status: ${res.status}\nResponse:\n${JSON.stringify(data, null, 2)}`
+      );
+
+      if (!res.ok) {
+        return;
+      }
+
+      await refreshLeaderboard();
+
+      setPending(null);
+      setView("hub");
+    } catch (error) {
+      console.error("Leaderboard request error:", error);
+      window.alert(`Request error:\n${String(error)}`);
+    }
+  };
+
+  const handleSkipSubmit = () => {
+    setPending(null);
+    setView("hub");
+  };
+
+  const handleResetLeaderboard = async () => {
+    const passcode = window.prompt("Enter admin passcode to reset the leaderboard:");
+    if (!passcode) return;
+
+    try {
+      const res = await fetch("/api/leaderboard", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ passcode }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        window.alert(data.error || "Reset failed");
+        return;
+      }
+
+      window.alert("Leaderboard reset successfully.");
+      await refreshLeaderboard();
+    } catch (error) {
+      console.error("Failed to reset leaderboard:", error);
+      window.alert("Reset failed");
+    }
+  };
+
+  const pageBackground = {
+    background: `
+      radial-gradient(circle at 18% 18%, hsla(128, 46%, 30%, 0.65), transparent 32%),
+      radial-gradient(circle at 82% 6%, hsla(5, 84%, 42%, 0.38), transparent 26%),
+      radial-gradient(circle at 50% 45%, hsla(128, 32%, 18%, 0.35), transparent 42%),
+      linear-gradient(180deg, hsl(128 38% 14%), hsl(0 0% 7%) 58%, hsl(0 0% 5%))
+    `,
+  } as const;
+
+  if (view === "quiz") {
+    return (
+      <div className="min-h-screen px-4 py-8" style={pageBackground}>
+        <QuizGame onComplete={handleQuizComplete} onBack={() => setView("hub")} />
+      </div>
+    );
+  }
+
+  if (view === "scenario") {
+    return (
+      <div className="min-h-screen px-4 py-8" style={pageBackground}>
+        <ScenarioGame onComplete={handleScenarioComplete} onBack={() => setView("hub")} />
+      </div>
+    );
+  }
+
+  if (view === "data-challenge") {
+    return (
+      <div className="min-h-screen px-4 py-8" style={pageBackground}>
+        <DataChallengeGame onComplete={handleDataComplete} onBack={() => setView("hub")} />
+      </div>
+    );
+  }
+
+  if (view === "route-runner") {
+    return (
+      <div className="min-h-screen px-4 py-8" style={pageBackground}>
+        <RouteRunnerGame
+          onComplete={handleRouteRunnerComplete}
+          onBack={() => setView("hub")}
+        />
+      </div>
+    );
+  }
+
+  if (view === "screen-sim") {
+    return (
+      <div className="min-h-screen px-4 py-8" style={pageBackground}>
+        <ScreenSimGame
+          onComplete={handleScreenSimComplete}
+          onBack={() => setView("hub")}
+        />
+      </div>
+    );
+  }
+
+  if (
+    view === "submit-quiz" ||
+    view === "submit-scenario" ||
+    view === "submit-data" ||
+    view === "submit-route-runner" ||
+    view === "submit-screen-sim"
+  ) {
+    return (
+      <div
+        className="min-h-screen px-4 py-8 flex items-center justify-center"
+        style={pageBackground}
+      >
+        <ScoreSubmit
+          score={pending?.score ?? 0}
+          game={pending?.game ?? "quiz"}
+          onSubmit={handleSubmitScore}
+          onSkip={handleSkipSubmit}
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen px-4 py-8" style={pageBackground}>
+      <div className="max-w-6xl mx-auto space-y-10">
+        {/* REST OF YOUR EXISTING JSX STAYS THE SAME HERE */}
+      </div>
+    </div>
+  );
+}
+
+      return {
+        game: label,
+        icon,
+        color,
+        topEntry: gameEntries[0] ?? null,
+      };
+    });
+  }, [lifetimeEntries]);
+
+  const handleQuizComplete = (score: number, streak: number) => {
+    setSessionScore((s) => s + score);
+    setPending({ score, streak, game: "quiz" });
+    setView("submit-quiz");
+  };
+
+  const handleScenarioComplete = (score: number) => {
+    setSessionScore((s) => s + score);
+    setPending({ score, game: "scenario" });
+    setView("submit-scenario");
+  };
+
+  const handleDataComplete = (score: number) => {
+    setSessionScore((s) => s + score);
+    setPending({ score, game: "data-challenge" });
+    setView("submit-data");
+  };
+
+  const handleRouteRunnerComplete = (score: number) => {
+    setSessionScore((s) => s + score);
+    setPending({ score, game: "route-runner" });
+    setView("submit-route-runner");
+  };
+
+  const handleScreenSimComplete = (score: number) => {
+    setSessionScore((s) => s + score);
+    setPending({ score, game: "screen-sim" });
+    setView("submit-screen-sim");
+  };
+
+  const handleSubmitScore = async (name: string) => {
     if (!pending) return;
 
     try {
