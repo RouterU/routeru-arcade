@@ -15,15 +15,15 @@ const ALLOWED_GAMES = new Set([
   "find-the-fix",
 ]);
 
-function normalizePlayerName(name: string) {
+function normalizePlayerName(name) {
   return name.trim().replace(/\s+/g, " ");
 }
 
-function makePlayerKey(name: string) {
+function makePlayerKey(name) {
   return normalizePlayerName(name).toLowerCase();
 }
 
-export default async function handler(req: any, res: any) {
+export default async function handler(req, res) {
   try {
     if (req.method === "GET") {
       const scope = req.query && req.query.scope;
@@ -35,18 +35,18 @@ export default async function handler(req: any, res: any) {
           ORDER BY total_score DESC, updated_at ASC
         `;
 
-        const formatted = rows.map((row) => ({
-          id: String(row.id),
-          name: row.player_name,
-          nameKey: row.player_name_key,
-          game: row.game,
-          totalScore: row.total_score,
-          plays: row.plays,
-          bestScore: row.best_score,
-          date: new Date(row.updated_at).toISOString().slice(0, 10),
-        }));
-
-        return res.status(200).json(formatted);
+        return res.status(200).json(
+          rows.map((row) => ({
+            id: String(row.id),
+            name: row.player_name,
+            nameKey: row.player_name_key,
+            game: row.game,
+            totalScore: Number(row.total_score),
+            plays: Number(row.plays),
+            bestScore: Number(row.best_score),
+            date: new Date(row.updated_at).toISOString().slice(0, 10),
+          }))
+        );
       }
 
       const rows = await sql`
@@ -56,27 +56,27 @@ export default async function handler(req: any, res: any) {
         LIMIT 50
       `;
 
-      const formatted = rows.map((row) => ({
-        id: String(row.id),
-        name: row.player_name,
-        score: row.score,
-        game: row.game,
-        date: new Date(row.created_at).toISOString().slice(0, 10),
-      }));
-
-      return res.status(200).json(formatted);
+      return res.status(200).json(
+        rows.map((row) => ({
+          id: String(row.id),
+          name: row.player_name,
+          score: Number(row.score),
+          game: row.game,
+          date: new Date(row.created_at).toISOString().slice(0, 10),
+        }))
+      );
     }
 
     if (req.method === "POST") {
       const body = req.body || {};
       const name = body.name;
-      const score = body.score;
+      const score = Number(body.score);
       const game = body.game;
 
       const trimmedName =
         typeof name === "string" ? normalizePlayerName(name) : "";
 
-      if (!trimmedName || typeof score !== "number" || !ALLOWED_GAMES.has(game)) {
+      if (!trimmedName || !Number.isFinite(score) || !ALLOWED_GAMES.has(game)) {
         return res.status(400).json({ error: "Invalid payload" });
       }
 
@@ -119,7 +119,7 @@ export default async function handler(req: any, res: any) {
       return res.status(201).json({
         id: String(row.id),
         name: row.player_name,
-        score: row.score,
+        score: Number(row.score),
         game: row.game,
         date: new Date(row.created_at).toISOString().slice(0, 10),
       });
@@ -128,18 +128,9 @@ export default async function handler(req: any, res: any) {
     if (req.method === "DELETE") {
       const body = req.body || {};
       const passcode = body.passcode;
-
       const expectedAdminToken = process.env.LEADERBOARD_ADMIN_TOKEN;
-      const expectedCronSecret = process.env.CRON_SECRET;
 
-      const authHeader = req.headers.authorization;
-      const isCronRequest =
-        expectedCronSecret && authHeader === `Bearer ${expectedCronSecret}`;
-
-      const isManualAdminRequest =
-        expectedAdminToken && passcode === expectedAdminToken;
-
-      if (!isCronRequest && !isManualAdminRequest) {
+      if (!expectedAdminToken || passcode !== expectedAdminToken) {
         return res.status(403).json({ error: "Unauthorized reset request" });
       }
 
@@ -152,7 +143,7 @@ export default async function handler(req: any, res: any) {
     }
 
     return res.status(405).json({ error: "Method not allowed" });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Leaderboard API error:", error);
 
     return res.status(500).json({
