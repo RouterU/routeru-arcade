@@ -192,19 +192,7 @@ export default function Home() {
   };
 
   const handleSubmitScore = async (name: string) => {
-    if (!pending) {
-      window.alert("No pending score found.");
-      return;
-    }
-
-    const payload = {
-      name,
-      score: Number(pending.score),
-      game: pending.game,
-    };
-
-    console.log("Submitting leaderboard payload:", payload);
-    window.alert(`Submitting:\n${JSON.stringify(payload, null, 2)}`);
+    if (!pending) return;
 
     try {
       const res = await fetch("/api/leaderboard", {
@@ -212,22 +200,18 @@ export default function Home() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({
+          name,
+          score: Number(pending.score),
+          game: pending.game,
+        }),
       });
 
       const data = await res.json().catch(() => null);
 
-      console.log("Leaderboard API response:", {
-        status: res.status,
-        ok: res.ok,
-        data,
-      });
-
-      window.alert(
-        `API Status: ${res.status}\nResponse:\n${JSON.stringify(data, null, 2)}`
-      );
-
       if (!res.ok) {
+        console.error("Leaderboard save failed:", data);
+        window.alert(data?.error || "Score save failed.");
         return;
       }
 
@@ -237,7 +221,7 @@ export default function Home() {
       setView("hub");
     } catch (error) {
       console.error("Leaderboard request error:", error);
-      window.alert(`Request error:\n${String(error)}`);
+      window.alert("Score save failed.");
     }
   };
 
