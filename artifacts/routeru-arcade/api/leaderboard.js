@@ -14,15 +14,15 @@ const ALLOWED_GAMES = new Set([
   "screen-sim",
 ]);
 
-function normalizePlayerName(name) {
+function normalizePlayerName(name: string) {
   return name.trim().replace(/\s+/g, " ");
 }
 
-function makePlayerKey(name) {
+function makePlayerKey(name: string) {
   return normalizePlayerName(name).toLowerCase();
 }
 
-export default async function handler(req, res) {
+export default async function handler(req: any, res: any) {
   try {
     if (req.method === "GET") {
       const scope = req.query && req.query.scope;
@@ -72,7 +72,8 @@ export default async function handler(req, res) {
       const score = body.score;
       const game = body.game;
 
-      const trimmedName = typeof name === "string" ? normalizePlayerName(name) : "";
+      const trimmedName =
+        typeof name === "string" ? normalizePlayerName(name) : "";
 
       if (!trimmedName || typeof score !== "number" || !ALLOWED_GAMES.has(game)) {
         return res.status(400).json({ error: "Invalid payload" });
@@ -126,10 +127,19 @@ export default async function handler(req, res) {
     if (req.method === "DELETE") {
       const body = req.body || {};
       const passcode = body.passcode;
-      const expectedToken = process.env.LEADERBOARD_ADMIN_TOKEN;
 
-      if (!expectedToken || passcode !== expectedToken) {
-        return res.status(403).json({ error: "Invalid passcode" });
+      const expectedAdminToken = process.env.LEADERBOARD_ADMIN_TOKEN;
+      const expectedCronSecret = process.env.CRON_SECRET;
+
+      const authHeader = req.headers.authorization;
+      const isCronRequest =
+        expectedCronSecret && authHeader === `Bearer ${expectedCronSecret}`;
+
+      const isManualAdminRequest =
+        expectedAdminToken && passcode === expectedAdminToken;
+
+      if (!isCronRequest && !isManualAdminRequest) {
+        return res.status(403).json({ error: "Unauthorized reset request" });
       }
 
       await sql`DELETE FROM leaderboard`;
@@ -141,8 +151,9 @@ export default async function handler(req, res) {
     }
 
     return res.status(405).json({ error: "Method not allowed" });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Leaderboard API error:", error);
+
     return res.status(500).json({
       error: "Internal server error",
       details: error && error.message ? error.message : String(error),
