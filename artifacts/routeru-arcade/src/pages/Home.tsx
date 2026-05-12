@@ -111,6 +111,7 @@ export default function Home() {
   const [view, setView] = useState<GameView>("hub");
   const [pending, setPending] = useState<PendingScore | null>(null);
   const [sessionScore, setSessionScore] = useState(0);
+  const [playerName, setPlayerName] = useState("");
   const { topEntries, lifetimeEntries, refreshLeaderboard } = useLeaderboard();
 
   const lifetimeTopByGame = useMemo(() => {
@@ -160,6 +161,43 @@ export default function Home() {
       };
     });
   }, [lifetimeEntries]);
+  
+  const startGame = async (gameKey: GameKey) => {
+  const cleanName = playerName.trim();
+
+  if (!cleanName) {
+    window.alert("Please enter your name before starting a game.");
+    return;
+  }
+
+  try {
+    const res = await fetch("/api/daily-play-check", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        playerName: cleanName,
+        game: gameKey,
+      }),
+    });
+
+    const data = await res.json().catch(() => null);
+
+    if (!res.ok || !data?.allowed) {
+      window.alert(
+        data?.message ||
+          "You already played this game today. It will unlock again tomorrow."
+      );
+      return;
+    }
+
+    setView(gameKey);
+  } catch (error) {
+    console.error("Daily play check failed:", error);
+    window.alert("Unable to check daily play limit. Please try again.");
+  }
+};
 
   const handleQuizComplete = (score: number, streak: number) => {
     setSessionScore((s) => s + score);
@@ -201,7 +239,7 @@ export default function Home() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          name,
+          name: playerName.trim() || name,
           score: Number(pending.score),
           game: pending.game,
         }),
@@ -411,7 +449,68 @@ export default function Home() {
             </div>
           </div>
         </div>
+<div
+  className="rounded-3xl p-5 border"
+  style={{
+    background: "linear-gradient(180deg, hsl(0 0% 15%), hsl(0 0% 11%))",
+    borderColor: "hsl(128 20% 28%)",
+    boxShadow: "0 14px 32px rgba(0,0,0,0.30)",
+  }}
+>
+  <label
+    className="block text-sm font-bold mb-2"
+    style={{ color: "hsl(38 45% 96%)" }}
+  >
+    Enter your name to unlock today’s games
+  </label>
 
+  <input
+    value={playerName}
+    onChange={(e) => setPlayerName(e.target.value)}
+    placeholder="Example: Derrick J"
+    className="w-full max-w-md rounded-xl border px-4 py-3 outline-none"
+    style={{
+      background: "hsl(0 0% 96%)",
+      color: "hsl(0 0% 10%)",
+      borderColor: "hsl(128 20% 28%)",
+    }}
+  />
+
+  <p className="text-xs mt-2" style={{ color: "hsl(0 0% 68%)" }}>
+    Each player can play each game once per day. Games unlock again tomorrow.
+  </p>
+</div>
+        <div
+  className="rounded-3xl p-5 border"
+  style={{
+    background: "linear-gradient(180deg, hsl(0 0% 15%), hsl(0 0% 11%))",
+    borderColor: "hsl(128 20% 28%)",
+    boxShadow: "0 14px 32px rgba(0,0,0,0.30)",
+  }}
+>
+  <label
+    className="block text-sm font-bold mb-2"
+    style={{ color: "hsl(38 45% 96%)" }}
+  >
+    Enter your name to unlock today’s games
+  </label>
+
+  <input
+    value={playerName}
+    onChange={(e) => setPlayerName(e.target.value)}
+    placeholder="Example: Derrick J"
+    className="w-full max-w-md rounded-xl border px-4 py-3 outline-none"
+    style={{
+      background: "hsl(0 0% 96%)",
+      color: "hsl(0 0% 10%)",
+      borderColor: "hsl(128 20% 28%)",
+    }}
+  />
+
+  <p className="text-xs mt-2" style={{ color: "hsl(0 0% 68%)" }}>
+    Each player can play each game once per day. Games unlock again tomorrow.
+  </p>
+</div>
         <div className="grid md:grid-cols-2 xl:grid-cols-5 gap-6">
           {GAMES.map((game, i) => {
             const Icon = game.icon;
@@ -426,7 +525,7 @@ export default function Home() {
                   border: "1px solid hsl(128 20% 28%)",
                   boxShadow: "0 14px 32px rgba(0,0,0,0.30)",
                 }}
-                onClick={() => setView(game.id)}
+                onClick={() => startGame(game.id)}
                 data-testid={`card-game-${game.id}`}
               >
                 <div className="flex items-center justify-between mb-5">
@@ -481,7 +580,7 @@ export default function Home() {
                     style={{ color: game.color }}
                     onClick={(e) => {
                       e.stopPropagation();
-                      setView(game.id);
+                      startGame(game.id);
                     }}
                   >
                     {game.cta} <ChevronRight size={14} />
