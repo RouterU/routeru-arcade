@@ -1,9 +1,9 @@
-import { useState } from "react";
-import { User, Send, Trophy } from "lucide-react";
+import { Send, Trophy, User } from "lucide-react";
 
 interface ScoreSubmitProps {
   score: number;
   game: "quiz" | "scenario" | "data-challenge" | "route-runner" | "screen-sim";
+  playerName: string;
   onSubmit: (name: string) => void;
   onSkip: () => void;
 }
@@ -19,14 +19,21 @@ const GAME_LABELS: Record<ScoreSubmitProps["game"], string> = {
 export default function ScoreSubmit({
   score,
   game,
+  playerName,
   onSubmit,
   onSkip,
 }: ScoreSubmitProps) {
-  const [name, setName] = useState("");
+  const cleanPlayerName = playerName.trim();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (name.trim()) onSubmit(name.trim());
+
+    if (!cleanPlayerName) {
+      window.alert("Player name is missing. Please return to the home screen and enter your name.");
+      return;
+    }
+
+    onSubmit(cleanPlayerName);
   };
 
   return (
@@ -58,43 +65,36 @@ export default function ScoreSubmit({
           {score.toLocaleString()}
         </div>
 
-        <p
-          className="text-sm"
-          style={{ color: "hsl(0 0% 72%)" }}
-        >
+        <p className="text-sm" style={{ color: "hsl(0 0% 72%)" }}>
           Submit your score to the leaderboard
         </p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="relative">
-          <User
-            size={16}
-            className="absolute left-3 top-1/2 -translate-y-1/2"
-            style={{ color: "hsl(0 0% 62%)" }}
-          />
+        <div
+          className="flex items-center gap-3 rounded-xl px-4 py-3 text-left"
+          style={{
+            background: "hsl(0 0% 12%)",
+            border: "1.5px solid hsl(128 18% 24%)",
+            color: "hsl(38 45% 96%)",
+          }}
+        >
+          <User size={16} style={{ color: "hsl(0 0% 62%)" }} />
 
-          <input
-            data-testid="input-player-name"
-            type="text"
-            placeholder="Enter your name..."
-            maxLength={20}
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="w-full pl-9 pr-4 py-3 rounded-xl text-sm font-medium outline-none transition-all"
-            style={{
-              background: "hsl(0 0% 12%)",
-              border: "1.5px solid hsl(128 18% 24%)",
-              color: "hsl(38 45% 96%)",
-            }}
-            autoFocus
-          />
+          <div>
+            <div className="text-xs" style={{ color: "hsl(0 0% 62%)" }}>
+              Player
+            </div>
+            <div className="text-sm font-semibold">
+              {cleanPlayerName || "Name missing"}
+            </div>
+          </div>
         </div>
 
         <button
           data-testid="button-submit-score"
           type="submit"
-          disabled={!name.trim()}
+          disabled={!cleanPlayerName}
           className="w-full py-3 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 transition-all hover:opacity-90 disabled:opacity-40"
           style={{
             background: "hsl(5 84% 48%)",
