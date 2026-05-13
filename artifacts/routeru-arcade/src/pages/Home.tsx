@@ -371,6 +371,7 @@ if (!res.ok || !data?.allowed) {
         <ScoreSubmit
           score={pending?.score ?? 0}
           game={pending?.game ?? "quiz"}
+          playerName={playerName}
           onSubmit={handleSubmitScore}
           onSkip={handleSkipSubmit}
         />
