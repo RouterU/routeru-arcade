@@ -480,37 +480,7 @@ export default function Home() {
     Each player can play each game once per day. Games unlock again tomorrow.
   </p>
 </div>
-        <div
-  className="rounded-3xl p-5 border"
-  style={{
-    background: "linear-gradient(180deg, hsl(0 0% 15%), hsl(0 0% 11%))",
-    borderColor: "hsl(128 20% 28%)",
-    boxShadow: "0 14px 32px rgba(0,0,0,0.30)",
-  }}
->
-  <label
-    className="block text-sm font-bold mb-2"
-    style={{ color: "hsl(38 45% 96%)" }}
-  >
-    Enter your name to unlock today’s games
-  </label>
 
-  <input
-    value={playerName}
-    onChange={(e) => setPlayerName(e.target.value)}
-    placeholder="Example: Derrick J"
-    className="w-full max-w-md rounded-xl border px-4 py-3 outline-none"
-    style={{
-      background: "hsl(0 0% 96%)",
-      color: "hsl(0 0% 10%)",
-      borderColor: "hsl(128 20% 28%)",
-    }}
-  />
-
-  <p className="text-xs mt-2" style={{ color: "hsl(0 0% 68%)" }}>
-    Each player can play each game once per day. Games unlock again tomorrow.
-  </p>
-</div>
         <div className="grid md:grid-cols-2 xl:grid-cols-5 gap-6">
           {GAMES.map((game, i) => {
             const Icon = game.icon;
