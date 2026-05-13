@@ -184,13 +184,18 @@ export default function Home() {
 
     const data = await res.json().catch(() => null);
 
-    if (!res.ok || !data?.allowed) {
-      window.alert(
-        data?.message ||
-          "You already played this game today. It will unlock again tomorrow."
-      );
-      return;
-    }
+if (!res.ok || !data?.allowed) {
+  console.error("Daily play check response:", {
+    status: res.status,
+    data,
+  });
+
+  window.alert(
+    data?.message ||
+      `Daily play check failed. Status: ${res.status}`
+  );
+  return;
+}
 
     setView(gameKey);
   } catch (error) {
