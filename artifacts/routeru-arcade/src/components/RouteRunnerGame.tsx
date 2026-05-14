@@ -35,7 +35,7 @@ interface DriveItem {
   type: DriveItemType;
 }
 
-const QUESTION_COUNT = 6;
+const QUESTIONS_PER_GAME = 6;
 const DRIVE_DURATIONS = [15, 15, 20];
 const ROAD_LANES = 3;
 
@@ -128,9 +128,12 @@ export default function RouteRunnerGame({
   onComplete,
   onBack,
 }: RouteRunnerGameProps) {
-  const [questions] = useState<RouteRunnerQuestion[]>(() =>
-    shuffleArray(routeRunnerQuestions).slice(0, QUESTION_COUNT)
-  );
+const [questions] = useState<RouteRunnerQuestion[]>(() =>
+  shuffleArray(routeRunnerQuestions).slice(
+    0,
+    Math.min(QUESTIONS_PER_GAME, routeRunnerQuestions.length)
+  )
+);
 
   const [phase, setPhase] = useState<Phase>("question");
 
