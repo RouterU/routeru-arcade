@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { scenarios, type OutcomeLevel } from "@/data/scenarioData";
 import {
   Trophy,
@@ -13,6 +13,8 @@ interface ScenarioGameProps {
   onComplete: (score: number) => void;
   onBack: () => void;
 }
+
+const SCENARIOS_PER_GAME = 5;
 
 function OutcomeIcon({ level }: { level: OutcomeLevel }) {
   if (level === "good") {
@@ -37,14 +39,20 @@ function outcomeColor(level: OutcomeLevel) {
 }
 
 export default function ScenarioGame({ onComplete, onBack }: ScenarioGameProps) {
+  const shuffledScenarios = useMemo(() => {
+    return [...scenarios]
+      .sort(() => Math.random() - 0.5)
+      .slice(0, Math.min(SCENARIOS_PER_GAME, scenarios.length));
+  }, []);
+
   const [currentIndex, setCurrentIndex] = useState(0);
   const [score, setScore] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);
   const [finished, setFinished] = useState(false);
   const [results, setResults] = useState<OutcomeLevel[]>([]);
 
-  const scenario = scenarios[currentIndex];
-  const progress = (currentIndex / scenarios.length) * 100;
+  const scenario = shuffledScenarios[currentIndex];
+  const progress = (currentIndex / shuffledScenarios.length) * 100;
 
   const handleChoice = (choiceIdx: number) => {
     if (selected !== null) return;
@@ -56,7 +64,7 @@ export default function ScenarioGame({ onComplete, onBack }: ScenarioGameProps) 
   };
 
   const handleNext = () => {
-    if (currentIndex + 1 >= scenarios.length) {
+    if (currentIndex + 1 >= shuffledScenarios.length) {
       setFinished(true);
       onComplete(score);
     } else {
@@ -175,11 +183,7 @@ export default function ScenarioGame({ onComplete, onBack }: ScenarioGameProps) 
           <button
             data-testid="button-scenario-replay"
             onClick={() => {
-              setCurrentIndex(0);
-              setScore(0);
-              setSelected(null);
-              setFinished(false);
-              setResults([]);
+              window.location.reload();
             }}
             className="px-6 py-3 rounded-xl font-semibold flex items-center gap-2 transition-all"
             style={{
@@ -225,7 +229,7 @@ export default function ScenarioGame({ onComplete, onBack }: ScenarioGameProps) 
           style={{ color: "hsl(0 0% 70%)" }}
         >
           <span>
-            Scenario {currentIndex + 1} of {scenarios.length}
+            Scenario {currentIndex + 1} of {shuffledScenarios.length}
           </span>
           <span style={{ color: "hsl(5 84% 48%)" }}>Decision Mode</span>
         </div>
@@ -394,7 +398,9 @@ export default function ScenarioGame({ onComplete, onBack }: ScenarioGameProps) 
                 boxShadow: "0 8px 18px rgba(170, 24, 24, 0.30)",
               }}
             >
-              {currentIndex + 1 >= scenarios.length ? "View Results" : "Next Scenario"}
+              {currentIndex + 1 >= shuffledScenarios.length
+                ? "View Results"
+                : "Next Scenario"}
               <ChevronRight size={16} />
             </button>
           </div>
