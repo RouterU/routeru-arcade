@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { dataChallenges, type RouteEntry } from "@/data/dataChallenge";
 import {
   Trophy,
@@ -15,6 +15,8 @@ interface DataChallengeProps {
   onBack: () => void;
 }
 
+const QUESTIONS_PER_GAME = 3;
+
 export default function DataChallengeGame({
   onComplete,
   onBack,
@@ -26,9 +28,16 @@ export default function DataChallengeGame({
   const [showHint, setShowHint] = useState(false);
   const [finished, setFinished] = useState(false);
   const [roundScores, setRoundScores] = useState<number[]>([]);
+  const [shuffleKey, setShuffleKey] = useState(0);
 
-  const challenge = dataChallenges[currentIndex];
-  const progress = (currentIndex / dataChallenges.length) * 100;
+  const shuffledChallenges = useMemo(() => {
+    return [...dataChallenges]
+      .sort(() => Math.random() - 0.5)
+      .slice(0, QUESTIONS_PER_GAME);
+  }, [shuffleKey]);
+
+  const challenge = shuffledChallenges[currentIndex];
+  const progress = (currentIndex / shuffledChallenges.length) * 100;
 
   const toggleRow = (id: number) => {
     if (submitted) return;
@@ -62,20 +71,35 @@ export default function DataChallengeGame({
 
     const basePoints = 400;
     earned = Math.max(0, basePoints - falsePos * 80 - falseNeg * 80 + truePos * 60);
+
     setScore((s) => s + earned);
     setRoundScores((r) => [...r, earned]);
   };
 
   const handleNext = () => {
-    if (currentIndex + 1 >= dataChallenges.length) {
+    const latestRoundScore = roundScores[roundScores.length - 1] ?? 0;
+    const finalScore = score;
+
+    if (currentIndex + 1 >= shuffledChallenges.length) {
       setFinished(true);
-      onComplete(score);
+      onComplete(finalScore);
     } else {
       setCurrentIndex((i) => i + 1);
       setSelected(new Set());
       setSubmitted(false);
       setShowHint(false);
     }
+  };
+
+  const handleReplay = () => {
+    setShuffleKey((k) => k + 1);
+    setCurrentIndex(0);
+    setScore(0);
+    setSelected(new Set());
+    setSubmitted(false);
+    setShowHint(false);
+    setFinished(false);
+    setRoundScores([]);
   };
 
   const getRowStyle = (entry: RouteEntry) => {
@@ -93,7 +117,7 @@ export default function DataChallengeGame({
   };
 
   if (finished) {
-    const maxPossible = dataChallenges.length * 580;
+    const maxPossible = shuffledChallenges.length * 580;
     const pct = Math.round((score / maxPossible) * 100);
 
     return (
@@ -174,15 +198,7 @@ export default function DataChallengeGame({
 
           <button
             data-testid="button-data-replay"
-            onClick={() => {
-              setCurrentIndex(0);
-              setScore(0);
-              setSelected(new Set());
-              setSubmitted(false);
-              setShowHint(false);
-              setFinished(false);
-              setRoundScores([]);
-            }}
+            onClick={handleReplay}
             className="px-6 py-3 rounded-xl font-semibold flex items-center gap-2 transition-all"
             style={{
               background: "hsl(5 84% 48%)",
@@ -227,7 +243,7 @@ export default function DataChallengeGame({
           style={{ color: "hsl(0 0% 70%)" }}
         >
           <span>
-            Challenge {currentIndex + 1} of {dataChallenges.length}
+            Challenge {currentIndex + 1} of {shuffledChallenges.length}
           </span>
           <span style={{ color: "hsl(5 84% 48%)" }}>Route Audit Mode</span>
         </div>
@@ -452,7 +468,7 @@ export default function DataChallengeGame({
                 boxShadow: "0 8px 18px rgba(170, 24, 24, 0.30)",
               }}
             >
-              {currentIndex + 1 >= dataChallenges.length ? "View Results" : "Next Challenge"}
+              {currentIndex + 1 >= shuffledChallenges.length ? "View Results" : "Next Challenge"}
               <ChevronRight size={16} />
             </button>
           </div>
