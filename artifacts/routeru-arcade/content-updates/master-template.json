@@ -39,9 +39,9 @@
     {
       "id": 5,
       "question": "What does the blue star icon mean?",
-      "options": ["Recovery Express", "Backhaul or pickup", "Missing SOUS setup (DV)", "Cross dock (XDB)"],
+      "options": ["Will call delivery (WCD)", "Backhaul or pickup", "Missing SOUS setup (DV)", "Cross dock (XDB)"],
       "correctIndex": 0,
-      "explanation": "The blue star icon in Route Planner signifies a Recovery Express.",
+      "explanation": "The blue star icon in Route Planner signifies a will call delivery (WCD).",
       "difficulty": "easy",
       "points": 100
     },
@@ -107,6 +107,105 @@
       "explanation": "Before assuming it is a BGO issue, make sure there is not an 'X' in UDFString 4 and check whether 'Exclude From Optimization' is checked inside the resource.",
       "difficulty": "hard",
       "points": 200
+    },
+    {
+      "id": 13,
+      "question": "A customer would like to be set up as a Will Call Delivery only account. Which of the following is the correct process?",
+      "options": ["Delete all routing attributes", "Delete all attributes except for Sunday", "Keep one day of the week that is not Sunday selected as a delivery day", "Make a note in the special instructions"],
+      "correctIndex": 2,
+      "explanation": "Keeping one day of the week as a delivery day will allow the customer to place orders for Will Call Delivery",
+      "difficulty": "medium",
+      "points": 150
+    },
+    {
+      "id": 14,
+      "question": "Which four schedules should be added to Favorites when setting up Route Planner?",
+      "options": ["Planning, Dispatch, Review, Archive", "Planning, Build, Ship, Close", "Active, Review, Audit, Export", "Planning only"],
+      "correctIndex": 0,
+      "explanation": "Routers should favorite Planning, Dispatch, Review, and Archive schedules for daily routing.",
+      "difficulty": "easy",
+      "points": 100
+    },
+    {
+      "id": 15,
+      "question": "Where do users go to add Route Planner schedules to Favorites?",
+      "options": ["Data > Schedule Data > Schedules", "Setup > Resources", "Tools > Routing", "Help > Contents"],
+      "correctIndex": 0,
+      "explanation": "Favorite schedules are added under Data > Schedule Data > Schedules.",
+      "difficulty": "easy",
+      "points": 100
+    },
+    {
+      "id": 16,
+      "question": "What does a 'Preferred Resource' mean?",
+      "options": ["Tier 1 stop", "First customer to depot", "Starting route", "The preferred route that the customer should be on"],
+      "correctIndex": 3,
+      "explanation": "Territory boundaries must fully connect to activate correctly.",
+      "difficulty": "medium",
+      "points": 150
+    },
+    {
+      "id": 17,
+      "question": "Which field cannot be changed after creating a territory?",
+      "options": ["Territory Key", "Color Code", "Requirements", "Description"],
+      "correctIndex": 0,
+      "explanation": "Territory Keys cannot contain spaces and cannot be edited later.",
+      "difficulty": "medium",
+      "points": 150
+    },
+    {
+      "id": 18,
+      "question": "Which SOUS section is used to update Variable and Fixed Service Times?",
+      "options": ["Market Specifics", "Routing Toolkit", "Delivery Groups", "WinRoute"],
+      "correctIndex": 0,
+      "explanation": "Service times are maintained in SOUS Market Specifics.",
+      "difficulty": "medium",
+      "points": 150
+    },
+    {
+      "id": 19,
+      "question": "What should you check first if an order did not assign to a route you feel it should have?",
+      "options": ["BGO", "Matching Requirements", "Tandem", "Google"],
+      "correctIndex": 1,
+      "explanation": "Expired license information can prevent the driver from being assigned to a route.",
+      "difficulty": "medium",
+      "points": 150
+    },
+    {
+      "id": 20,
+      "question": "What does a 'Preferred Route Position' mean?",
+      "options": ["Time windows and delivery day", "Trailer dimensions", "The preferred stop number on a route", "Delivery Group"],
+      "correctIndex": 2,
+      "explanation": "Edit Order allows date and time window adjustments. If moving the day, requirements should also be updated.",
+      "difficulty": "easy",
+      "points": 100
+    },
+    {
+      "id": 21,
+      "question": "What should routers avoid when adjusting project schedule settings?",
+      "options": ["Changing too many settings at once", "Using BGO", "Saving schedules", "Editing territories"],
+      "correctIndex": 0,
+      "explanation": "Too many simultaneous changes make it difficult to determine which setting is helping or hurting the solution.",
+      "difficulty": "medium",
+      "points": 150
+    },
+    {
+      "id": 22,
+      "question": "Which routing parameters are considered the default standards?",
+      "options": ["Standard-Default, Rural-Default, Metro-Default", "Urban, Rural, Hybrid", "Fast, Medium, Slow", "Default A, B, C"],
+      "correctIndex": 0,
+      "explanation": "The guide identifies Standard-Default, Rural-Default, and Metro-Default as the default routing parameter groups.",
+      "difficulty": "hard",
+      "points": 200
+    },
+    {
+      "id": 23,
+      "question": "What must be done before uploading Orders-Clients data into WinRoute?",
+      "options": ["Upload Depots and Vehicles-Drivers first", "Run BGO", "Delete territories", "Export archive schedules"],
+      "correctIndex": 0,
+      "explanation": "Depots and Vehicles-Drivers data must be filled out and uploaded before the Orders-Clients upload.",
+      "difficulty": "medium",
+      "points": 150
     }
   ],
   "scenarios": [
@@ -159,6 +258,76 @@
         {"text": "Locks must be maintained in SOUS Routing Attributes", "outcome": "good", "explanation": "The QRG specifies that route and sequence locks are managed in SOUS, not directly in Route Planner.", "points": 300},
         {"text": "The route must be published first", "outcome": "ok", "explanation": "Publishing does not control lock persistence.", "points": 100}
       ]
+    },
+    {
+      "id": 6,
+      "title": "Logistical Route Templates",
+      "situation": "A shuttle route is unsuccessful in publishing. Where will you most likely be able to resolve errors related to shuttle stops?",
+      "choices": [
+        {"text": "Check the shuttle stops on the route for errors", "outcome": "ok", "explanation": "You may be able to identify an error within the shuttle stops on a route, but this is not likely the place you will be able to resolve the error.", "points": 100},
+        {"text": "Look at the icons next to the shuttle stops", "outcome": "bad", "explanation": "The icons next to shuttle stops will not signify what is wrong", "points": 0},
+        {"text": "The Scheduled Stops section within the Route Template", "outcome": "good", "explanation": "Check the Scheduled Stops section within the Route Template to ensure the correct location key is added and the Stop Template Key is correct for the stop type. Once resolved, you can recreate the resource with the correct data for publish.", "points": 300}
+      ]
+    },
+    {
+      "id": 7,
+      "title": "Missing Favorite Schedules",
+      "situation": "A new router cannot see the Planning schedule in Route Planner. What should you do first?",
+      "choices": [
+        {"text": "Add Planning, Dispatch, Review, and Archive schedules to Favorites", "outcome": "good", "explanation": "Routers must favorite schedules before routing work can begin.", "points": 300},
+        {"text": "Ask IT to reinstall Route Planner", "outcome": "bad", "explanation": "The issue is normally missing Favorites setup, not installation.", "points": 0},
+        {"text": "Restart Chrome repeatedly", "outcome": "bad", "explanation": "Browser restarts will not add schedules.", "points": 0}
+      ]
+    },
+    {
+      "id": 8,
+      "title": "Territory Gap Issue",
+      "situation": "BGO is behaving strangely after new territories were created. What is the best thing to verify first?",
+      "choices": [
+        {"text": "Ensure all territory points fully connect with no gaps", "outcome": "good", "explanation": "Territory gaps can cause routing problems and inconsistent territory logic.", "points": 300},
+        {"text": "Increase route costs", "outcome": "bad", "explanation": "Costs do not fix territory map gaps.", "points": 0},
+        {"text": "Delete all schedules", "outcome": "bad", "explanation": "Schedules are unrelated to territory boundary gaps.", "points": 0}
+      ]
+    },
+    {
+      "id": 9,
+      "title": "Route Numbers",
+      "situation": "You are starting to see a noticable difference between Delivery Data and Recovery Data when you check reports. It seems that the delivery data is missing routes, at the same time Recovery routes have increased. When checking route numbers what should you look for?",
+      "choices": [
+        {"text": "Delivery Routes should be numbered 1000 - 7989", "outcome": "ok", "explanation": "True, you should double check that all of your delivery route numbers fall within this range in  Route Planner.", "points": 100},
+        {"text": "Verify that you don't see any delivery routes in the Recovery Report, by making sure every route has '99' inside of the route number.", "outcome": "good", "explanation": "Yes! Proper setup of a Recovery route number is, 1st digit = day number, next digits = 99. Delivery route setup (1000-7989) should be, 1st digit = day number, do not use '99' for delivery.", "points": 300},
+        {"text": "Ignore the reports", "outcome": "bad", "explanation": "Never ignore reports, if you have double checked all the data and you are certain a report is not correct, submit a service ticket or escalate it to your ROM.", "points": 0}
+      ]
+    },
+    {
+      "id": 10,
+      "title": "Service Time Complaint",
+      "situation": "Routes are consistently too tight at customer locations. What should you review?",
+      "choices": [
+        {"text": "Variable and Fixed Service Times in SOUS", "outcome": "good", "explanation": "Incorrect service times can heavily impact route duration and planning accuracy.", "points": 300},
+        {"text": "Delivery Group colors", "outcome": "bad", "explanation": "Colors do not affect route timing.", "points": 0},
+        {"text": "WinRoute export files", "outcome": "bad", "explanation": "Export files are unrelated to daily service time setup.", "points": 0}
+      ]
+    },
+    {
+      "id": 11,
+      "title": "Crossdock Validation",
+      "situation": "A crossdock order failed during publish validation. What should be checked in Route Planner?",
+      "choices": [
+        {"text": "OrderUDFString4 contains DV", "outcome": "good", "explanation": "The guide notes XDA/XDB validation in Route Planner by checking OrderUDFString4 for DV.", "points": 300},
+        {"text": "Territory color code", "outcome": "bad", "explanation": "Territory color does not validate crossdock logic.", "points": 0},
+        {"text": "Archive schedule assignment", "outcome": "bad", "explanation": "Archive schedule assignment is not the validation field for crossdock setup.", "points": 0}
+      ]
+    },
+    {
+      "id": 12,
+      "title": "Route Optimization Testing",
+      "situation": "You want to test a completely new routing solution overnight. What should happen first?",
+      "choices": [
+        {"text": "Unassign all stops from selected routes", "outcome": "good", "explanation": "Stops must be unassigned before BGO can fully rebuild a dynamic solution.", "points": 300},
+        {"text": "Delete all resources", "outcome": "bad", "explanation": "Resources should remain available for the test solution.", "points": 0},
+        {"text": "Archive all orders", "outcome": "bad", "explanation": "Archived orders cannot be optimized in the project solution.", "points": 0}
+      ]
     }
   ],
   "dataChallenges": [
@@ -206,12 +375,72 @@
       ],
       "correctIssueIds": [2, 4],
       "explanation": "Rows 2 and 4 have assignment mismatches that can keep Batch Processor from attaching the order."
+    },
+    {
+      "id": 4,
+      "title": "Territory Setup Audit",
+      "description": "Review the territory setup data and identify invalid configuration issues.",
+      "hint": "Look for territory key formatting, active status, and schedule assignment issues.",
+      "routingTable": [
+        {"id": 1, "prefix": "TERR-2370G", "nextHop": "Territory", "metric": "Active", "protocol": "Connected outline", "age": "Ready", "flags": "OK", "hasIssue": false},
+        {"id": 2, "prefix": "TERR-2370 A", "nextHop": "Territory", "metric": "Active", "protocol": "Key contains space", "age": "Review", "flags": "⚠", "issue": "Territory Key cannot contain spaces.", "hasIssue": true},
+        {"id": 3, "prefix": "TERR-2371A", "nextHop": "Territory", "metric": "Active", "protocol": "Assigned schedule", "age": "Ready", "flags": "OK", "hasIssue": false},
+        {"id": 4, "prefix": "TERR-2372A", "nextHop": "Territory", "metric": "Inactive", "protocol": "Still assigned to resource requirements", "age": "Blocked", "flags": "⚠", "issue": "Inactive territory may still affect route templates/resources if requirements are not removed.", "hasIssue": true},
+        {"id": 5, "prefix": "TERR-2373A", "nextHop": "Territory", "metric": "Active", "protocol": "Depot and order density reviewed", "age": "Ready", "flags": "OK", "hasIssue": false}
+      ],
+      "correctIssueIds": [2, 4],
+      "explanation": "Rows 2 and 4 contain territory setup problems that may impact routing behavior."
+    },
+    {
+      "id": 5,
+      "title": "Crossdock Routing Review",
+      "description": "Review crossdock customer configuration data for routing problems.",
+      "hint": "Verify DV values, primary facility setup, and shared location setup.",
+      "routingTable": [
+        {"id": 1, "prefix": "XDC-1001", "nextHop": "OrderUDFString4", "metric": "DV", "protocol": "Primary Facility present", "age": "Ready", "flags": "OK", "hasIssue": false},
+        {"id": 2, "prefix": "XDC-1002", "nextHop": "Cross Dock Division", "metric": "Valid", "protocol": "Days to Deliver reviewed", "age": "Ready", "flags": "OK", "hasIssue": false},
+        {"id": 3, "prefix": "XDC-1003", "nextHop": "OrderUDFString4", "metric": "Blank", "protocol": "XDA/XDB validation missing", "age": "Blocked", "flags": "⚠", "issue": "XDA/XDB should be validated by checking OrderUDFString4 for DV.", "hasIssue": true},
+        {"id": 4, "prefix": "XDC-1004", "nextHop": "Omni Sharing", "metric": "Shared", "protocol": "Secondary market confirmed", "age": "Ready", "flags": "OK", "hasIssue": false},
+        {"id": 5, "prefix": "XDC-1005", "nextHop": "Primary Facility", "metric": "Blank", "protocol": "Facility missing", "age": "Blocked", "flags": "⚠", "issue": "Crossdock Primary Facility should be populated in SOUS Routing Attributes.", "hasIssue": true}
+      ],
+      "correctIssueIds": [3, 5],
+      "explanation": "Rows 3 and 5 have missing crossdock setup details that can create routing or publish issues."
+    },
+    {
+      "id": 6,
+      "title": "Service Time Configuration",
+      "description": "Review service time configuration entries for operational risk.",
+      "hint": "Focus on unrealistic fixed and variable service time values.",
+      "routingTable": [
+        {"id": 1, "prefix": "SVC-001", "nextHop": "Market Specifics", "metric": "Fixed Time", "protocol": "Standard value", "age": "Ready", "flags": "OK", "hasIssue": false},
+        {"id": 2, "prefix": "SVC-002", "nextHop": "Market Specifics", "metric": "Variable Time", "protocol": "Reviewed", "age": "Ready", "flags": "OK", "hasIssue": false},
+        {"id": 3, "prefix": "SVC-003", "nextHop": "SOUS", "metric": "Order/Delivery Info", "protocol": "Updated", "age": "Ready", "flags": "OK", "hasIssue": false},
+        {"id": 4, "prefix": "SVC-004", "nextHop": "Service Time", "metric": "Fixed = 0", "protocol": "Likely too low", "age": "Review", "flags": "⚠", "issue": "Unrealistic fixed or variable service times can distort route build accuracy.", "hasIssue": true},
+        {"id": 5, "prefix": "SVC-005", "nextHop": "Service Time", "metric": "Variable present", "protocol": "Ready", "age": "Ready", "flags": "OK", "hasIssue": false}
+      ],
+      "correctIssueIds": [4],
+      "explanation": "Row 4 contains a service time configuration issue that can distort route timing."
+    },
+    {
+      "id": 7,
+      "title": "Routing Parameter Audit",
+      "description": "Review routes using outdated or incorrect routing parameters.",
+      "hint": "Look for non-standard parameter values and missing approved default comments.",
+      "routingTable": [
+        {"id": 1, "prefix": "RT-1001", "nextHop": "Routing Parameters", "metric": "Custom_Legacy", "protocol": "No approved comment", "age": "Review", "flags": "⚠", "issue": "Templates should generally use Standard-Default, Rural-Default, or Metro-Default.", "hasIssue": true},
+        {"id": 2, "prefix": "RT-1002", "nextHop": "Routing Parameters", "metric": "Standard-Default", "protocol": "Approved default", "age": "Ready", "flags": "OK", "hasIssue": false},
+        {"id": 3, "prefix": "RT-1003", "nextHop": "Routing Parameters", "metric": "Rural-Default", "protocol": "Approved default", "age": "Ready", "flags": "OK", "hasIssue": false},
+        {"id": 4, "prefix": "RT-1004", "nextHop": "Routing Parameters", "metric": "Old_Metro", "protocol": "Missing approved comment", "age": "Review", "flags": "⚠", "issue": "Outdated routing parameters should be reviewed and corrected.", "hasIssue": true},
+        {"id": 5, "prefix": "RT-1005", "nextHop": "Routing Parameters", "metric": "Metro-Default", "protocol": "Approved default", "age": "Ready", "flags": "OK", "hasIssue": false}
+      ],
+      "correctIssueIds": [1, 4],
+      "explanation": "Rows 1 and 4 may use non-standard or outdated routing parameters."
     }
   ],
   "routeRunner": [
     {
       "id": 1,
-      "question": "Before publishing the last route, the map is still showing unassigned stops marked with 'U'. What should happen first?",
+      "question": "A route is showing unassigned stops marked with 'U' before publish. What should happen first?",
       "options": ["Publish anyway and fix later", "Assign the stops to a valid route or place non-shipping stops on a 999 route", "Archive the stops", "Delete the stops from the schedule"],
       "correctIndex": 1,
       "explanation": "All stops must be accounted for before publish. Non-shipping stops should be placed on a 999 route.",
@@ -239,29 +468,4 @@
     {
       "id": 4,
       "question": "A route will not publish and some orders remain in status 20. What should you check?",
-      "options": ["Route Detail for blocked orders", "Archive schedule", "Driver meal break settings", "Map zoom level"],
-      "correctIndex": 0,
-      "explanation": "Orders stuck in status 20 can block publishing and should be reviewed in Route Detail.",
-      "difficulty": "medium",
-      "points": 150
-    },
-    {
-      "id": 5,
-      "question": "After cut is taken, how long should routers generally wait for BGO to complete before moving routes and stops?",
-      "options": ["5 minutes", "10 minutes", "15 minutes", "30 minutes"],
-      "correctIndex": 2,
-      "explanation": "Routers should generally wait about 15 minutes after cut for BGO processing to complete.",
-      "difficulty": "easy",
-      "points": 100
-    },
-    {
-      "id": 6,
-      "question": "A route is under minimum before publish. What is the best action?",
-      "options": ["Ignore it", "Review it for consolidation or operational need before publishing", "Move it to Archive immediately", "Publish it no matter what"],
-      "correctIndex": 1,
-      "explanation": "Under-minimum routes should be reviewed before publish to determine whether they should be consolidated or adjusted.",
-      "difficulty": "medium",
-      "points": 150
-    }
-  ]
-}
+      "options": ["Route Detail for blocked orders", "Archive schedule",
