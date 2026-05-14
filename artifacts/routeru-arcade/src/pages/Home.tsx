@@ -110,8 +110,12 @@ const GAMES = [
 export default function Home() {
   const [view, setView] = useState<GameView>("hub");
   const [pending, setPending] = useState<PendingScore | null>(null);
-  const [sessionScore, setSessionScore] = useState(0);
-  const [playerName, setPlayerName] = useState("");
+const [sessionScore, setSessionScore] = useState(0);
+const [playerName, setPlayerName] = useState("");
+
+const [feedbackMessage, setFeedbackMessage] = useState("");
+const [feedbackStatus, setFeedbackStatus] = useState("");
+const [feedbackSubmitting, setFeedbackSubmitting] = useState(false);
   const { topEntries, lifetimeEntries, refreshLeaderboard } = useLeaderboard();
 
   const lifetimeTopByGame = useMemo(() => {
@@ -300,6 +304,42 @@ if (!res.ok || !data?.allowed) {
       window.alert("Reset failed");
     }
   };
+  const handleSubmitFeedback = async () => {
+  const message = feedbackMessage.trim();
+
+  if (!message) {
+    window.alert("Please enter feedback before submitting.");
+    return;
+  }
+
+  try {
+    setFeedbackSubmitting(true);
+    setFeedbackStatus("");
+
+    const res = await fetch("/api/feedback", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ message }),
+    });
+
+    const data = await res.json().catch(() => null);
+
+    if (!res.ok) {
+      setFeedbackStatus(data?.error || "Feedback failed to send.");
+      return;
+    }
+
+    setFeedbackMessage("");
+    setFeedbackStatus("Thank you! Your feedback was submitted.");
+  } catch (error) {
+    console.error("Feedback submit failed:", error);
+    setFeedbackStatus("Feedback failed to send.");
+  } finally {
+    setFeedbackSubmitting(false);
+  }
+};
 
   const pageBackground = {
     background: `
@@ -596,6 +636,65 @@ if (!res.ok || !data?.allowed) {
               Reset Leaderboard
             </button>
           </div>
+          <div
+  className="rounded-3xl p-5 border space-y-3"
+  style={{
+    background: "linear-gradient(180deg, hsl(0 0% 15%), hsl(0 0% 11%))",
+    borderColor: "hsl(128 20% 28%)",
+    boxShadow: "0 14px 32px rgba(0,0,0,0.30)",
+  }}
+>
+  <h3
+    className="font-bold"
+    style={{ color: "hsl(38 45% 96%)" }}
+  >
+    Have Some Feedback?
+  </h3>
+
+  <textarea
+    value={feedbackMessage}
+    onChange={(e) => setFeedbackMessage(e.target.value)}
+    placeholder="Type your feedback here..."
+    rows={4}
+    maxLength={1000}
+    className="w-full rounded-xl border px-4 py-3 outline-none resize-none text-sm"
+    style={{
+      background: "hsl(0 0% 96%)",
+      color: "hsl(0 0% 10%)",
+      borderColor: "hsl(128 20% 28%)",
+    }}
+  />
+
+  <p
+    className="text-xs leading-relaxed"
+    style={{ color: "hsl(0 0% 68%)" }}
+  >
+    We would love to hear any feedback, concerns, or idea's!
+  </p>
+
+  <button
+    type="button"
+    onClick={handleSubmitFeedback}
+    disabled={feedbackSubmitting}
+    className="w-full py-2.5 rounded-xl text-sm font-semibold transition-all hover:opacity-90 disabled:opacity-60"
+    style={{
+      background: "hsl(128 46% 30%)",
+      color: "white",
+      boxShadow: "0 8px 18px rgba(0,0,0,0.25)",
+    }}
+  >
+    {feedbackSubmitting ? "Submitting..." : "Submit Feedback"}
+  </button>
+
+  {feedbackStatus && (
+    <p
+      className="text-xs font-semibold"
+      style={{ color: "hsl(38 95% 58%)" }}
+    >
+      {feedbackStatus}
+    </p>
+  )}
+</div>
 
           <div className="space-y-6">
             <div
