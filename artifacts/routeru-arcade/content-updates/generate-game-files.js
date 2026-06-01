@@ -24,23 +24,109 @@ function writeFile(fileName, fileContent) {
   console.log(`Updated ${fileName}`);
 }
 
-function toTsExport(typeDefs, exportName, data) {
-  return `${typeDefs}
+function normalizeDifficulty(value) {
+  const rawValue = String(value || "new-hire")
+    .trim()
+    .toLowerCase()
+    .replaceAll("_", "-")
+    .replaceAll(" ", "-");
 
-export const ${exportName} = ${JSON.stringify(data, null, 2)};\n`;
+  if (rawValue === "easy") return "new-hire";
+  if (rawValue === "medium") return "intermediate";
+  if (rawValue === "hard") return "expert";
+  if (rawValue === "newhire") return "new-hire";
+  if (rawValue === "new-hire") return "new-hire";
+  if (rawValue === "intermediate") return "intermediate";
+  if (rawValue === "expert") return "expert";
+
+  return "new-hire";
 }
 
-const quizTypes = `export interface QuizQuestion {
+function normalizeTopic(value) {
+  const rawValue = String(value || "descartes-route-planner")
+    .trim()
+    .toLowerCase()
+    .replaceAll("_", "-")
+    .replaceAll(" ", "-");
+
+  if (
+    rawValue === "descartes" ||
+    rawValue === "route-planner" ||
+    rawValue === "descartes-route-planner" ||
+    rawValue === "rp"
+  ) {
+    return "descartes-route-planner";
+  }
+
+  if (rawValue === "sous") return "sous";
+  if (rawValue === "tandem") return "tandem";
+  if (rawValue === "omnitrax" || rawValue === "omni-trax") return "omnitrax";
+
+  return "descartes-route-planner";
+}
+
+function prepareQuiz(items = []) {
+  return items.map((item) => ({
+    ...item,
+    difficulty: normalizeDifficulty(item.difficulty),
+    topic: normalizeTopic(item.topic),
+  }));
+}
+
+function prepareScenarios(items = []) {
+  return items.map((item) => ({
+    ...item,
+    difficulty: normalizeDifficulty(item.difficulty),
+    topic: normalizeTopic(item.topic),
+  }));
+}
+
+function prepareDataChallenges(items = []) {
+  return items.map((item) => ({
+    ...item,
+    difficulty: normalizeDifficulty(item.difficulty),
+    topic: normalizeTopic(item.topic),
+  }));
+}
+
+function prepareRouteRunner(items = []) {
+  return items.map((item) => ({
+    ...item,
+    difficulty: normalizeDifficulty(item.difficulty),
+    topic: normalizeTopic(item.topic),
+  }));
+}
+
+function toTsExport(typeDefs, exportName, data, typeName) {
+  return `${typeDefs}
+
+export const ${exportName}: ${typeName}[] = ${JSON.stringify(data, null, 2)};\n`;
+}
+
+const sharedTypes = `export type TrainingDifficulty = "new-hire" | "intermediate" | "expert";
+
+export type TrainingTopic =
+  | "descartes-route-planner"
+  | "sous"
+  | "tandem"
+  | "omnitrax";`;
+
+const quizTypes = `${sharedTypes}
+
+export interface QuizQuestion {
   id: number;
   question: string;
   options: string[];
   correctIndex: number;
   explanation: string;
-  difficulty: "easy" | "medium" | "hard";
+  difficulty: TrainingDifficulty;
   points: number;
+  topic: TrainingTopic;
 }`;
 
 const scenarioTypes = `export type OutcomeLevel = "good" | "ok" | "bad";
+
+${sharedTypes}
 
 export interface Choice {
   text: string;
@@ -54,9 +140,13 @@ export interface Scenario {
   title: string;
   situation: string;
   choices: Choice[];
+  difficulty: TrainingDifficulty;
+  topic: TrainingTopic;
 }`;
 
-const dataChallengeTypes = `export interface RouteEntry {
+const dataChallengeTypes = `${sharedTypes}
+
+export interface RouteEntry {
   id: number;
   prefix: string;
   nextHop: string;
@@ -76,36 +166,56 @@ export interface DataChallenge {
   routingTable: RouteEntry[];
   correctIssueIds: number[];
   explanation: string;
+  difficulty: TrainingDifficulty;
+  topic: TrainingTopic;
 }`;
 
-const routeRunnerTypes = `export interface RouteRunnerQuestion {
+const routeRunnerTypes = `${sharedTypes}
+
+export interface RouteRunnerQuestion {
   id: number;
   question: string;
   options: string[];
   correctIndex: number;
   explanation: string;
-  difficulty: "easy" | "medium" | "hard";
+  difficulty: TrainingDifficulty;
   points: number;
+  topic: TrainingTopic;
 }`;
 
 writeFile(
   "quizData.ts",
-  toTsExport(quizTypes, "quizQuestions", content.quiz)
+  toTsExport(quizTypes, "quizQuestions", prepareQuiz(content.quiz), "QuizQuestion")
 );
 
 writeFile(
   "scenarioData.ts",
-  toTsExport(scenarioTypes, "scenarios", content.scenarios)
+  toTsExport(
+    scenarioTypes,
+    "scenarios",
+    prepareScenarios(content.scenarios),
+    "Scenario"
+  )
 );
 
 writeFile(
   "dataChallenge.ts",
-  toTsExport(dataChallengeTypes, "dataChallenges", content.dataChallenges)
+  toTsExport(
+    dataChallengeTypes,
+    "dataChallenges",
+    prepareDataChallenges(content.dataChallenges),
+    "DataChallenge"
+  )
 );
 
 writeFile(
   "routeRunnerData.ts",
-  toTsExport(routeRunnerTypes, "routeRunnerQuestions", content.routeRunner)
+  toTsExport(
+    routeRunnerTypes,
+    "routeRunnerQuestions",
+    prepareRouteRunner(content.routeRunner),
+    "RouteRunnerQuestion"
+  )
 );
 
 console.log("All game data files generated successfully.");
