@@ -52,16 +52,21 @@ export default function ScenarioGame({
   selectedTopic,
 }: ScenarioGameProps) {
   const shuffledScenarios = useMemo(() => {
-    const filtered = scenarios.filter((scenario) => {
-      const difficultyMatch = scenario.difficulty === selectedDifficulty;
+    const difficultyFiltered = scenarios.filter(
+      (scenario) => scenario.difficulty === selectedDifficulty
+    );
 
-      const topicMatch =
-        selectedTopic === "mix-it-up" || scenario.topic === selectedTopic;
+    const topicFiltered = difficultyFiltered.filter(
+      (scenario) =>
+        selectedTopic === "mix-it-up" || scenario.topic === selectedTopic
+    );
 
-      return difficultyMatch && topicMatch;
-    });
-
-    const source = filtered.length > 0 ? filtered : scenarios;
+    const source =
+      topicFiltered.length > 0
+        ? topicFiltered
+        : difficultyFiltered.length > 0
+        ? difficultyFiltered
+        : scenarios;
 
     return [...source]
       .sort(() => Math.random() - 0.5)
@@ -75,7 +80,10 @@ export default function ScenarioGame({
   const [results, setResults] = useState<OutcomeLevel[]>([]);
 
   const scenario = shuffledScenarios[currentIndex];
-  const progress = (currentIndex / shuffledScenarios.length) * 100;
+  const progress =
+    shuffledScenarios.length > 0
+      ? (currentIndex / shuffledScenarios.length) * 100
+      : 0;
 
   const handleChoice = (choiceIdx: number) => {
     if (selected !== null || !scenario) return;
@@ -421,7 +429,9 @@ export default function ScenarioGame({
           <div
             className="animate-slide-in-up rounded-2xl p-4 space-y-2"
             style={{
-              background: `${outcomeColor(scenario.choices[selected].outcome)}18`,
+              background: `${outcomeColor(
+                scenario.choices[selected].outcome
+              )}18`,
               border: `1px solid ${outcomeColor(
                 scenario.choices[selected].outcome
               )}40`,
