@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { quizQuestions, type QuizQuestion } from "@/data/quizData";
 import {
   Trophy,
@@ -13,6 +13,13 @@ import {
 interface QuizGameProps {
   onComplete: (score: number, streak: number) => void;
   onBack: () => void;
+  selectedDifficulty: "new-hire" | "intermediate" | "expert";
+  selectedTopic:
+    | "descartes-route-planner"
+    | "sous"
+    | "tandem"
+    | "omnitrax"
+    | "mix-it-up";
 }
 
 type AnswerState = "unanswered" | "correct" | "incorrect";
@@ -29,10 +36,35 @@ function shuffleArray<T>(arr: T[]): T[] {
   return a;
 }
 
-export default function QuizGame({ onComplete, onBack }: QuizGameProps) {
-  const [questions] = useState<QuizQuestion[]>(() =>
-    shuffleArray(quizQuestions).slice(0, SHUFFLE_COUNT)
-  );
+function getDifficultyLabel(
+  difficulty: "new-hire" | "intermediate" | "expert"
+) {
+  if (difficulty === "new-hire") return "NEW HIRE";
+  if (difficulty === "intermediate") return "INTERMEDIATE";
+  return "EXPERT";
+}
+
+export default function QuizGame({
+  onComplete,
+  onBack,
+  selectedDifficulty,
+  selectedTopic,
+}: QuizGameProps) {
+  const questions = useMemo<QuizQuestion[]>(() => {
+    const filtered = quizQuestions.filter((question) => {
+      const difficultyMatch = question.difficulty === selectedDifficulty;
+
+      const topicMatch =
+        selectedTopic === "mix-it-up" || question.topic === selectedTopic;
+
+      return difficultyMatch && topicMatch;
+    });
+
+    const source = filtered.length > 0 ? filtered : quizQuestions;
+
+    return shuffleArray(source).slice(0, Math.min(SHUFFLE_COUNT, source.length));
+  }, [selectedDifficulty, selectedTopic]);
+
   const [currentIndex, setCurrentIndex] = useState(0);
   const [score, setScore] = useState(0);
   const [streak, setStreak] = useState(0);
@@ -82,7 +114,9 @@ export default function QuizGame({ onComplete, onBack }: QuizGameProps) {
 
     const streakBonus = streak >= 3 ? Math.floor(streak / 3) * 50 : 0;
     const timeBonus = Math.floor((timeLeft / TIME_PER_QUESTION) * 50);
-    const earned = isCorrect ? currentQuestion.points + streakBonus + timeBonus : 0;
+    const earned = isCorrect
+      ? currentQuestion.points + streakBonus + timeBonus
+      : 0;
 
     setBonusPoints(streakBonus + timeBonus);
 
@@ -131,6 +165,29 @@ export default function QuizGame({ onComplete, onBack }: QuizGameProps) {
       ? "hsl(38 95% 58%)"
       : "hsl(0 75% 55%)";
 
+  if (!currentQuestion) {
+    return (
+      <div className="max-w-2xl mx-auto text-center space-y-4 py-8">
+        <h2 className="text-2xl font-bold" style={{ color: "hsl(38 45% 96%)" }}>
+          No questions available
+        </h2>
+        <p style={{ color: "hsl(0 0% 72%)" }}>
+          No matching quiz questions were found for this training path.
+        </p>
+        <button
+          onClick={onBack}
+          className="px-6 py-3 rounded-xl font-semibold"
+          style={{
+            background: "hsl(5 84% 48%)",
+            color: "white",
+          }}
+        >
+          Back to Hub
+        </button>
+      </div>
+    );
+  }
+
   if (finished) {
     const correctCount = answeredQuestions.filter(Boolean).length;
 
@@ -152,7 +209,8 @@ export default function QuizGame({ onComplete, onBack }: QuizGameProps) {
           <div
             className="p-4 rounded-2xl border"
             style={{
-              background: "linear-gradient(180deg, hsl(0 0% 15%), hsl(0 0% 11%))",
+              background:
+                "linear-gradient(180deg, hsl(0 0% 15%), hsl(0 0% 11%))",
               borderColor: "hsl(128 20% 24%)",
             }}
           >
@@ -170,7 +228,8 @@ export default function QuizGame({ onComplete, onBack }: QuizGameProps) {
           <div
             className="p-4 rounded-2xl border"
             style={{
-              background: "linear-gradient(180deg, hsl(0 0% 15%), hsl(0 0% 11%))",
+              background:
+                "linear-gradient(180deg, hsl(0 0% 15%), hsl(0 0% 11%))",
               borderColor: "hsl(128 20% 24%)",
             }}
           >
@@ -188,7 +247,8 @@ export default function QuizGame({ onComplete, onBack }: QuizGameProps) {
           <div
             className="p-4 rounded-2xl border"
             style={{
-              background: "linear-gradient(180deg, hsl(0 0% 15%), hsl(0 0% 11%))",
+              background:
+                "linear-gradient(180deg, hsl(0 0% 15%), hsl(0 0% 11%))",
               borderColor: "hsl(128 20% 24%)",
             }}
           >
@@ -235,6 +295,27 @@ export default function QuizGame({ onComplete, onBack }: QuizGameProps) {
       </div>
     );
   }
+
+  const difficultyBackground =
+    currentQuestion.difficulty === "expert"
+      ? "hsl(0 75% 55% / 0.18)"
+      : currentQuestion.difficulty === "intermediate"
+      ? "hsl(38 95% 58% / 0.18)"
+      : "hsl(130 60% 50% / 0.18)";
+
+  const difficultyColor =
+    currentQuestion.difficulty === "expert"
+      ? "hsl(0 75% 70%)"
+      : currentQuestion.difficulty === "intermediate"
+      ? "hsl(38 95% 70%)"
+      : "hsl(130 60% 70%)";
+
+  const difficultyBorder =
+    currentQuestion.difficulty === "expert"
+      ? "1px solid hsl(0 75% 55% / 0.25)"
+      : currentQuestion.difficulty === "intermediate"
+      ? "1px solid hsl(38 95% 58% / 0.25)"
+      : "1px solid hsl(130 60% 50% / 0.25)";
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
@@ -324,7 +405,8 @@ export default function QuizGame({ onComplete, onBack }: QuizGameProps) {
           shake ? "animate-shake" : "animate-slide-in-up"
         }`}
         style={{
-          background: "linear-gradient(180deg, hsl(0 0% 15%), hsl(0 0% 11%))",
+          background:
+            "linear-gradient(180deg, hsl(0 0% 15%), hsl(0 0% 11%))",
           borderColor: "hsl(128 20% 24%)",
           boxShadow: "0 14px 32px rgba(0,0,0,0.30)",
         }}
@@ -334,27 +416,13 @@ export default function QuizGame({ onComplete, onBack }: QuizGameProps) {
             <span
               className="text-xs font-semibold px-2 py-0.5 rounded-full"
               style={{
-                background:
-                  currentQuestion.difficulty === "hard"
-                    ? "hsl(0 75% 55% / 0.18)"
-                    : currentQuestion.difficulty === "medium"
-                    ? "hsl(38 95% 58% / 0.18)"
-                    : "hsl(130 60% 50% / 0.18)",
-                color:
-                  currentQuestion.difficulty === "hard"
-                    ? "hsl(0 75% 70%)"
-                    : currentQuestion.difficulty === "medium"
-                    ? "hsl(38 95% 70%)"
-                    : "hsl(130 60% 70%)",
-                border:
-                  currentQuestion.difficulty === "hard"
-                    ? "1px solid hsl(0 75% 55% / 0.25)"
-                    : currentQuestion.difficulty === "medium"
-                    ? "1px solid hsl(38 95% 58% / 0.25)"
-                    : "1px solid hsl(130 60% 50% / 0.25)",
+                background: difficultyBackground,
+                color: difficultyColor,
+                border: difficultyBorder,
               }}
             >
-              {currentQuestion.difficulty.toUpperCase()} · {currentQuestion.points}pts
+              {getDifficultyLabel(currentQuestion.difficulty)} ·{" "}
+              {currentQuestion.points}pts
             </span>
           </div>
 
@@ -478,7 +546,9 @@ export default function QuizGame({ onComplete, onBack }: QuizGameProps) {
                 boxShadow: "0 8px 18px rgba(170, 24, 24, 0.30)",
               }}
             >
-              {currentIndex + 1 >= questions.length ? "View Results" : "Next Question"}
+              {currentIndex + 1 >= questions.length
+                ? "View Results"
+                : "Next Question"}
               <ChevronRight size={16} />
             </button>
           </div>
