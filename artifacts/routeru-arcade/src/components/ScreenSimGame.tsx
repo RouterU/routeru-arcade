@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ArrowLeft, CheckCircle, XCircle } from "lucide-react";
 
 interface CorrectZone {
@@ -25,6 +25,8 @@ interface ScreenSimQuestion {
   question: string;
   explanation: string;
   video?: string;
+  difficulty?: "new-hire" | "intermediate" | "expert";
+  topic?: "descartes-route-planner" | "sous" | "tandem" | "omnitrax";
 }
 
 interface ScreenSimGameProps {
@@ -47,9 +49,7 @@ interface SavedScreenSimProgress {
 
 const MAX_WRONG_CLICKS = 3;
 const SHOW_HOTSPOT_DEBUG = false;
-
 const ENABLE_DAILY_ATTEMPT_LOCK = false;
-
 const STORAGE_KEY = "screenSimDailyProgress";
 
 function getTodayKey() {
@@ -250,10 +250,22 @@ export default function ScreenSimGame({
   selectedDifficulty,
   selectedTopic,
 }: ScreenSimGameProps) {
-  // Filters are accepted from Home.tsx but intentionally ignored for now.
-  // Once Screen Sim questions have difficulty/topic fields, filtering can be added here.
-  void selectedDifficulty;
-  void selectedTopic;
+  const questions = useMemo(() => {
+    const difficultyFiltered = QUESTIONS.filter(
+      (question) => question.difficulty === selectedDifficulty
+    );
+
+    const topicFiltered = difficultyFiltered.filter(
+      (question) =>
+        selectedTopic === "mix-it-up" || question.topic === selectedTopic
+    );
+
+    return topicFiltered.length > 0
+      ? topicFiltered
+      : difficultyFiltered.length > 0
+      ? difficultyFiltered
+      : QUESTIONS;
+  }, [selectedDifficulty, selectedTopic]);
 
   const savedProgress = loadSavedProgress();
 
@@ -275,16 +287,18 @@ export default function ScreenSimGame({
     savedProgress?.completedToday ?? false
   );
 
-  const current = QUESTIONS[currentIndex];
+  const current = questions[currentIndex];
 
-  const currentStep = current.steps
+  const currentStep = current?.steps
     ? current.steps[stepIndex]
-    : {
+    : current
+    ? {
         image: current.image!,
         correctZones: current.correctZones!,
         maxWidth: current.maxWidth,
         coachTip: undefined,
-      };
+      }
+    : null;
 
   useEffect(() => {
     if (!completedToday) {
@@ -308,7 +322,7 @@ export default function ScreenSimGame({
   };
 
   const handleImageClick = (event: React.MouseEvent<HTMLImageElement>) => {
-    if (result || completedToday) return;
+    if (result || completedToday || !current || !currentStep) return;
 
     const rect = event.currentTarget.getBoundingClientRect();
     const clickX = ((event.clientX - rect.left) / rect.width) * 100;
@@ -400,7 +414,7 @@ export default function ScreenSimGame({
     setShowWrongPopup(false);
     setBonusTriggered(false);
 
-    if (currentIndex < QUESTIONS.length - 1) {
+    if (currentIndex < questions.length - 1) {
       const nextIndex = currentIndex + 1;
       setCurrentIndex(nextIndex);
 
@@ -422,6 +436,23 @@ export default function ScreenSimGame({
     setCompletedToday(true);
     onComplete(score);
   };
+
+  if (!current || !currentStep) {
+    return (
+      <div className="max-w-3xl mx-auto space-y-6 text-white">
+        <button onClick={onBack} className="text-white flex gap-2 items-center">
+          <ArrowLeft /> Back
+        </button>
+
+        <div className="bg-slate-900 border border-white/20 rounded-2xl p-6 space-y-3">
+          <h2 className="text-2xl font-bold">No simulation questions found</h2>
+          <p className="text-sm text-slate-300">
+            No matching Screen Sim questions were found for this training path.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   if (completedToday && ENABLE_DAILY_ATTEMPT_LOCK) {
     return (
