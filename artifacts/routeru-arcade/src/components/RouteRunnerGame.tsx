@@ -60,36 +60,12 @@ const ITEM_META: Record<
     good: boolean;
   }
 > = {
-  package: {
-    label: "PKG",
-    points: 25,
-    good: true,
-  },
-  gold: {
-    label: "BONUS",
-    points: 50,
-    good: true,
-  },
-  fuel: {
-    label: "FUEL",
-    points: 15,
-    good: true,
-  },
-  cone: {
-    label: "CONE",
-    points: -20,
-    good: false,
-  },
-  pallet: {
-    label: "PALLET",
-    points: -25,
-    good: false,
-  },
-  car: {
-    label: "TRAFFIC",
-    points: -40,
-    good: false,
-  },
+  package: { label: "PKG", points: 25, good: true },
+  gold: { label: "BONUS", points: 50, good: true },
+  fuel: { label: "FUEL", points: 15, good: true },
+  cone: { label: "CONE", points: -20, good: false },
+  pallet: { label: "PALLET", points: -25, good: false },
+  car: { label: "TRAFFIC", points: -40, good: false },
 };
 
 function shuffleArray<T>(arr: T[]): T[] {
@@ -141,16 +117,21 @@ export default function RouteRunnerGame({
   selectedTopic,
 }: RouteRunnerGameProps) {
   const questions = useMemo<RouteRunnerQuestion[]>(() => {
-    const filtered = routeRunnerQuestions.filter((question) => {
-      const difficultyMatch = question.difficulty === selectedDifficulty;
+    const difficultyFiltered = routeRunnerQuestions.filter(
+      (question) => question.difficulty === selectedDifficulty
+    );
 
-      const topicMatch =
-        selectedTopic === "mix-it-up" || question.topic === selectedTopic;
+    const topicFiltered = difficultyFiltered.filter(
+      (question) =>
+        selectedTopic === "mix-it-up" || question.topic === selectedTopic
+    );
 
-      return difficultyMatch && topicMatch;
-    });
-
-    const source = filtered.length > 0 ? filtered : routeRunnerQuestions;
+    const source =
+      topicFiltered.length > 0
+        ? topicFiltered
+        : difficultyFiltered.length > 0
+        ? difficultyFiltered
+        : routeRunnerQuestions;
 
     return shuffleArray(source).slice(
       0,
@@ -529,81 +510,29 @@ export default function RouteRunnerGame({
         </div>
 
         <div className="grid md:grid-cols-4 gap-4">
-          <div
-            className="p-4 rounded-2xl border"
-            style={{
-              background:
-                "linear-gradient(180deg, hsl(0 0% 15%), hsl(0 0% 11%))",
-              borderColor: "hsl(128 20% 24%)",
-            }}
-          >
+          {[
+            ["Correct", `${correctCount}/${questions.length}`, "hsl(38 45% 96%)"],
+            ["Best Streak", bestStreak, "hsl(38 95% 65%)"],
+            ["Question Score", questionScore.toLocaleString(), "hsl(130 60% 60%)"],
+            ["Mini-Game Bonus", driveScore.toLocaleString(), "hsl(5 84% 48%)"],
+          ].map(([label, value, color]) => (
             <div
-              className="text-2xl font-bold"
-              style={{ color: "hsl(38 45% 96%)" }}
+              key={label}
+              className="p-4 rounded-2xl border"
+              style={{
+                background:
+                  "linear-gradient(180deg, hsl(0 0% 15%), hsl(0 0% 11%))",
+                borderColor: "hsl(128 20% 24%)",
+              }}
             >
-              {correctCount}/{questions.length}
+              <div className="text-2xl font-bold" style={{ color }}>
+                {value}
+              </div>
+              <p className="text-sm mt-1" style={{ color: "hsl(0 0% 68%)" }}>
+                {label}
+              </p>
             </div>
-            <p className="text-sm mt-1" style={{ color: "hsl(0 0% 68%)" }}>
-              Correct
-            </p>
-          </div>
-
-          <div
-            className="p-4 rounded-2xl border"
-            style={{
-              background:
-                "linear-gradient(180deg, hsl(0 0% 15%), hsl(0 0% 11%))",
-              borderColor: "hsl(128 20% 24%)",
-            }}
-          >
-            <div
-              className="text-2xl font-bold"
-              style={{ color: "hsl(38 95% 65%)" }}
-            >
-              {bestStreak}
-            </div>
-            <p className="text-sm mt-1" style={{ color: "hsl(0 0% 68%)" }}>
-              Best Streak
-            </p>
-          </div>
-
-          <div
-            className="p-4 rounded-2xl border"
-            style={{
-              background:
-                "linear-gradient(180deg, hsl(0 0% 15%), hsl(0 0% 11%))",
-              borderColor: "hsl(128 20% 24%)",
-            }}
-          >
-            <div
-              className="text-2xl font-bold"
-              style={{ color: "hsl(130 60% 60%)" }}
-            >
-              {questionScore.toLocaleString()}
-            </div>
-            <p className="text-sm mt-1" style={{ color: "hsl(0 0% 68%)" }}>
-              Question Score
-            </p>
-          </div>
-
-          <div
-            className="p-4 rounded-2xl border"
-            style={{
-              background:
-                "linear-gradient(180deg, hsl(0 0% 15%), hsl(0 0% 11%))",
-              borderColor: "hsl(128 20% 24%)",
-            }}
-          >
-            <div
-              className="text-2xl font-bold"
-              style={{ color: "hsl(5 84% 48%)" }}
-            >
-              {driveScore.toLocaleString()}
-            </div>
-            <p className="text-sm mt-1" style={{ color: "hsl(0 0% 68%)" }}>
-              Mini-Game Bonus
-            </p>
-          </div>
+          ))}
         </div>
 
         <div className="flex gap-4 justify-center">
@@ -686,19 +615,13 @@ export default function RouteRunnerGame({
           </button>
 
           <div className="flex items-center gap-4">
-            <div
-              className="text-sm font-semibold"
-              style={{ color: "hsl(38 45% 96%)" }}
-            >
+            <div className="text-sm font-semibold" style={{ color: "hsl(38 45% 96%)" }}>
               Drive Round {driveRound + 1} of 3
             </div>
 
             <div className="flex items-center gap-2">
               <Trophy size={16} style={{ color: "hsl(38 95% 58%)" }} />
-              <span
-                className="font-bold score-number text-lg"
-                style={{ color: "hsl(38 45% 96%)" }}
-              >
+              <span className="font-bold score-number text-lg" style={{ color: "hsl(38 45% 96%)" }}>
                 {totalScore.toLocaleString()}
               </span>
             </div>
@@ -708,8 +631,7 @@ export default function RouteRunnerGame({
         <div
           className="rounded-3xl border p-5 space-y-5"
           style={{
-            background:
-              "linear-gradient(180deg, hsl(0 0% 15%), hsl(0 0% 11%))",
+            background: "linear-gradient(180deg, hsl(0 0% 15%), hsl(0 0% 11%))",
             borderColor: "hsl(128 20% 24%)",
             boxShadow: "0 14px 32px rgba(0,0,0,0.30)",
           }}
@@ -728,10 +650,7 @@ export default function RouteRunnerGame({
                 ROUTE RUNNER
               </div>
 
-              <h2
-                className="text-2xl font-bold"
-                style={{ color: "hsl(38 45% 96%)" }}
-              >
+              <h2 className="text-2xl font-bold" style={{ color: "hsl(38 45% 96%)" }}>
                 Keep the truck rolling.
               </h2>
 
@@ -741,59 +660,27 @@ export default function RouteRunnerGame({
             </div>
 
             <div className="grid grid-cols-3 gap-3">
-              <div
-                className="px-4 py-3 rounded-2xl text-center border"
-                style={{
-                  background: "hsl(0 0% 13%)",
-                  borderColor: "hsl(128 20% 24%)",
-                }}
-              >
-                <div className="text-xs" style={{ color: "hsl(0 0% 66%)" }}>
-                  Time
-                </div>
+              {[
+                ["Time", `${driveTimeLeft}s`, "hsl(5 84% 48%)"],
+                ["Round", driveRoundScore, "hsl(38 95% 58%)"],
+                ["Total", driveScore + driveRoundScore, "hsl(130 60% 60%)"],
+              ].map(([label, value, color]) => (
                 <div
-                  className="text-xl font-bold"
-                  style={{ color: "hsl(5 84% 48%)" }}
+                  key={label}
+                  className="px-4 py-3 rounded-2xl text-center border"
+                  style={{
+                    background: "hsl(0 0% 13%)",
+                    borderColor: "hsl(128 20% 24%)",
+                  }}
                 >
-                  {driveTimeLeft}s
+                  <div className="text-xs" style={{ color: "hsl(0 0% 66%)" }}>
+                    {label}
+                  </div>
+                  <div className="text-xl font-bold" style={{ color }}>
+                    {value}
+                  </div>
                 </div>
-              </div>
-
-              <div
-                className="px-4 py-3 rounded-2xl text-center border"
-                style={{
-                  background: "hsl(0 0% 13%)",
-                  borderColor: "hsl(128 20% 24%)",
-                }}
-              >
-                <div className="text-xs" style={{ color: "hsl(0 0% 66%)" }}>
-                  Round
-                </div>
-                <div
-                  className="text-xl font-bold"
-                  style={{ color: "hsl(38 95% 58%)" }}
-                >
-                  {driveRoundScore}
-                </div>
-              </div>
-
-              <div
-                className="px-4 py-3 rounded-2xl text-center border"
-                style={{
-                  background: "hsl(0 0% 13%)",
-                  borderColor: "hsl(128 20% 24%)",
-                }}
-              >
-                <div className="text-xs" style={{ color: "hsl(0 0% 66%)" }}>
-                  Total
-                </div>
-                <div
-                  className="text-xl font-bold"
-                  style={{ color: "hsl(130 60% 60%)" }}
-                >
-                  {driveScore + driveRoundScore}
-                </div>
-              </div>
+              ))}
             </div>
           </div>
 
@@ -892,8 +779,7 @@ export default function RouteRunnerGame({
                 <div
                   className="w-full max-w-md rounded-3xl border p-6 text-center space-y-4"
                   style={{
-                    background:
-                      "linear-gradient(180deg, hsl(0 0% 15%), hsl(0 0% 11%))",
+                    background: "linear-gradient(180deg, hsl(0 0% 15%), hsl(0 0% 11%))",
                     borderColor: "hsl(128 20% 24%)",
                   }}
                 >
@@ -909,55 +795,8 @@ export default function RouteRunnerGame({
                     DRIVE ROUND COMPLETE
                   </div>
 
-                  <div
-                    className="text-4xl font-bold score-number"
-                    style={{ color: "hsl(38 95% 58%)" }}
-                  >
+                  <div className="text-4xl font-bold score-number" style={{ color: "hsl(38 95% 58%)" }}>
                     +{lastDriveGain}
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3">
-                    <div
-                      className="rounded-2xl p-3 border"
-                      style={{
-                        background: "hsl(0 0% 13%)",
-                        borderColor: "hsl(128 20% 24%)",
-                      }}
-                    >
-                      <div
-                        className="text-xs"
-                        style={{ color: "hsl(0 0% 66%)" }}
-                      >
-                        Pickups / Hits
-                      </div>
-                      <div
-                        className="text-lg font-bold"
-                        style={{ color: "hsl(38 45% 96%)" }}
-                      >
-                        {driveRoundScore}
-                      </div>
-                    </div>
-
-                    <div
-                      className="rounded-2xl p-3 border"
-                      style={{
-                        background: "hsl(0 0% 13%)",
-                        borderColor: "hsl(128 20% 24%)",
-                      }}
-                    >
-                      <div
-                        className="text-xs"
-                        style={{ color: "hsl(0 0% 66%)" }}
-                      >
-                        Survival Bonus
-                      </div>
-                      <div
-                        className="text-lg font-bold"
-                        style={{ color: "hsl(130 60% 60%)" }}
-                      >
-                        +{lastDriveBonus}
-                      </div>
-                    </div>
                   </div>
 
                   <button
@@ -969,67 +808,12 @@ export default function RouteRunnerGame({
                       boxShadow: "0 8px 18px rgba(170, 24, 24, 0.30)",
                     }}
                   >
-                    {currentIndex >= questions.length
-                      ? "View Results"
-                      : "Continue Training"}
+                    {currentIndex >= questions.length ? "View Results" : "Continue Training"}
                     <ChevronRight size={16} />
                   </button>
                 </div>
               </div>
             )}
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-3">
-            {[
-              {
-                icon: Package,
-                label: "Package",
-                value: "+25",
-                color: "hsl(128 30% 58%)",
-              },
-              {
-                icon: Trophy,
-                label: "Gold Crate",
-                value: "+50",
-                color: "hsl(38 95% 58%)",
-              },
-              {
-                icon: TrafficCone,
-                label: "Obstacle",
-                value: "-20 to -40",
-                color: "hsl(0 75% 65%)",
-              },
-            ].map(({ icon: Icon, label, value, color }) => (
-              <div
-                key={label}
-                className="rounded-2xl p-3 border flex items-center gap-3"
-                style={{
-                  background: "hsl(0 0% 13%)",
-                  borderColor: "hsl(128 20% 24%)",
-                }}
-              >
-                <div
-                  className="w-9 h-9 rounded-xl flex items-center justify-center"
-                  style={{
-                    background: `${color}18`,
-                    border: `1px solid ${color}25`,
-                  }}
-                >
-                  <Icon size={15} style={{ color }} />
-                </div>
-                <div>
-                  <div
-                    className="text-sm font-semibold"
-                    style={{ color: "hsl(38 45% 96%)" }}
-                  >
-                    {label}
-                  </div>
-                  <div className="text-xs" style={{ color: "hsl(0 0% 68%)" }}>
-                    {value}
-                  </div>
-                </div>
-              </div>
-            ))}
           </div>
         </div>
       </div>
@@ -1086,10 +870,7 @@ export default function RouteRunnerGame({
 
           <div className="flex items-center gap-2">
             <Trophy size={16} style={{ color: "hsl(38 95% 58%)" }} />
-            <span
-              className="font-bold score-number text-lg"
-              style={{ color: "hsl(38 45% 96%)" }}
-            >
+            <span className="font-bold score-number text-lg" style={{ color: "hsl(38 45% 96%)" }}>
               {totalScore.toLocaleString()}
             </span>
           </div>
@@ -1097,20 +878,14 @@ export default function RouteRunnerGame({
       </div>
 
       <div className="space-y-2">
-        <div
-          className="flex items-center justify-between text-sm"
-          style={{ color: "hsl(0 0% 70%)" }}
-        >
+        <div className="flex items-center justify-between text-sm" style={{ color: "hsl(0 0% 70%)" }}>
           <span>
             Question {currentIndex + 1} of {questions.length}
           </span>
           <span style={{ color: "hsl(5 84% 48%)" }}>{modeLabel}</span>
         </div>
 
-        <div
-          className="h-1.5 rounded-full overflow-hidden"
-          style={{ background: "hsl(0 0% 16%)" }}
-        >
+        <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "hsl(0 0% 16%)" }}>
           <div
             className="h-full rounded-full transition-all duration-300"
             style={{
@@ -1124,8 +899,7 @@ export default function RouteRunnerGame({
       <div
         className="p-6 space-y-6 rounded-3xl border animate-slide-in-up"
         style={{
-          background:
-            "linear-gradient(180deg, hsl(0 0% 15%), hsl(0 0% 11%))",
+          background: "linear-gradient(180deg, hsl(0 0% 15%), hsl(0 0% 11%))",
           borderColor: "hsl(128 20% 24%)",
           boxShadow: "0 14px 32px rgba(0,0,0,0.30)",
         }}
@@ -1143,10 +917,7 @@ export default function RouteRunnerGame({
             ROUTE RUNNER QUESTION {currentIndex + 1}
           </div>
 
-          <h2
-            className="text-xl font-semibold leading-snug"
-            style={{ color: "hsl(38 45% 96%)" }}
-          >
+          <h2 className="text-xl font-semibold leading-snug" style={{ color: "hsl(38 45% 96%)" }}>
             {currentQuestion.question}
           </h2>
         </div>
@@ -1166,10 +937,7 @@ export default function RouteRunnerGame({
                   border: "1px solid hsl(130 60% 50% / 0.35)",
                   color: "hsl(38 45% 96%)",
                 };
-              } else if (
-                idx === selectedIndex &&
-                idx !== currentQuestion.correctIndex
-              ) {
+              } else if (idx === selectedIndex && idx !== currentQuestion.correctIndex) {
                 buttonStyle = {
                   background: "hsl(0 75% 55% / 0.12)",
                   border: "1px solid hsl(0 75% 55% / 0.35)",
