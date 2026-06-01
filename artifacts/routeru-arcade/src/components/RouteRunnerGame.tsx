@@ -8,7 +8,10 @@ import {
   TrafficCone,
   Truck,
 } from "lucide-react";
-import { routeRunnerQuestions, type RouteRunnerQuestion } from "@/data/routeRunnerData";
+import {
+  routeRunnerQuestions,
+  type RouteRunnerQuestion,
+} from "@/data/routeRunnerData";
 import LoadoutStack from "./games/LoadoutStack";
 import ChefChase from "./games/ChefChase";
 import truckImg from "../pages/truck.png";
@@ -22,6 +25,13 @@ import carImg from "../pages/traffic-car.png";
 interface RouteRunnerGameProps {
   onComplete: (score: number) => void;
   onBack: () => void;
+  selectedDifficulty: "new-hire" | "intermediate" | "expert";
+  selectedTopic:
+    | "descartes-route-planner"
+    | "sous"
+    | "tandem"
+    | "omnitrax"
+    | "mix-it-up";
 }
 
 type Phase = "question" | "drive" | "stack" | "chef" | "results";
@@ -39,8 +49,8 @@ const QUESTIONS_PER_GAME = 6;
 const DRIVE_DURATIONS = [15, 15, 20];
 const ROAD_LANES = 3;
 
-// Toggle this value to swap Route Runner mini-game modes
-const ACTIVE_ROUTE_RUNNER_MODE: "routeRunner" | "loadoutStack" | "chefChase" = "routeRunner";
+const ACTIVE_ROUTE_RUNNER_MODE: "routeRunner" | "loadoutStack" | "chefChase" =
+  "routeRunner";
 
 const ITEM_META: Record<
   DriveItemType,
@@ -127,13 +137,26 @@ function itemImage(type: DriveItemType) {
 export default function RouteRunnerGame({
   onComplete,
   onBack,
+  selectedDifficulty,
+  selectedTopic,
 }: RouteRunnerGameProps) {
-const [questions] = useState<RouteRunnerQuestion[]>(() =>
-  shuffleArray(routeRunnerQuestions).slice(
-    0,
-    Math.min(QUESTIONS_PER_GAME, routeRunnerQuestions.length)
-  )
-);
+  const questions = useMemo<RouteRunnerQuestion[]>(() => {
+    const filtered = routeRunnerQuestions.filter((question) => {
+      const difficultyMatch = question.difficulty === selectedDifficulty;
+
+      const topicMatch =
+        selectedTopic === "mix-it-up" || question.topic === selectedTopic;
+
+      return difficultyMatch && topicMatch;
+    });
+
+    const source = filtered.length > 0 ? filtered : routeRunnerQuestions;
+
+    return shuffleArray(source).slice(
+      0,
+      Math.min(QUESTIONS_PER_GAME, source.length)
+    );
+  }, [selectedDifficulty, selectedTopic]);
 
   const [phase, setPhase] = useState<Phase>("question");
 
@@ -170,7 +193,7 @@ const [questions] = useState<RouteRunnerQuestion[]>(() =>
   const totalScore = questionScore + driveScore;
 
   const questionProgress = useMemo(() => {
-    return (currentIndex / questions.length) * 100;
+    return questions.length > 0 ? (currentIndex / questions.length) * 100 : 0;
   }, [currentIndex, questions.length]);
 
   const resetQuestionState = () => {
@@ -224,7 +247,7 @@ const [questions] = useState<RouteRunnerQuestion[]>(() =>
   };
 
   const handleAnswer = (optionIndex: number) => {
-    if (answerState !== "unanswered") return;
+    if (answerState !== "unanswered" || !currentQuestion) return;
 
     const isCorrect = optionIndex === currentQuestion.correctIndex;
     setSelectedIndex(optionIndex);
@@ -334,7 +357,10 @@ const [questions] = useState<RouteRunnerQuestion[]>(() =>
         }
 
         if (delta !== 0) {
-          driveRoundScoreRef.current = Math.max(0, driveRoundScoreRef.current + delta);
+          driveRoundScoreRef.current = Math.max(
+            0,
+            driveRoundScoreRef.current + delta
+          );
           setDriveRoundScore(driveRoundScoreRef.current);
         }
 
@@ -354,7 +380,10 @@ const [questions] = useState<RouteRunnerQuestion[]>(() =>
             setDriveEnded(true);
 
             const surviveBonus = 100;
-            const roundTotal = Math.max(0, driveRoundScoreRef.current + surviveBonus);
+            const roundTotal = Math.max(
+              0,
+              driveRoundScoreRef.current + surviveBonus
+            );
 
             setLastDriveBonus(surviveBonus);
             setLastDriveGain(roundTotal);
@@ -441,6 +470,29 @@ const [questions] = useState<RouteRunnerQuestion[]>(() =>
     window.location.reload();
   };
 
+  if (!currentQuestion && phase === "question") {
+    return (
+      <div className="max-w-2xl mx-auto text-center space-y-4 py-8">
+        <h2 className="text-2xl font-bold" style={{ color: "hsl(38 45% 96%)" }}>
+          No questions available
+        </h2>
+        <p style={{ color: "hsl(0 0% 72%)" }}>
+          No matching Route Runner questions were found for this training path.
+        </p>
+        <button
+          onClick={onBack}
+          className="px-6 py-3 rounded-xl font-semibold"
+          style={{
+            background: "hsl(5 84% 48%)",
+            color: "white",
+          }}
+        >
+          Back to Hub
+        </button>
+      </div>
+    );
+  }
+
   if (phase === "results") {
     const performanceLabel =
       totalScore >= 1700
@@ -480,11 +532,15 @@ const [questions] = useState<RouteRunnerQuestion[]>(() =>
           <div
             className="p-4 rounded-2xl border"
             style={{
-              background: "linear-gradient(180deg, hsl(0 0% 15%), hsl(0 0% 11%))",
+              background:
+                "linear-gradient(180deg, hsl(0 0% 15%), hsl(0 0% 11%))",
               borderColor: "hsl(128 20% 24%)",
             }}
           >
-            <div className="text-2xl font-bold" style={{ color: "hsl(38 45% 96%)" }}>
+            <div
+              className="text-2xl font-bold"
+              style={{ color: "hsl(38 45% 96%)" }}
+            >
               {correctCount}/{questions.length}
             </div>
             <p className="text-sm mt-1" style={{ color: "hsl(0 0% 68%)" }}>
@@ -495,11 +551,15 @@ const [questions] = useState<RouteRunnerQuestion[]>(() =>
           <div
             className="p-4 rounded-2xl border"
             style={{
-              background: "linear-gradient(180deg, hsl(0 0% 15%), hsl(0 0% 11%))",
+              background:
+                "linear-gradient(180deg, hsl(0 0% 15%), hsl(0 0% 11%))",
               borderColor: "hsl(128 20% 24%)",
             }}
           >
-            <div className="text-2xl font-bold" style={{ color: "hsl(38 95% 65%)" }}>
+            <div
+              className="text-2xl font-bold"
+              style={{ color: "hsl(38 95% 65%)" }}
+            >
               {bestStreak}
             </div>
             <p className="text-sm mt-1" style={{ color: "hsl(0 0% 68%)" }}>
@@ -510,11 +570,15 @@ const [questions] = useState<RouteRunnerQuestion[]>(() =>
           <div
             className="p-4 rounded-2xl border"
             style={{
-              background: "linear-gradient(180deg, hsl(0 0% 15%), hsl(0 0% 11%))",
+              background:
+                "linear-gradient(180deg, hsl(0 0% 15%), hsl(0 0% 11%))",
               borderColor: "hsl(128 20% 24%)",
             }}
           >
-            <div className="text-2xl font-bold" style={{ color: "hsl(130 60% 60%)" }}>
+            <div
+              className="text-2xl font-bold"
+              style={{ color: "hsl(130 60% 60%)" }}
+            >
               {questionScore.toLocaleString()}
             </div>
             <p className="text-sm mt-1" style={{ color: "hsl(0 0% 68%)" }}>
@@ -525,11 +589,15 @@ const [questions] = useState<RouteRunnerQuestion[]>(() =>
           <div
             className="p-4 rounded-2xl border"
             style={{
-              background: "linear-gradient(180deg, hsl(0 0% 15%), hsl(0 0% 11%))",
+              background:
+                "linear-gradient(180deg, hsl(0 0% 15%), hsl(0 0% 11%))",
               borderColor: "hsl(128 20% 24%)",
             }}
           >
-            <div className="text-2xl font-bold" style={{ color: "hsl(5 84% 48%)" }}>
+            <div
+              className="text-2xl font-bold"
+              style={{ color: "hsl(5 84% 48%)" }}
+            >
               {driveScore.toLocaleString()}
             </div>
             <p className="text-sm mt-1" style={{ color: "hsl(0 0% 68%)" }}>
@@ -640,7 +708,8 @@ const [questions] = useState<RouteRunnerQuestion[]>(() =>
         <div
           className="rounded-3xl border p-5 space-y-5"
           style={{
-            background: "linear-gradient(180deg, hsl(0 0% 15%), hsl(0 0% 11%))",
+            background:
+              "linear-gradient(180deg, hsl(0 0% 15%), hsl(0 0% 11%))",
             borderColor: "hsl(128 20% 24%)",
             boxShadow: "0 14px 32px rgba(0,0,0,0.30)",
           }}
@@ -855,7 +924,10 @@ const [questions] = useState<RouteRunnerQuestion[]>(() =>
                         borderColor: "hsl(128 20% 24%)",
                       }}
                     >
-                      <div className="text-xs" style={{ color: "hsl(0 0% 66%)" }}>
+                      <div
+                        className="text-xs"
+                        style={{ color: "hsl(0 0% 66%)" }}
+                      >
                         Pickups / Hits
                       </div>
                       <div
@@ -873,7 +945,10 @@ const [questions] = useState<RouteRunnerQuestion[]>(() =>
                         borderColor: "hsl(128 20% 24%)",
                       }}
                     >
-                      <div className="text-xs" style={{ color: "hsl(0 0% 66%)" }}>
+                      <div
+                        className="text-xs"
+                        style={{ color: "hsl(0 0% 66%)" }}
+                      >
                         Survival Bonus
                       </div>
                       <div
@@ -935,7 +1010,10 @@ const [questions] = useState<RouteRunnerQuestion[]>(() =>
               >
                 <div
                   className="w-9 h-9 rounded-xl flex items-center justify-center"
-                  style={{ background: `${color}18`, border: `1px solid ${color}25` }}
+                  style={{
+                    background: `${color}18`,
+                    border: `1px solid ${color}25`,
+                  }}
                 >
                   <Icon size={15} style={{ color }} />
                 </div>
@@ -1035,7 +1113,10 @@ const [questions] = useState<RouteRunnerQuestion[]>(() =>
         >
           <div
             className="h-full rounded-full transition-all duration-300"
-            style={{ width: `${questionProgress}%`, background: "hsl(5 84% 48%)" }}
+            style={{
+              width: `${questionProgress}%`,
+              background: "hsl(5 84% 48%)",
+            }}
           />
         </div>
       </div>
@@ -1043,7 +1124,8 @@ const [questions] = useState<RouteRunnerQuestion[]>(() =>
       <div
         className="p-6 space-y-6 rounded-3xl border animate-slide-in-up"
         style={{
-          background: "linear-gradient(180deg, hsl(0 0% 15%), hsl(0 0% 11%))",
+          background:
+            "linear-gradient(180deg, hsl(0 0% 15%), hsl(0 0% 11%))",
           borderColor: "hsl(128 20% 24%)",
           boxShadow: "0 14px 32px rgba(0,0,0,0.30)",
         }}
@@ -1084,7 +1166,10 @@ const [questions] = useState<RouteRunnerQuestion[]>(() =>
                   border: "1px solid hsl(130 60% 50% / 0.35)",
                   color: "hsl(38 45% 96%)",
                 };
-              } else if (idx === selectedIndex && idx !== currentQuestion.correctIndex) {
+              } else if (
+                idx === selectedIndex &&
+                idx !== currentQuestion.correctIndex
+              ) {
                 buttonStyle = {
                   background: "hsl(0 75% 55% / 0.12)",
                   border: "1px solid hsl(0 75% 55% / 0.35)",
