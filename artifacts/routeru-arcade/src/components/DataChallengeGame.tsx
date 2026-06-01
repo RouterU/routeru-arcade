@@ -13,6 +13,13 @@ import {
 interface DataChallengeProps {
   onComplete: (score: number) => void;
   onBack: () => void;
+  selectedDifficulty: "new-hire" | "intermediate" | "expert";
+  selectedTopic:
+    | "descartes-route-planner"
+    | "sous"
+    | "tandem"
+    | "omnitrax"
+    | "mix-it-up";
 }
 
 const QUESTIONS_PER_GAME = 3;
@@ -20,6 +27,8 @@ const QUESTIONS_PER_GAME = 3;
 export default function DataChallengeGame({
   onComplete,
   onBack,
+  selectedDifficulty,
+  selectedTopic,
 }: DataChallengeProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [score, setScore] = useState(0);
@@ -31,10 +40,21 @@ export default function DataChallengeGame({
   const [shuffleKey, setShuffleKey] = useState(0);
 
   const shuffledChallenges = useMemo(() => {
-    return [...dataChallenges]
+    const filtered = dataChallenges.filter((challenge) => {
+      const difficultyMatch = challenge.difficulty === selectedDifficulty;
+
+      const topicMatch =
+        selectedTopic === "mix-it-up" || challenge.topic === selectedTopic;
+
+      return difficultyMatch && topicMatch;
+    });
+
+    const source = filtered.length > 0 ? filtered : dataChallenges;
+
+    return [...source]
       .sort(() => Math.random() - 0.5)
-      .slice(0, QUESTIONS_PER_GAME);
-  }, [shuffleKey]);
+      .slice(0, Math.min(QUESTIONS_PER_GAME, source.length));
+  }, [shuffleKey, selectedDifficulty, selectedTopic]);
 
   const challenge = shuffledChallenges[currentIndex];
   const progress = (currentIndex / shuffledChallenges.length) * 100;
@@ -70,14 +90,16 @@ export default function DataChallengeGame({
     });
 
     const basePoints = 400;
-    earned = Math.max(0, basePoints - falsePos * 80 - falseNeg * 80 + truePos * 60);
+    earned = Math.max(
+      0,
+      basePoints - falsePos * 80 - falseNeg * 80 + truePos * 60
+    );
 
     setScore((s) => s + earned);
     setRoundScores((r) => [...r, earned]);
   };
 
   const handleNext = () => {
-    const latestRoundScore = roundScores[roundScores.length - 1] ?? 0;
     const finalScore = score;
 
     if (currentIndex + 1 >= shuffledChallenges.length) {
@@ -116,6 +138,29 @@ export default function DataChallengeGame({
     return "";
   };
 
+  if (!challenge) {
+    return (
+      <div className="max-w-2xl mx-auto text-center space-y-4 py-8">
+        <h2 className="text-2xl font-bold" style={{ color: "hsl(38 45% 96%)" }}>
+          No challenges available
+        </h2>
+        <p style={{ color: "hsl(0 0% 72%)" }}>
+          No matching challenges were found for this training path.
+        </p>
+        <button
+          onClick={onBack}
+          className="px-6 py-3 rounded-xl font-semibold"
+          style={{
+            background: "hsl(5 84% 48%)",
+            color: "white",
+          }}
+        >
+          Back to Hub
+        </button>
+      </div>
+    );
+  }
+
   if (finished) {
     const maxPossible = shuffledChallenges.length * 580;
     const pct = Math.round((score / maxPossible) * 100);
@@ -140,7 +185,8 @@ export default function DataChallengeGame({
               key={i}
               className="p-4 rounded-2xl border"
               style={{
-                background: "linear-gradient(180deg, hsl(0 0% 15%), hsl(0 0% 11%))",
+                background:
+                  "linear-gradient(180deg, hsl(0 0% 15%), hsl(0 0% 11%))",
                 borderColor: "hsl(128 20% 24%)",
               }}
             >
@@ -160,7 +206,8 @@ export default function DataChallengeGame({
         <div
           className="p-4 rounded-2xl border"
           style={{
-            background: "linear-gradient(180deg, hsl(0 0% 15%), hsl(0 0% 11%))",
+            background:
+              "linear-gradient(180deg, hsl(0 0% 15%), hsl(0 0% 11%))",
             borderColor: "hsl(128 20% 24%)",
           }}
         >
@@ -262,7 +309,8 @@ export default function DataChallengeGame({
       <div
         className="animate-slide-in-up p-6 space-y-5 rounded-3xl border"
         style={{
-          background: "linear-gradient(180deg, hsl(0 0% 15%), hsl(0 0% 11%))",
+          background:
+            "linear-gradient(180deg, hsl(0 0% 15%), hsl(0 0% 11%))",
           borderColor: "hsl(128 20% 24%)",
           boxShadow: "0 14px 32px rgba(0,0,0,0.30)",
         }}
@@ -468,7 +516,9 @@ export default function DataChallengeGame({
                 boxShadow: "0 8px 18px rgba(170, 24, 24, 0.30)",
               }}
             >
-              {currentIndex + 1 >= shuffledChallenges.length ? "View Results" : "Next Challenge"}
+              {currentIndex + 1 >= shuffledChallenges.length
+                ? "View Results"
+                : "Next Challenge"}
               <ChevronRight size={16} />
             </button>
           </div>
