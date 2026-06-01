@@ -43,11 +43,34 @@ type GameKey =
   | "route-runner"
   | "screen-sim";
 
+type TrainingDifficulty = "new-hire" | "intermediate" | "expert";
+
+type TrainingTopic =
+  | "descartes-route-planner"
+  | "sous"
+  | "tandem"
+  | "omnitrax"
+  | "mix-it-up";
+
 interface PendingScore {
   score: number;
   streak?: number;
   game: GameKey;
 }
+
+const DIFFICULTY_OPTIONS: { value: TrainingDifficulty; label: string }[] = [
+  { value: "new-hire", label: "New Hire" },
+  { value: "intermediate", label: "Intermediate" },
+  { value: "expert", label: "Expert" },
+];
+
+const TOPIC_OPTIONS: { value: TrainingTopic; label: string }[] = [
+  { value: "descartes-route-planner", label: "Descartes Route Planner" },
+  { value: "sous", label: "SOUS" },
+  { value: "tandem", label: "Tandem" },
+  { value: "omnitrax", label: "OmniTrax" },
+  { value: "mix-it-up", label: "Mix it up" },
+];
 
 const GAMES = [
   {
@@ -110,12 +133,18 @@ const GAMES = [
 export default function Home() {
   const [view, setView] = useState<GameView>("hub");
   const [pending, setPending] = useState<PendingScore | null>(null);
-const [sessionScore, setSessionScore] = useState(0);
-const [playerName, setPlayerName] = useState("");
+  const [sessionScore, setSessionScore] = useState(0);
+  const [playerName, setPlayerName] = useState("");
 
-const [feedbackMessage, setFeedbackMessage] = useState("");
-const [feedbackStatus, setFeedbackStatus] = useState("");
-const [feedbackSubmitting, setFeedbackSubmitting] = useState(false);
+  const [selectedDifficulty, setSelectedDifficulty] =
+    useState<TrainingDifficulty>("new-hire");
+  const [selectedTopic, setSelectedTopic] =
+    useState<TrainingTopic>("mix-it-up");
+
+  const [feedbackMessage, setFeedbackMessage] = useState("");
+  const [feedbackStatus, setFeedbackStatus] = useState("");
+  const [feedbackSubmitting, setFeedbackSubmitting] = useState(false);
+
   const { topEntries, lifetimeEntries, refreshLeaderboard } = useLeaderboard();
 
   const lifetimeTopByGame = useMemo(() => {
@@ -165,48 +194,59 @@ const [feedbackSubmitting, setFeedbackSubmitting] = useState(false);
       };
     });
   }, [lifetimeEntries]);
-  
+
+  const filterLabel = useMemo(() => {
+    const difficulty =
+      DIFFICULTY_OPTIONS.find((item) => item.value === selectedDifficulty)
+        ?.label ?? "New Hire";
+
+    const topic =
+      TOPIC_OPTIONS.find((item) => item.value === selectedTopic)?.label ??
+      "Mix it up";
+
+    return `${difficulty} • ${topic}`;
+  }, [selectedDifficulty, selectedTopic]);
+
   const startGame = async (gameKey: GameKey) => {
-  const cleanName = playerName.trim();
+    const cleanName = playerName.trim();
 
-  if (!cleanName) {
-    window.alert("Please enter your name before starting a game.");
-    return;
-  }
+    if (!cleanName) {
+      window.alert("Please enter your name before starting a game.");
+      return;
+    }
 
-  try {
-    const res = await fetch("/api/daily-play-check", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        playerName: cleanName,
-        game: gameKey,
-      }),
-    });
+    try {
+      const res = await fetch("/api/daily-play-check", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          playerName: cleanName,
+          game: gameKey,
+        }),
+      });
 
-    const data = await res.json().catch(() => null);
+      const data = await res.json().catch(() => null);
 
-if (!res.ok || !data?.allowed) {
-  console.error("Daily play check response:", {
-    status: res.status,
-    data,
-  });
+      if (!res.ok || !data?.allowed) {
+        console.error("Daily play check response:", {
+          status: res.status,
+          data,
+        });
 
-  window.alert(
-    data?.message ||
-      `Daily play check failed. Status: ${res.status}`
-  );
-  return;
-}
+        window.alert(
+          data?.message || `Daily play check failed. Status: ${res.status}`
+        );
+        return;
+      }
 
-    setView(gameKey);
-  } catch (error) {
-    console.error("Daily play check failed:", error);
-    window.alert("Unable to check daily play limit. Please try again.");
-  }
-};
+      setView(gameKey);
+    } catch (error) {
+      console.error("Daily play check failed:", error);
+      window.alert("Unable to check daily play limit. Please try again.");
+    }
+  };
 
   const handleQuizComplete = (score: number, streak: number) => {
     setSessionScore((s) => s + score);
@@ -278,7 +318,9 @@ if (!res.ok || !data?.allowed) {
   };
 
   const handleResetLeaderboard = async () => {
-    const passcode = window.prompt("Enter admin passcode to reset the leaderboard:");
+    const passcode = window.prompt(
+      "Enter admin passcode to reset the leaderboard:"
+    );
     if (!passcode) return;
 
     try {
@@ -304,42 +346,43 @@ if (!res.ok || !data?.allowed) {
       window.alert("Reset failed");
     }
   };
+
   const handleSubmitFeedback = async () => {
-  const message = feedbackMessage.trim();
+    const message = feedbackMessage.trim();
 
-  if (!message) {
-    window.alert("Please enter feedback before submitting.");
-    return;
-  }
-
-  try {
-    setFeedbackSubmitting(true);
-    setFeedbackStatus("");
-
-    const res = await fetch("/api/feedback", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ message }),
-    });
-
-    const data = await res.json().catch(() => null);
-
-    if (!res.ok) {
-      setFeedbackStatus(data?.error || "Feedback failed to send.");
+    if (!message) {
+      window.alert("Please enter feedback before submitting.");
       return;
     }
 
-    setFeedbackMessage("");
-    setFeedbackStatus("Thank you! Your feedback was submitted.");
-  } catch (error) {
-    console.error("Feedback submit failed:", error);
-    setFeedbackStatus("Feedback failed to send.");
-  } finally {
-    setFeedbackSubmitting(false);
-  }
-};
+    try {
+      setFeedbackSubmitting(true);
+      setFeedbackStatus("");
+
+      const res = await fetch("/api/feedback", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ message }),
+      });
+
+      const data = await res.json().catch(() => null);
+
+      if (!res.ok) {
+        setFeedbackStatus(data?.error || "Feedback failed to send.");
+        return;
+      }
+
+      setFeedbackMessage("");
+      setFeedbackStatus("Thank you! Your feedback was submitted.");
+    } catch (error) {
+      console.error("Feedback submit failed:", error);
+      setFeedbackStatus("Feedback failed to send.");
+    } finally {
+      setFeedbackSubmitting(false);
+    }
+  };
 
   const pageBackground = {
     background: `
@@ -353,7 +396,12 @@ if (!res.ok || !data?.allowed) {
   if (view === "quiz") {
     return (
       <div className="min-h-screen px-4 py-8" style={pageBackground}>
-        <QuizGame onComplete={handleQuizComplete} onBack={() => setView("hub")} />
+        <QuizGame
+          onComplete={handleQuizComplete}
+          onBack={() => setView("hub")}
+          selectedDifficulty={selectedDifficulty}
+          selectedTopic={selectedTopic}
+        />
       </div>
     );
   }
@@ -361,7 +409,12 @@ if (!res.ok || !data?.allowed) {
   if (view === "scenario") {
     return (
       <div className="min-h-screen px-4 py-8" style={pageBackground}>
-        <ScenarioGame onComplete={handleScenarioComplete} onBack={() => setView("hub")} />
+        <ScenarioGame
+          onComplete={handleScenarioComplete}
+          onBack={() => setView("hub")}
+          selectedDifficulty={selectedDifficulty}
+          selectedTopic={selectedTopic}
+        />
       </div>
     );
   }
@@ -369,7 +422,12 @@ if (!res.ok || !data?.allowed) {
   if (view === "data-challenge") {
     return (
       <div className="min-h-screen px-4 py-8" style={pageBackground}>
-        <DataChallengeGame onComplete={handleDataComplete} onBack={() => setView("hub")} />
+        <DataChallengeGame
+          onComplete={handleDataComplete}
+          onBack={() => setView("hub")}
+          selectedDifficulty={selectedDifficulty}
+          selectedTopic={selectedTopic}
+        />
       </div>
     );
   }
@@ -380,6 +438,8 @@ if (!res.ok || !data?.allowed) {
         <RouteRunnerGame
           onComplete={handleRouteRunnerComplete}
           onBack={() => setView("hub")}
+          selectedDifficulty={selectedDifficulty}
+          selectedTopic={selectedTopic}
         />
       </div>
     );
@@ -391,6 +451,8 @@ if (!res.ok || !data?.allowed) {
         <ScreenSimGame
           onComplete={handleScreenSimComplete}
           onBack={() => setView("hub")}
+          selectedDifficulty={selectedDifficulty}
+          selectedTopic={selectedTopic}
         />
       </div>
     );
@@ -453,8 +515,8 @@ if (!res.ok || !data?.allowed) {
               className="text-lg max-w-2xl lg:max-w-xl leading-relaxed mx-auto lg:mx-0"
               style={{ color: "hsl(0 0% 76%)" }}
             >
-              Sharpen routing judgment, service protection, and exception handling through
-              fast-paced mini-games built for real operations.
+              Sharpen routing judgment, service protection, and exception
+              handling through fast-paced mini-games built for real operations.
             </p>
 
             {sessionScore > 0 && (
@@ -495,37 +557,130 @@ if (!res.ok || !data?.allowed) {
             </div>
           </div>
         </div>
-<div
-  className="rounded-3xl p-5 border"
-  style={{
-    background: "linear-gradient(180deg, hsl(0 0% 15%), hsl(0 0% 11%))",
-    borderColor: "hsl(128 20% 28%)",
-    boxShadow: "0 14px 32px rgba(0,0,0,0.30)",
-  }}
->
-  <label
-    className="block text-sm font-bold mb-2"
-    style={{ color: "hsl(38 45% 96%)" }}
-  >
-    Enter your name to unlock today’s games
-  </label>
 
-  <input
-    value={playerName}
-    onChange={(e) => setPlayerName(e.target.value)}
-    placeholder="Example: Derrick J"
-    className="w-full max-w-md rounded-xl border px-4 py-3 outline-none"
-    style={{
-      background: "hsl(0 0% 96%)",
-      color: "hsl(0 0% 10%)",
-      borderColor: "hsl(128 20% 28%)",
-    }}
-  />
+        <div
+          className="rounded-3xl p-5 border space-y-5"
+          style={{
+            background: "linear-gradient(180deg, hsl(0 0% 15%), hsl(0 0% 11%))",
+            borderColor: "hsl(128 20% 28%)",
+            boxShadow: "0 14px 32px rgba(0,0,0,0.30)",
+          }}
+        >
+          <div>
+            <label
+              className="block text-sm font-bold mb-2"
+              style={{ color: "hsl(38 45% 96%)" }}
+            >
+              Enter your name to unlock today’s games
+            </label>
 
-  <p className="text-xs mt-2" style={{ color: "hsl(0 0% 68%)" }}>
-    Each player can play each game once per day. Games unlock again tomorrow.
-  </p>
-</div>
+            <input
+              value={playerName}
+              onChange={(e) => setPlayerName(e.target.value)}
+              placeholder="Example: Derrick J"
+              className="w-full max-w-md rounded-xl border px-4 py-3 outline-none"
+              style={{
+                background: "hsl(0 0% 96%)",
+                color: "hsl(0 0% 10%)",
+                borderColor: "hsl(128 20% 28%)",
+              }}
+            />
+
+            <p className="text-xs mt-2" style={{ color: "hsl(0 0% 68%)" }}>
+              Each player can play each game once per day. Games unlock again
+              tomorrow.
+            </p>
+          </div>
+
+          <div className="grid lg:grid-cols-2 gap-5">
+            <div>
+              <p
+                className="text-sm font-bold mb-3"
+                style={{ color: "hsl(38 45% 96%)" }}
+              >
+                What difficulty level are you interested in?
+              </p>
+
+              <div className="flex flex-wrap gap-2">
+                {DIFFICULTY_OPTIONS.map((option) => {
+                  const active = selectedDifficulty === option.value;
+
+                  return (
+                    <button
+                      key={option.value}
+                      type="button"
+                      onClick={() => setSelectedDifficulty(option.value)}
+                      className="px-3 py-2 rounded-xl text-sm font-semibold transition-all hover:opacity-90"
+                      style={{
+                        background: active
+                          ? "hsl(5 84% 48%)"
+                          : "hsl(128 34% 22%)",
+                        color: "hsl(38 45% 96%)",
+                        border: active
+                          ? "1px solid hsl(5 84% 58%)"
+                          : "1px solid hsl(128 20% 32%)",
+                        boxShadow: active
+                          ? "0 8px 18px rgba(170, 24, 24, 0.32)"
+                          : "none",
+                      }}
+                    >
+                      {option.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div>
+              <p
+                className="text-sm font-bold mb-3"
+                style={{ color: "hsl(38 45% 96%)" }}
+              >
+                What training material are you interested in?
+              </p>
+
+              <div className="flex flex-wrap gap-2">
+                {TOPIC_OPTIONS.map((option) => {
+                  const active = selectedTopic === option.value;
+
+                  return (
+                    <button
+                      key={option.value}
+                      type="button"
+                      onClick={() => setSelectedTopic(option.value)}
+                      className="px-3 py-2 rounded-xl text-sm font-semibold transition-all hover:opacity-90"
+                      style={{
+                        background: active
+                          ? "hsl(5 84% 48%)"
+                          : "hsl(128 34% 22%)",
+                        color: "hsl(38 45% 96%)",
+                        border: active
+                          ? "1px solid hsl(5 84% 58%)"
+                          : "1px solid hsl(128 20% 32%)",
+                        boxShadow: active
+                          ? "0 8px 18px rgba(170, 24, 24, 0.32)"
+                          : "none",
+                      }}
+                    >
+                      {option.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
+          <div
+            className="text-xs font-semibold rounded-xl px-3 py-2 inline-flex"
+            style={{
+              background: "hsl(0 0% 13%)",
+              color: "hsl(38 95% 58%)",
+              border: "1px solid hsl(128 20% 24%)",
+            }}
+          >
+            Selected Training Path: {filterLabel}
+          </div>
+        </div>
 
         <div className="grid md:grid-cols-2 xl:grid-cols-5 gap-6">
           {GAMES.map((game, i) => {
@@ -537,7 +692,8 @@ if (!res.ok || !data?.allowed) {
                 className="rounded-3xl p-6 cursor-pointer transition-all hover:-translate-y-1 animate-slide-in-up"
                 style={{
                   animationDelay: `${i * 0.08}s`,
-                  background: "linear-gradient(180deg, hsl(0 0% 15%), hsl(0 0% 11%))",
+                  background:
+                    "linear-gradient(180deg, hsl(0 0% 15%), hsl(0 0% 11%))",
                   border: "1px solid hsl(128 20% 28%)",
                   boxShadow: "0 14px 32px rgba(0,0,0,0.30)",
                 }}
@@ -607,131 +763,140 @@ if (!res.ok || !data?.allowed) {
           })}
         </div>
 
-<div className="grid md:grid-cols-2 gap-6 items-start">
-  <div className="space-y-3">
-    <div
-      className="rounded-3xl border"
-      style={{
-        background: "linear-gradient(180deg, hsl(0 0% 15%), hsl(0 0% 11%))",
-        borderColor: "hsl(128 20% 28%)",
-        boxShadow: "0 14px 32px rgba(0,0,0,0.30)",
-      }}
-    >
-      <Leaderboard
-        entries={topEntries}
-        currentScore={sessionScore > 0 ? sessionScore : undefined}
-      />
-    </div>
+        <div className="grid md:grid-cols-2 gap-6 items-start">
+          <div className="space-y-3">
+            <div
+              className="rounded-3xl border"
+              style={{
+                background:
+                  "linear-gradient(180deg, hsl(0 0% 15%), hsl(0 0% 11%))",
+                borderColor: "hsl(128 20% 28%)",
+                boxShadow: "0 14px 32px rgba(0,0,0,0.30)",
+              }}
+            >
+              <Leaderboard
+                entries={topEntries}
+                currentScore={sessionScore > 0 ? sessionScore : undefined}
+              />
+            </div>
 
-    <button
-      type="button"
-      onClick={handleResetLeaderboard}
-      className="w-full py-2.5 rounded-xl text-sm font-semibold transition-all hover:opacity-90"
-      style={{
-        background: "hsl(5 84% 48%)",
-        color: "white",
-        boxShadow: "0 8px 18px rgba(170, 24, 24, 0.32)",
-      }}
-    >
-      Reset Leaderboard
-    </button>
+            <button
+              type="button"
+              onClick={handleResetLeaderboard}
+              className="w-full py-2.5 rounded-xl text-sm font-semibold transition-all hover:opacity-90"
+              style={{
+                background: "hsl(5 84% 48%)",
+                color: "white",
+                boxShadow: "0 8px 18px rgba(170, 24, 24, 0.32)",
+              }}
+            >
+              Reset Leaderboard
+            </button>
 
-    <div
-      className="rounded-3xl p-5 border space-y-3"
-      style={{
-        background: "linear-gradient(180deg, hsl(0 0% 15%), hsl(0 0% 11%))",
-        borderColor: "hsl(128 20% 28%)",
-        boxShadow: "0 14px 32px rgba(0,0,0,0.30)",
-      }}
-    >
-      <h3 className="font-bold" style={{ color: "hsl(38 45% 96%)" }}>
-        Have Some Feedback?
-      </h3>
+            <div
+              className="rounded-3xl p-5 border space-y-3"
+              style={{
+                background:
+                  "linear-gradient(180deg, hsl(0 0% 15%), hsl(0 0% 11%))",
+                borderColor: "hsl(128 20% 28%)",
+                boxShadow: "0 14px 32px rgba(0,0,0,0.30)",
+              }}
+            >
+              <h3 className="font-bold" style={{ color: "hsl(38 45% 96%)" }}>
+                Have Some Feedback?
+              </h3>
 
-      <textarea
-        value={feedbackMessage}
-        onChange={(e) => setFeedbackMessage(e.target.value)}
-        placeholder="Type your feedback here..."
-        rows={4}
-        maxLength={1000}
-        className="w-full rounded-xl border px-4 py-3 outline-none resize-none text-sm"
-        style={{
-          background: "hsl(0 0% 96%)",
-          color: "hsl(0 0% 10%)",
-          borderColor: "hsl(128 20% 28%)",
-        }}
-      />
-
-      <p className="text-xs leading-relaxed" style={{ color: "hsl(0 0% 68%)" }}>
-        We would love to hear any feedback, concerns, or idea's!
-      </p>
-
-      <button
-        type="button"
-        onClick={handleSubmitFeedback}
-        disabled={feedbackSubmitting}
-        className="w-full py-2.5 rounded-xl text-sm font-semibold transition-all hover:opacity-90 disabled:opacity-60"
-        style={{
-          background: "hsl(128 46% 30%)",
-          color: "white",
-          boxShadow: "0 8px 18px rgba(0,0,0,0.25)",
-        }}
-      >
-        {feedbackSubmitting ? "Submitting..." : "Submit Feedback"}
-      </button>
-
-      {feedbackStatus && (
-        <p className="text-xs font-semibold" style={{ color: "hsl(38 95% 58%)" }}>
-          {feedbackStatus}
-        </p>
-      )}
-    </div>
-  </div>
-
-  <div className="space-y-6">
-    <div
-      className="p-5 space-y-4 rounded-3xl border"
-      style={{
-        background: "linear-gradient(180deg, hsl(0 0% 15%), hsl(0 0% 11%))",
-        borderColor: "hsl(128 20% 28%)",
-        boxShadow: "0 14px 32px rgba(0,0,0,0.30)",
-      }}
-    >
-      <div className="flex items-center gap-2">
-        <Crown size={18} style={{ color: "hsl(38 95% 58%)" }} />
-        <h3 className="font-bold" style={{ color: "hsl(38 45% 96%)" }}>
-          Lifetime Top Rankings
-        </h3>
-      </div>
-
-      <div className="space-y-3">
-        {lifetimeTopByGame.map(({ game, topEntry, icon: Icon, color }) => (
-          <div
-            key={game}
-            className="rounded-2xl border px-4 py-3 flex items-center justify-between"
-            style={{
-              background: "hsl(0 0% 13%)",
-              borderColor: "hsl(128 20% 24%)",
-            }}
-          >
-            <div className="flex items-center gap-3 min-w-0">
-              <div
-                className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+              <textarea
+                value={feedbackMessage}
+                onChange={(e) => setFeedbackMessage(e.target.value)}
+                placeholder="Type your feedback here..."
+                rows={4}
+                maxLength={1000}
+                className="w-full rounded-xl border px-4 py-3 outline-none resize-none text-sm"
                 style={{
-                  background: `${color}18`,
-                  border: `1px solid ${color}25`,
+                  background: "hsl(0 0% 96%)",
+                  color: "hsl(0 0% 10%)",
+                  borderColor: "hsl(128 20% 28%)",
+                }}
+              />
+
+              <p
+                className="text-xs leading-relaxed"
+                style={{ color: "hsl(0 0% 68%)" }}
+              >
+                We would love to hear any feedback, concerns, or idea's!
+              </p>
+
+              <button
+                type="button"
+                onClick={handleSubmitFeedback}
+                disabled={feedbackSubmitting}
+                className="w-full py-2.5 rounded-xl text-sm font-semibold transition-all hover:opacity-90 disabled:opacity-60"
+                style={{
+                  background: "hsl(128 46% 30%)",
+                  color: "white",
+                  boxShadow: "0 8px 18px rgba(0,0,0,0.25)",
                 }}
               >
-                <Icon size={16} style={{ color }} />
+                {feedbackSubmitting ? "Submitting..." : "Submit Feedback"}
+              </button>
+
+              {feedbackStatus && (
+                <p
+                  className="text-xs font-semibold"
+                  style={{ color: "hsl(38 95% 58%)" }}
+                >
+                  {feedbackStatus}
+                </p>
+              )}
+            </div>
+          </div>
+
+          <div className="space-y-6">
+            <div
+              className="p-5 space-y-4 rounded-3xl border"
+              style={{
+                background:
+                  "linear-gradient(180deg, hsl(0 0% 15%), hsl(0 0% 11%))",
+                borderColor: "hsl(128 20% 28%)",
+                boxShadow: "0 14px 32px rgba(0,0,0,0.30)",
+              }}
+            >
+              <div className="flex items-center gap-2">
+                <Crown size={18} style={{ color: "hsl(38 95% 58%)" }} />
+                <h3 className="font-bold" style={{ color: "hsl(38 45% 96%)" }}>
+                  Lifetime Top Rankings
+                </h3>
               </div>
 
-              <div className="min-w-0">
-                <div
-                  className="text-sm font-semibold truncate"
-                  style={{ color: "hsl(38 45% 96%)" }}
-                >
-                  {game}
-                </div>
+              <div className="space-y-3">
+                {lifetimeTopByGame.map(({ game, topEntry, icon: Icon, color }) => (
+                  <div
+                    key={game}
+                    className="rounded-2xl border px-4 py-3 flex items-center justify-between"
+                    style={{
+                      background: "hsl(0 0% 13%)",
+                      borderColor: "hsl(128 20% 24%)",
+                    }}
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div
+                        className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+                        style={{
+                          background: `${color}18`,
+                          border: `1px solid ${color}25`,
+                        }}
+                      >
+                        <Icon size={16} style={{ color }} />
+                      </div>
+
+                      <div className="min-w-0">
+                        <div
+                          className="text-sm font-semibold truncate"
+                          style={{ color: "hsl(38 45% 96%)" }}
+                        >
+                          {game}
+                        </div>
 
                         <div
                           className="text-xs mt-1 truncate"
@@ -764,17 +929,15 @@ if (!res.ok || !data?.allowed) {
             <div
               className="p-5 space-y-4 rounded-3xl border"
               style={{
-                background: "linear-gradient(180deg, hsl(0 0% 15%), hsl(0 0% 11%))",
+                background:
+                  "linear-gradient(180deg, hsl(0 0% 15%), hsl(0 0% 11%))",
                 borderColor: "hsl(128 20% 28%)",
                 boxShadow: "0 14px 32px rgba(0,0,0,0.30)",
               }}
             >
               <div className="flex items-center gap-2">
                 <Star size={18} style={{ color: "hsl(5 84% 48%)" }} />
-                <h3
-                  className="font-bold"
-                  style={{ color: "hsl(38 45% 96%)" }}
-                >
+                <h3 className="font-bold" style={{ color: "hsl(38 45% 96%)" }}>
                   How Scoring Works
                 </h3>
               </div>
