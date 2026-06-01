@@ -30,6 +30,13 @@ interface ScreenSimQuestion {
 interface ScreenSimGameProps {
   onComplete: (score: number) => void;
   onBack: () => void;
+  selectedDifficulty: "new-hire" | "intermediate" | "expert";
+  selectedTopic:
+    | "descartes-route-planner"
+    | "sous"
+    | "tandem"
+    | "omnitrax"
+    | "mix-it-up";
 }
 
 interface SavedScreenSimProgress {
@@ -41,8 +48,6 @@ interface SavedScreenSimProgress {
 const MAX_WRONG_CLICKS = 3;
 const SHOW_HOTSPOT_DEBUG = false;
 
-// Toggle this OFF while testing.
-// Turn it ON when you want users limited to one scored attempt per day.
 const ENABLE_DAILY_ATTEMPT_LOCK = false;
 
 const STORAGE_KEY = "screenSimDailyProgress";
@@ -132,10 +137,10 @@ const QUESTIONS: ScreenSimQuestion[] = [
       },
       {
         image: "/screenshots/route-planner-menu-datafilter.jpg",
-        correctZones: [{ x: 18, y: 20, width: 28, height: 8 }],      
-      coachTip:
-        "💡 Coach Tip: After to getting here, what setting changes the Icon's we see?",
-    },
+        correctZones: [{ x: 18, y: 20, width: 28, height: 8 }],
+        coachTip:
+          "💡 Coach Tip: After to getting here, what setting changes the Icon's we see?",
+      },
     ],
     explanation: "Open the Data Filters, then select 'Options'.",
   },
@@ -216,33 +221,40 @@ const QUESTIONS: ScreenSimQuestion[] = [
     title: "Create Resource 2",
     question:
       "Now that you guided me to the right place, can you show me how to actually create the route, also known as ‘Resource’? I already right clicked on the route I want to create; I need help with the rest.",
-  steps: [
-    {
-      image: "/screenshots/route-planner-resource-templates.jpg",
-      correctZones: [{ x: 36, y: 29, width: 10, height: 5 }],
-    },
-    {
-      image: "/screenshots/route-planner-create-resource.jpg",
-      correctZones: [
-        { x: 39, y: 44, width: 10, height: 5 },
-        { x: 56, y: 44, width: 10, height: 5 },
-        { x: 43, y: 55, width: 22, height: 5 },
-        { x: 43, y: 61, width: 22, height: 5 },
-      ],
-      coachTip:
-        "💡 Coach Tip: Out of the 5 options, what are the 4 most important ones?",
-    },
-  ],
-  explanation:
-    "Correct, always double check these areas before creating your resource.",
-  video: "/screenshots/How to create resources.mp4",
-},
+    steps: [
+      {
+        image: "/screenshots/route-planner-resource-templates.jpg",
+        correctZones: [{ x: 36, y: 29, width: 10, height: 5 }],
+      },
+      {
+        image: "/screenshots/route-planner-create-resource.jpg",
+        correctZones: [
+          { x: 39, y: 44, width: 10, height: 5 },
+          { x: 56, y: 44, width: 10, height: 5 },
+          { x: 43, y: 55, width: 22, height: 5 },
+          { x: 43, y: 61, width: 22, height: 5 },
+        ],
+        coachTip:
+          "💡 Coach Tip: Out of the 5 options, what are the 4 most important ones?",
+      },
+    ],
+    explanation:
+      "Correct, always double check these areas before creating your resource.",
+    video: "/screenshots/How to create resources.mp4",
+  },
 ];
 
 export default function ScreenSimGame({
   onComplete,
   onBack,
+  selectedDifficulty,
+  selectedTopic,
 }: ScreenSimGameProps) {
+  // Filters are accepted from Home.tsx but intentionally ignored for now.
+  // Once Screen Sim questions have difficulty/topic fields, filtering can be added here.
+  void selectedDifficulty;
+  void selectedTopic;
+
   const savedProgress = loadSavedProgress();
 
   const [currentIndex, setCurrentIndex] = useState(
@@ -462,9 +474,7 @@ export default function ScreenSimGame({
         </div>
       )}
 
-      <p className="text-sm text-yellow-300">
-        Perfect Streak: {perfectStreak}
-      </p>
+      <p className="text-sm text-yellow-300">Perfect Streak: {perfectStreak}</p>
 
       {ENABLE_DAILY_ATTEMPT_LOCK &&
         savedProgress &&
