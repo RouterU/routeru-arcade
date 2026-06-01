@@ -40,16 +40,21 @@ export default function DataChallengeGame({
   const [shuffleKey, setShuffleKey] = useState(0);
 
   const shuffledChallenges = useMemo(() => {
-    const filtered = dataChallenges.filter((challenge) => {
-      const difficultyMatch = challenge.difficulty === selectedDifficulty;
+    const difficultyFiltered = dataChallenges.filter(
+      (challenge) => challenge.difficulty === selectedDifficulty
+    );
 
-      const topicMatch =
-        selectedTopic === "mix-it-up" || challenge.topic === selectedTopic;
+    const topicFiltered = difficultyFiltered.filter(
+      (challenge) =>
+        selectedTopic === "mix-it-up" || challenge.topic === selectedTopic
+    );
 
-      return difficultyMatch && topicMatch;
-    });
-
-    const source = filtered.length > 0 ? filtered : dataChallenges;
+    const source =
+      topicFiltered.length > 0
+        ? topicFiltered
+        : difficultyFiltered.length > 0
+        ? difficultyFiltered
+        : dataChallenges;
 
     return [...source]
       .sort(() => Math.random() - 0.5)
