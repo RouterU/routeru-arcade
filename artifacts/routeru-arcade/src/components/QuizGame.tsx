@@ -51,16 +51,21 @@ export default function QuizGame({
   selectedTopic,
 }: QuizGameProps) {
   const questions = useMemo<QuizQuestion[]>(() => {
-    const filtered = quizQuestions.filter((question) => {
-      const difficultyMatch = question.difficulty === selectedDifficulty;
+    const difficultyFiltered = quizQuestions.filter(
+      (question) => question.difficulty === selectedDifficulty
+    );
 
-      const topicMatch =
-        selectedTopic === "mix-it-up" || question.topic === selectedTopic;
+    const topicFiltered = difficultyFiltered.filter(
+      (question) =>
+        selectedTopic === "mix-it-up" || question.topic === selectedTopic
+    );
 
-      return difficultyMatch && topicMatch;
-    });
-
-    const source = filtered.length > 0 ? filtered : quizQuestions;
+    const source =
+      topicFiltered.length > 0
+        ? topicFiltered
+        : difficultyFiltered.length > 0
+        ? difficultyFiltered
+        : quizQuestions;
 
     return shuffleArray(source).slice(0, Math.min(SHUFFLE_COUNT, source.length));
   }, [selectedDifficulty, selectedTopic]);
@@ -79,7 +84,7 @@ export default function QuizGame({
   const [answeredQuestions, setAnsweredQuestions] = useState<boolean[]>([]);
 
   const currentQuestion = questions[currentIndex];
-  const progress = (currentIndex / questions.length) * 100;
+  const progress = questions.length > 0 ? (currentIndex / questions.length) * 100 : 0;
 
   const handleTimeUp = useCallback(() => {
     if (answerState === "unanswered") {
@@ -107,7 +112,7 @@ export default function QuizGame({
   }, [timeLeft, answerState, finished, handleTimeUp]);
 
   const handleAnswer = (optionIndex: number) => {
-    if (answerState !== "unanswered") return;
+    if (answerState !== "unanswered" || !currentQuestion) return;
 
     const isCorrect = optionIndex === currentQuestion.correctIndex;
     setSelectedIndex(optionIndex);
