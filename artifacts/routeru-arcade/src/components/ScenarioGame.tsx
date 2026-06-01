@@ -12,6 +12,13 @@ import {
 interface ScenarioGameProps {
   onComplete: (score: number) => void;
   onBack: () => void;
+  selectedDifficulty: "new-hire" | "intermediate" | "expert";
+  selectedTopic:
+    | "descartes-route-planner"
+    | "sous"
+    | "tandem"
+    | "omnitrax"
+    | "mix-it-up";
 }
 
 const SCENARIOS_PER_GAME = 5;
@@ -38,12 +45,28 @@ function outcomeColor(level: OutcomeLevel) {
   return "hsl(0 75% 65%)";
 }
 
-export default function ScenarioGame({ onComplete, onBack }: ScenarioGameProps) {
+export default function ScenarioGame({
+  onComplete,
+  onBack,
+  selectedDifficulty,
+  selectedTopic,
+}: ScenarioGameProps) {
   const shuffledScenarios = useMemo(() => {
-    return [...scenarios]
+    const filtered = scenarios.filter((scenario) => {
+      const difficultyMatch = scenario.difficulty === selectedDifficulty;
+
+      const topicMatch =
+        selectedTopic === "mix-it-up" || scenario.topic === selectedTopic;
+
+      return difficultyMatch && topicMatch;
+    });
+
+    const source = filtered.length > 0 ? filtered : scenarios;
+
+    return [...source]
       .sort(() => Math.random() - 0.5)
-      .slice(0, Math.min(SCENARIOS_PER_GAME, scenarios.length));
-  }, []);
+      .slice(0, Math.min(SCENARIOS_PER_GAME, source.length));
+  }, [selectedDifficulty, selectedTopic]);
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [score, setScore] = useState(0);
@@ -55,7 +78,7 @@ export default function ScenarioGame({ onComplete, onBack }: ScenarioGameProps) 
   const progress = (currentIndex / shuffledScenarios.length) * 100;
 
   const handleChoice = (choiceIdx: number) => {
-    if (selected !== null) return;
+    if (selected !== null || !scenario) return;
 
     setSelected(choiceIdx);
     const choice = scenario.choices[choiceIdx];
@@ -72,6 +95,29 @@ export default function ScenarioGame({ onComplete, onBack }: ScenarioGameProps) 
       setSelected(null);
     }
   };
+
+  if (!scenario) {
+    return (
+      <div className="max-w-2xl mx-auto text-center space-y-4 py-8">
+        <h2 className="text-2xl font-bold" style={{ color: "hsl(38 45% 96%)" }}>
+          No scenarios available
+        </h2>
+        <p style={{ color: "hsl(0 0% 72%)" }}>
+          No matching scenarios were found for this training path.
+        </p>
+        <button
+          onClick={onBack}
+          className="px-6 py-3 rounded-xl font-semibold"
+          style={{
+            background: "hsl(5 84% 48%)",
+            color: "white",
+          }}
+        >
+          Back to Hub
+        </button>
+      </div>
+    );
+  }
 
   if (finished) {
     const goodCount = results.filter((r) => r === "good").length;
@@ -96,7 +142,8 @@ export default function ScenarioGame({ onComplete, onBack }: ScenarioGameProps) 
           <div
             className="p-4 rounded-2xl border"
             style={{
-              background: "linear-gradient(180deg, hsl(0 0% 15%), hsl(0 0% 11%))",
+              background:
+                "linear-gradient(180deg, hsl(0 0% 15%), hsl(0 0% 11%))",
               borderColor: "hsl(128 20% 24%)",
             }}
           >
@@ -114,7 +161,8 @@ export default function ScenarioGame({ onComplete, onBack }: ScenarioGameProps) 
           <div
             className="p-4 rounded-2xl border"
             style={{
-              background: "linear-gradient(180deg, hsl(0 0% 15%), hsl(0 0% 11%))",
+              background:
+                "linear-gradient(180deg, hsl(0 0% 15%), hsl(0 0% 11%))",
               borderColor: "hsl(128 20% 24%)",
             }}
           >
@@ -132,7 +180,8 @@ export default function ScenarioGame({ onComplete, onBack }: ScenarioGameProps) 
           <div
             className="p-4 rounded-2xl border"
             style={{
-              background: "linear-gradient(180deg, hsl(0 0% 15%), hsl(0 0% 11%))",
+              background:
+                "linear-gradient(180deg, hsl(0 0% 15%), hsl(0 0% 11%))",
               borderColor: "hsl(128 20% 24%)",
             }}
           >
@@ -151,7 +200,8 @@ export default function ScenarioGame({ onComplete, onBack }: ScenarioGameProps) 
         <div
           className="p-4 rounded-2xl border"
           style={{
-            background: "linear-gradient(180deg, hsl(0 0% 15%), hsl(0 0% 11%))",
+            background:
+              "linear-gradient(180deg, hsl(0 0% 15%), hsl(0 0% 11%))",
             borderColor: "hsl(128 20% 24%)",
           }}
         >
@@ -248,7 +298,8 @@ export default function ScenarioGame({ onComplete, onBack }: ScenarioGameProps) 
       <div
         className="animate-slide-in-up p-6 space-y-5 rounded-3xl border"
         style={{
-          background: "linear-gradient(180deg, hsl(0 0% 15%), hsl(0 0% 11%))",
+          background:
+            "linear-gradient(180deg, hsl(0 0% 15%), hsl(0 0% 11%))",
           borderColor: "hsl(128 20% 24%)",
           boxShadow: "0 14px 32px rgba(0,0,0,0.30)",
         }}
@@ -371,14 +422,18 @@ export default function ScenarioGame({ onComplete, onBack }: ScenarioGameProps) 
             className="animate-slide-in-up rounded-2xl p-4 space-y-2"
             style={{
               background: `${outcomeColor(scenario.choices[selected].outcome)}18`,
-              border: `1px solid ${outcomeColor(scenario.choices[selected].outcome)}40`,
+              border: `1px solid ${outcomeColor(
+                scenario.choices[selected].outcome
+              )}40`,
             }}
           >
             <div className="flex items-center gap-2">
               <OutcomeIcon level={scenario.choices[selected].outcome} />
               <span
                 className="font-semibold text-sm"
-                style={{ color: outcomeColor(scenario.choices[selected].outcome) }}
+                style={{
+                  color: outcomeColor(scenario.choices[selected].outcome),
+                }}
               >
                 {outcomeLabel(scenario.choices[selected].outcome)}
               </span>
