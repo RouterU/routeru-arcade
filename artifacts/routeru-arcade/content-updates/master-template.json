@@ -6,8 +6,9 @@
       "options": ["DG_1 customer with no liftgate requirement", "DG_1 customer with a liftgate requirement", "Published route sent to Tandem with no errors", "Shuttle stop or route"],
       "correctIndex": 0,
       "explanation": "The gray circle icon in Route Planner signifies a DG_1 customer with no liftgate requirement.",
-      "difficulty": "easy",
-      "points": 100
+      "difficulty": "new-hire",
+      "points": 100,
+      "topic": "descartes-route-planner"
     },
     {
       "id": 2,
@@ -15,8 +16,9 @@
       "options": ["DG_2 customer with no liftgate requirement", "DG_2 customer with a liftgate requirement", "Cross dock (XDA)", "Status 20 order"],
       "correctIndex": 1,
       "explanation": "The blue triangle icon in Route Planner signifies a DG_2 customer with a liftgate requirement.",
-      "difficulty": "easy",
-      "points": 100
+      "difficulty": "new-hire",
+      "points": 100,
+      "topic": "descartes-route-planner"
     },
     {
       "id": 3,
@@ -24,8 +26,9 @@
       "options": ["Key drop or dark delivery", "Shuttle stop or route", "Off day order", "Child account"],
       "correctIndex": 0,
       "explanation": "The black square icon in Route Planner signifies a key drop or dark delivery.",
-      "difficulty": "easy",
-      "points": 100
+      "difficulty": "new-hire",
+      "points": 100,
+      "topic": "descartes-route-planner"
     },
     {
       "id": 4,
@@ -33,8 +36,9 @@
       "options": ["Published route sent to Omnitracs with no errors", "Child account", "Layover order", "Backhaul or pickup"],
       "correctIndex": 1,
       "explanation": "The green square icon in Route Planner signifies a child account.",
-      "difficulty": "easy",
-      "points": 100
+      "difficulty": "new-hire",
+      "points": 100,
+      "topic": "descartes-route-planner"
     },
     {
       "id": 5,
@@ -42,8 +46,9 @@
       "options": ["Will call delivery (WCD)", "Backhaul or pickup", "Missing SOUS setup (DV)", "Cross dock (XDB)"],
       "correctIndex": 0,
       "explanation": "The blue star icon in Route Planner signifies a will call delivery (WCD).",
-      "difficulty": "easy",
-      "points": 100
+      "difficulty": "new-hire",
+      "points": 100,
+      "topic": "descartes-route-planner"
     },
     {
       "id": 6,
@@ -51,8 +56,9 @@
       "options": ["Layover order", "Status 30 or 40 order", "Backhaul or pickup", "Bill-to-ship-to customer"],
       "correctIndex": 2,
       "explanation": "The dark red or maroon star icon in Route Planner signifies a backhaul/pickup.",
-      "difficulty": "medium",
-      "points": 150
+      "difficulty": "intermediate",
+      "points": 150,
+      "topic": "descartes-route-planner"
     },
     {
       "id": 7,
@@ -60,8 +66,9 @@
       "options": ["Stop is missing SOUS setup (DV)", "Stop is on an off day order", "Customer has a liftgate requirement", "Route is already archived"],
       "correctIndex": 0,
       "explanation": "The red star icon in Route Planner signifies a stop is missing SOUS setup (DV).",
-      "difficulty": "medium",
-      "points": 150
+      "difficulty": "intermediate",
+      "points": 150,
+      "topic": "descartes-route-planner"
     },
     {
       "id": 8,
@@ -69,8 +76,9 @@
       "options": ["Published route sent to Omnitracs with no errors", "Status 20 order", "Published route sent to Tandem with no errors", "HazMat stop or route over 999 lbs"],
       "correctIndex": 2,
       "explanation": "The yellow diamond icon in Route Planner signifies a published route that was sent to Tandem with no errors.",
-      "difficulty": "medium",
-      "points": 150
+      "difficulty": "intermediate",
+      "points": 150,
+      "topic": "descartes-route-planner"
     },
     {
       "id": 9,
@@ -78,8 +86,9 @@
       "options": ["Published route sent to Omnitracs with no errors", "Published route sent to Tandem with no errors", "Key drop or dark delivery", "Status 30 or 40 order"],
       "correctIndex": 0,
       "explanation": "The green diamond icon in Route Planner signifies a published route that was sent to Omnitracs with no errors.",
-      "difficulty": "medium",
-      "points": 150
+      "difficulty": "intermediate",
+      "points": 150,
+      "topic": "descartes-route-planner"
     },
     {
       "id": 10,
@@ -87,8 +96,9 @@
       "options": ["Status 30 or 40 order", "HazMat stop or route over 999 lbs", "Status 20 order", "Backhaul or pickup"],
       "correctIndex": 2,
       "explanation": "A red hexagon icon in Route Planner signifies a status 20 order.",
-      "difficulty": "medium",
-      "points": 150
+      "difficulty": "intermediate",
+      "points": 150,
+      "topic": "descartes-route-planner"
     },
     {
       "id": 11,
@@ -96,8 +106,9 @@
       "options": ["Use Data > Templates > Routes", "Go to App Setup > UI Setting > Context Menu and edit the Routes quadrant", "Republish the route after cut is taken", "Enable the option from the driver profile"],
       "correctIndex": 1,
       "explanation": "On the side menu, go to App Setup > UI Setting > Context Menu and select the quadrant you want to edit. The Routes quadrant is where you can add the option to print a driver manifest.",
-      "difficulty": "hard",
-      "points": 200
+      "difficulty": "expert",
+      "points": 200,
+      "topic": "descartes-route-planner"
     },
     {
       "id": 12,
@@ -105,8 +116,9 @@
       "options": ["Whether the route is already published to Omnitracs", "Whether there is an 'X' in UDFString 4 and whether 'Exclude From Optimization' is checked in the resource", "Whether the route is marked as a key drop", "Whether the driver has a delivery photo attached"],
       "correctIndex": 1,
       "explanation": "Before assuming it is a BGO issue, make sure there is not an 'X' in UDFString 4 and check whether 'Exclude From Optimization' is checked inside the resource.",
-      "difficulty": "hard",
-      "points": 200
+      "difficulty": "expert",
+      "points": 200,
+      "topic": "descartes-route-planner"
     },
     {
       "id": 13,
@@ -114,8 +126,9 @@
       "options": ["Delete all routing attributes", "Delete all attributes except for Sunday", "Keep one day of the week that is not Sunday selected as a delivery day", "Make a note in the special instructions"],
       "correctIndex": 2,
       "explanation": "Keeping one day of the week as a delivery day will allow the customer to place orders for Will Call Delivery",
-      "difficulty": "medium",
-      "points": 150
+      "difficulty": "intermediate",
+      "points": 150,
+      "topic": "sous"
     },
     {
       "id": 14,
@@ -123,8 +136,9 @@
       "options": ["Planning, Dispatch, Review, Archive", "Planning, Build, Ship, Close", "Active, Review, Audit, Export", "Planning only"],
       "correctIndex": 0,
       "explanation": "Routers should favorite Planning, Dispatch, Review, and Archive schedules for daily routing.",
-      "difficulty": "easy",
-      "points": 100
+      "difficulty": "new-hire",
+      "points": 100,
+      "topic": "descartes-route-planner"
     },
     {
       "id": 15,
@@ -132,8 +146,9 @@
       "options": ["Data > Schedule Data > Schedules", "Setup > Resources", "Tools > Routing", "Help > Contents"],
       "correctIndex": 0,
       "explanation": "Favorite schedules are added under Data > Schedule Data > Schedules.",
-      "difficulty": "easy",
-      "points": 100
+      "difficulty": "new-hire",
+      "points": 100,
+      "topic": "descartes-route-planner"
     },
     {
       "id": 16,
@@ -141,8 +156,9 @@
       "options": ["Tier 1 stop", "First customer to depot", "Starting route", "The preferred route that the customer should be on"],
       "correctIndex": 3,
       "explanation": "Territory boundaries must fully connect to activate correctly.",
-      "difficulty": "medium",
-      "points": 150
+      "difficulty": "intermediate",
+      "points": 150,
+      "topic": "descartes-route-planner"
     },
     {
       "id": 17,
@@ -150,8 +166,9 @@
       "options": ["Territory Key", "Color Code", "Requirements", "Description"],
       "correctIndex": 0,
       "explanation": "Territory Keys cannot contain spaces and cannot be edited later.",
-      "difficulty": "medium",
-      "points": 150
+      "difficulty": "intermediate",
+      "points": 150,
+      "topic": "descartes-route-planner"
     },
     {
       "id": 18,
@@ -159,8 +176,9 @@
       "options": ["Market Specifics", "Routing Toolkit", "Delivery Groups", "WinRoute"],
       "correctIndex": 0,
       "explanation": "Service times are maintained in SOUS Market Specifics.",
-      "difficulty": "medium",
-      "points": 150
+      "difficulty": "intermediate",
+      "points": 150,
+      "topic": "sous"
     },
     {
       "id": 19,
@@ -168,8 +186,9 @@
       "options": ["BGO", "Matching Requirements", "Tandem", "Google"],
       "correctIndex": 1,
       "explanation": "Expired license information can prevent the driver from being assigned to a route.",
-      "difficulty": "medium",
-      "points": 150
+      "difficulty": "intermediate",
+      "points": 150,
+      "topic": "descartes-route-planner"
     },
     {
       "id": 20,
@@ -177,8 +196,9 @@
       "options": ["Time windows and delivery day", "Trailer dimensions", "The preferred stop number on a route", "Delivery Group"],
       "correctIndex": 2,
       "explanation": "Edit Order allows date and time window adjustments. If moving the day, requirements should also be updated.",
-      "difficulty": "easy",
-      "points": 100
+      "difficulty": "new-hire",
+      "points": 100,
+      "topic": "descartes-route-planner"
     },
     {
       "id": 21,
@@ -186,8 +206,9 @@
       "options": ["Changing too many settings at once", "Using BGO", "Saving schedules", "Editing territories"],
       "correctIndex": 0,
       "explanation": "Too many simultaneous changes make it difficult to determine which setting is helping or hurting the solution.",
-      "difficulty": "medium",
-      "points": 150
+      "difficulty": "intermediate",
+      "points": 150,
+      "topic": "descartes-route-planner"
     },
     {
       "id": 22,
@@ -195,8 +216,9 @@
       "options": ["Standard-Default, Rural-Default, Metro-Default", "Urban, Rural, Hybrid", "Fast, Medium, Slow", "Default A, B, C"],
       "correctIndex": 0,
       "explanation": "The guide identifies Standard-Default, Rural-Default, and Metro-Default as the default routing parameter groups.",
-      "difficulty": "hard",
-      "points": 200
+      "difficulty": "expert",
+      "points": 200,
+      "topic": "descartes-route-planner"
     },
     {
       "id": 23,
@@ -204,8 +226,9 @@
       "options": ["Upload Depots and Vehicles-Drivers first", "Run BGO", "Delete territories", "Export archive schedules"],
       "correctIndex": 0,
       "explanation": "Depots and Vehicles-Drivers data must be filled out and uploaded before the Orders-Clients upload.",
-      "difficulty": "medium",
-      "points": 150
+      "difficulty": "intermediate",
+      "points": 150,
+      "topic": "descartes-route-planner"
     }
   ],
   "scenarios": [
@@ -217,7 +240,9 @@
         {"text": "Submit a router update", "outcome": "good", "explanation": "The SOUS source indicates the right path is a router update.", "points": 300},
         {"text": "Edit every daily attribute manually", "outcome": "ok", "explanation": "This could work, but it is not the recommended answer from the source.", "points": 100},
         {"text": "Delete and recreate the routing attributes", "outcome": "bad", "explanation": "Recreating attributes is unnecessary and risky for this type of request.", "points": 0}
-      ]
+      ],
+      "difficulty": "new-hire",
+      "topic": "sous"
     },
     {
       "id": 2,
@@ -227,7 +252,9 @@
         {"text": "Assume it is always allowed", "outcome": "bad", "explanation": "The source does not say this is always allowed.", "points": 0},
         {"text": "Check with local sales leadership to confirm policy", "outcome": "good", "explanation": "The SOUS source says to check with local sales leadership to see what their policy is.", "points": 300},
         {"text": "Let the driver decide at dispatch", "outcome": "bad", "explanation": "This should be resolved through policy, not left to dispatch improvisation.", "points": 0}
-      ]
+      ],
+      "difficulty": "new-hire",
+      "topic": "sous"
     },
     {
       "id": 3,
@@ -237,7 +264,9 @@
         {"text": "Republish the route and ignore SOUS", "outcome": "bad", "explanation": "Republishing does not address the attribute driving the date.", "points": 0},
         {"text": "Check the customer's Days to Delivery in SOUS", "outcome": "good", "explanation": "The SOUS source says to double check Days to Delivery. 0 = today, 1 = next day, and so on.", "points": 300},
         {"text": "Change the order date in Tandem only", "outcome": "ok", "explanation": "Tandem may not be the source of truth for routing attributes during order flow.", "points": 100}
-      ]
+      ],
+      "difficulty": "intermediate",
+      "topic": "sous"
     },
     {
       "id": 4,
@@ -247,7 +276,9 @@
         {"text": "Add them in the Delivery Photos section under the related tab and drag-and-drop the files", "outcome": "good", "explanation": "The SOUS source directs users to the Delivery Photos section underneath the routing attributes.", "points": 300},
         {"text": "Paste the image into order comments", "outcome": "bad", "explanation": "The source points to Delivery Photos, not comments.", "points": 0},
         {"text": "Upload the images to the driver manifest screen", "outcome": "bad", "explanation": "That location is not the source-recommended place for delivery photos in SOUS.", "points": 0}
-      ]
+      ],
+      "difficulty": "intermediate",
+      "topic": "sous"
     },
     {
       "id": 5,
@@ -257,7 +288,9 @@
         {"text": "Route Planner does not allow locking", "outcome": "bad", "explanation": "Route Planner supports routing, but lock persistence is handled elsewhere.", "points": 0},
         {"text": "Locks must be maintained in SOUS Routing Attributes", "outcome": "good", "explanation": "The QRG specifies that route and sequence locks are managed in SOUS, not directly in Route Planner.", "points": 300},
         {"text": "The route must be published first", "outcome": "ok", "explanation": "Publishing does not control lock persistence.", "points": 100}
-      ]
+      ],
+      "difficulty": "new-hire",
+      "topic": "descartes-route-planner"
     },
     {
       "id": 6,
@@ -267,7 +300,9 @@
         {"text": "Check the shuttle stops on the route for errors", "outcome": "ok", "explanation": "You may be able to identify an error within the shuttle stops on a route, but this is not likely the place you will be able to resolve the error.", "points": 100},
         {"text": "Look at the icons next to the shuttle stops", "outcome": "bad", "explanation": "The icons next to shuttle stops will not signify what is wrong", "points": 0},
         {"text": "The Scheduled Stops section within the Route Template", "outcome": "good", "explanation": "Check the Scheduled Stops section within the Route Template to ensure the correct location key is added and the Stop Template Key is correct for the stop type. Once resolved, you can recreate the resource with the correct data for publish.", "points": 300}
-      ]
+      ],
+      "difficulty": "intermediate",
+      "topic": "descartes-route-planner"
     },
     {
       "id": 7,
@@ -277,7 +312,9 @@
         {"text": "Add Planning, Dispatch, Review, and Archive schedules to Favorites", "outcome": "good", "explanation": "Routers must favorite schedules before routing work can begin.", "points": 300},
         {"text": "Ask IT to reinstall Route Planner", "outcome": "bad", "explanation": "The issue is normally missing Favorites setup, not installation.", "points": 0},
         {"text": "Restart Chrome repeatedly", "outcome": "bad", "explanation": "Browser restarts will not add schedules.", "points": 0}
-      ]
+      ],
+      "difficulty": "new-hire",
+      "topic": "descartes-route-planner"
     },
     {
       "id": 8,
@@ -287,7 +324,9 @@
         {"text": "Ensure all territory points fully connect with no gaps", "outcome": "good", "explanation": "Territory gaps can cause routing problems and inconsistent territory logic.", "points": 300},
         {"text": "Increase route costs", "outcome": "bad", "explanation": "Costs do not fix territory map gaps.", "points": 0},
         {"text": "Delete all schedules", "outcome": "bad", "explanation": "Schedules are unrelated to territory boundary gaps.", "points": 0}
-      ]
+      ],
+      "difficulty": "expert",
+      "topic": "descartes-route-planner"
     },
     {
       "id": 9,
@@ -297,7 +336,9 @@
         {"text": "Delivery Routes should be numbered 1000 - 7989", "outcome": "ok", "explanation": "True, you should double check that all of your delivery route numbers fall within this range in  Route Planner.", "points": 100},
         {"text": "Verify that you don't see any delivery routes in the Recovery Report, by making sure every route has '99' inside of the route number.", "outcome": "good", "explanation": "Yes! Proper setup of a Recovery route number is, 1st digit = day number, next digits = 99. Delivery route setup (1000-7989) should be, 1st digit = day number, do not use '99' for delivery.", "points": 300},
         {"text": "Ignore the reports", "outcome": "bad", "explanation": "Never ignore reports, if you have double checked all the data and you are certain a report is not correct, submit a service ticket or escalate it to your ROM.", "points": 0}
-      ]
+      ],
+      "difficulty": "new-hire",
+      "topic": "descartes-route-planner"
     },
     {
       "id": 10,
@@ -307,7 +348,9 @@
         {"text": "Variable and Fixed Service Times in SOUS", "outcome": "good", "explanation": "Incorrect service times can heavily impact route duration and planning accuracy.", "points": 300},
         {"text": "Delivery Group colors", "outcome": "bad", "explanation": "Colors do not affect route timing.", "points": 0},
         {"text": "WinRoute export files", "outcome": "bad", "explanation": "Export files are unrelated to daily service time setup.", "points": 0}
-      ]
+      ],
+      "difficulty": "expert",
+      "topic": "sous"
     },
     {
       "id": 11,
@@ -317,7 +360,9 @@
         {"text": "OrderUDFString4 contains DV", "outcome": "good", "explanation": "The guide notes XDA/XDB validation in Route Planner by checking OrderUDFString4 for DV.", "points": 300},
         {"text": "Territory color code", "outcome": "bad", "explanation": "Territory color does not validate crossdock logic.", "points": 0},
         {"text": "Archive schedule assignment", "outcome": "bad", "explanation": "Archive schedule assignment is not the validation field for crossdock setup.", "points": 0}
-      ]
+      ],
+      "difficulty": "intermediate",
+      "topic": "descartes-route-planner"
     },
     {
       "id": 12,
@@ -327,7 +372,9 @@
         {"text": "Unassign all stops from selected routes", "outcome": "good", "explanation": "Stops must be unassigned before BGO can fully rebuild a dynamic solution.", "points": 300},
         {"text": "Delete all resources", "outcome": "bad", "explanation": "Resources should remain available for the test solution.", "points": 0},
         {"text": "Archive all orders", "outcome": "bad", "explanation": "Archived orders cannot be optimized in the project solution.", "points": 0}
-      ]
+      ],
+      "difficulty": "expert",
+      "topic": "descartes-route-planner"
     }
   ],
   "dataChallenges": [
@@ -344,7 +391,9 @@
         {"id": 5, "prefix": "Order 1105", "nextHop": "Red hexagon", "metric": "Status", "protocol": "30/40", "age": "Blocked", "flags": "⚠", "issue": "Red hexagon means a status 20 order", "hasIssue": true}
       ],
       "correctIssueIds": [2, 3, 5],
-      "explanation": "Rows 2, 3, and 5 are incorrect based on the Route Planner icon definitions in the source tab."
+      "explanation": "Rows 2, 3, and 5 are incorrect based on the Route Planner icon definitions in the source tab.",
+      "difficulty": "intermediate",
+      "topic": "descartes-route-planner"
     },
     {
       "id": 2,
@@ -359,7 +408,9 @@
         {"id": 5, "prefix": "Route 3305", "nextHop": "Resource config", "metric": "No X in UDFString4", "protocol": "Optimization allowed", "age": "Ready", "flags": "OK", "hasIssue": false}
       ],
       "correctIssueIds": [1, 3, 4],
-      "explanation": "Rows 1, 3, and 4 describe setup problems that can stop optimization or successful publish behavior."
+      "explanation": "Rows 1, 3, and 4 describe setup problems that can stop optimization or successful publish behavior.",
+      "difficulty": "intermediate",
+      "topic": "descartes-route-planner"
     },
     {
       "id": 3,
@@ -374,7 +425,9 @@
         {"id": 5, "prefix": "Order 4405", "nextHop": "Assignment check", "metric": "PreferredResource matches", "protocol": "Requirements and dates align", "age": "Ready", "flags": "OK", "hasIssue": false}
       ],
       "correctIssueIds": [2, 4],
-      "explanation": "Rows 2 and 4 have assignment mismatches that can keep Batch Processor from attaching the order."
+      "explanation": "Rows 2 and 4 have assignment mismatches that can keep Batch Processor from attaching the order.",
+      "difficulty": "new-hire",
+      "topic": "descartes-route-planner"
     },
     {
       "id": 4,
@@ -389,7 +442,9 @@
         {"id": 5, "prefix": "TERR-2373A", "nextHop": "Territory", "metric": "Active", "protocol": "Depot and order density reviewed", "age": "Ready", "flags": "OK", "hasIssue": false}
       ],
       "correctIssueIds": [2, 4],
-      "explanation": "Rows 2 and 4 contain territory setup problems that may impact routing behavior."
+      "explanation": "Rows 2 and 4 contain territory setup problems that may impact routing behavior.",
+      "difficulty": "expert",
+      "topic": "descartes-route-planner"
     },
     {
       "id": 5,
@@ -404,7 +459,9 @@
         {"id": 5, "prefix": "XDC-1005", "nextHop": "Primary Facility", "metric": "Blank", "protocol": "Facility missing", "age": "Blocked", "flags": "⚠", "issue": "Crossdock Primary Facility should be populated in SOUS Routing Attributes.", "hasIssue": true}
       ],
       "correctIssueIds": [3, 5],
-      "explanation": "Rows 3 and 5 have missing crossdock setup details that can create routing or publish issues."
+      "explanation": "Rows 3 and 5 have missing crossdock setup details that can create routing or publish issues.",
+      "difficulty": "intermediate",
+      "topic": "descartes-route-planner"
     },
     {
       "id": 6,
@@ -419,7 +476,9 @@
         {"id": 5, "prefix": "SVC-005", "nextHop": "Service Time", "metric": "Variable present", "protocol": "Ready", "age": "Ready", "flags": "OK", "hasIssue": false}
       ],
       "correctIssueIds": [4],
-      "explanation": "Row 4 contains a service time configuration issue that can distort route timing."
+      "explanation": "Row 4 contains a service time configuration issue that can distort route timing.",
+      "difficulty": "new-hire",
+      "topic": "sous"
     },
     {
       "id": 7,
@@ -429,43 +488,4 @@
       "routingTable": [
         {"id": 1, "prefix": "RT-1001", "nextHop": "Routing Parameters", "metric": "Custom_Legacy", "protocol": "No approved comment", "age": "Review", "flags": "⚠", "issue": "Templates should generally use Standard-Default, Rural-Default, or Metro-Default.", "hasIssue": true},
         {"id": 2, "prefix": "RT-1002", "nextHop": "Routing Parameters", "metric": "Standard-Default", "protocol": "Approved default", "age": "Ready", "flags": "OK", "hasIssue": false},
-        {"id": 3, "prefix": "RT-1003", "nextHop": "Routing Parameters", "metric": "Rural-Default", "protocol": "Approved default", "age": "Ready", "flags": "OK", "hasIssue": false},
-        {"id": 4, "prefix": "RT-1004", "nextHop": "Routing Parameters", "metric": "Old_Metro", "protocol": "Missing approved comment", "age": "Review", "flags": "⚠", "issue": "Outdated routing parameters should be reviewed and corrected.", "hasIssue": true},
-        {"id": 5, "prefix": "RT-1005", "nextHop": "Routing Parameters", "metric": "Metro-Default", "protocol": "Approved default", "age": "Ready", "flags": "OK", "hasIssue": false}
-      ],
-      "correctIssueIds": [1, 4],
-      "explanation": "Rows 1 and 4 may use non-standard or outdated routing parameters."
-    }
-  ],
-  "routeRunner": [
-    {
-      "id": 1,
-      "question": "A route is showing unassigned stops marked with 'U' before publish. What should happen first?",
-      "options": ["Publish anyway and fix later", "Assign the stops to a valid route or place non-shipping stops on a 999 route", "Archive the stops", "Delete the stops from the schedule"],
-      "correctIndex": 1,
-      "explanation": "All stops must be accounted for before publish. Non-shipping stops should be placed on a 999 route.",
-      "difficulty": "easy",
-      "points": 100
-    },
-    {
-      "id": 2,
-      "question": "A yellow diamond appears after publish. What does it indicate?",
-      "options": ["Publish failed", "Route is locked", "Successful send to Tandem", "Successful publish to Omni"],
-      "correctIndex": 2,
-      "explanation": "A yellow diamond indicates the route was successfully sent to Tandem.",
-      "difficulty": "medium",
-      "points": 150
-    },
-    {
-      "id": 3,
-      "question": "Where should route and sequence locks be maintained long-term?",
-      "options": ["Route Planner map settings", "SOUS Routing Attributes", "Driver profile notes", "Dispatch comments"],
-      "correctIndex": 1,
-      "explanation": "Persistent route and sequence locks are maintained in SOUS Routing Attributes.",
-      "difficulty": "hard",
-      "points": 200
-    },
-    {
-      "id": 4,
-      "question": "A route will not publish and some orders remain in status 20. What should you check?",
-      "options": ["Route Detail for blocked orders", "Archive schedule",
+        {"id": 3, "pr
