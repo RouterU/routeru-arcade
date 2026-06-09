@@ -6,7 +6,7 @@
       "options": ["DG_1 customer with no liftgate requirement", "DG_1 customer with a liftgate requirement", "Published route sent to Tandem with no errors", "Shuttle stop or route"],
       "correctIndex": 0,
       "explanation": "The gray circle icon in Route Planner signifies a DG_1 customer with no liftgate requirement.",
-      "difficulty": "new-hire",
+      "difficulty": "intermediate",
       "points": 100,
       "topic": "descartes-route-planner"
     },
@@ -16,7 +16,7 @@
       "options": ["DG_2 customer with no liftgate requirement", "DG_2 customer with a liftgate requirement", "Cross dock (XDA)", "Status 20 order"],
       "correctIndex": 1,
       "explanation": "The blue triangle icon in Route Planner signifies a DG_2 customer with a liftgate requirement.",
-      "difficulty": "new-hire",
+      "difficulty": "intermediate",
       "points": 100,
       "topic": "descartes-route-planner"
     },
@@ -26,7 +26,7 @@
       "options": ["Key drop or dark delivery", "Shuttle stop or route", "Off day order", "Child account"],
       "correctIndex": 0,
       "explanation": "The black square icon in Route Planner signifies a key drop or dark delivery.",
-      "difficulty": "new-hire",
+      "difficulty": "intermediate",
       "points": 100,
       "topic": "descartes-route-planner"
     },
@@ -36,7 +36,7 @@
       "options": ["Published route sent to Omnitracs with no errors", "Child account", "Layover order", "Backhaul or pickup"],
       "correctIndex": 1,
       "explanation": "The green square icon in Route Planner signifies a child account.",
-      "difficulty": "new-hire",
+      "difficulty": "intermediate",
       "points": 100,
       "topic": "descartes-route-planner"
     },
@@ -46,7 +46,7 @@
       "options": ["Will call delivery (WCD)", "Backhaul or pickup", "Missing SOUS setup (DV)", "Cross dock (XDB)"],
       "correctIndex": 0,
       "explanation": "The blue star icon in Route Planner signifies a will call delivery (WCD).",
-      "difficulty": "new-hire",
+      "difficulty": "intermediate",
       "points": 100,
       "topic": "descartes-route-planner"
     },
@@ -506,4 +506,4 @@
       "routingTable": [
         {"id": 1, "prefix": "XDC-1001", "nextHop": "OrderUDFString4", "metric": "DV", "protocol": "Primary Facility present", "age": "Ready", "flags": "OK", "hasIssue": false},
         {"id": 2, "prefix": "XDC-1002", "nextHop": "Cross Dock Division", "metric": "Valid", "protocol": "Days to Deliver reviewed", "age": "Ready", "flags": "OK", "hasIssue": false},
-        {"id": 3, "prefix": "XDC-1003", "nextHop": "OrderUDFString4", "metric": "Blank", "protocol": "XDA/XDB validation missing", "age": "Blocked", "flags": "⚠", "issue": "XDA/XDB should be validated by c
+        {"id": 3, "prefix": "XDC-1003", "nextHop": "OrderUDFString4", "metric": "Blank", "protocol": "XDA/XDB validation missing", "age": "Blocked", "flags": "⚠", "issue": "XDA/XDB shou
