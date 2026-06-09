@@ -229,6 +229,46 @@
       "difficulty": "intermediate",
       "points": 150,
       "topic": "descartes-route-planner"
+    },
+    {
+      "id": 24,
+      "question": "Which browser is recommended for accessing Route Planner?",
+      "options": ["Firefox", "Edge", "Safari", "Chrome"],
+      "correctIndex": 3,
+      "explanation": "Google Chrome is the recommended browser for Route Planner",
+      "difficulty": "new-hire",
+      "points": 100,
+      "topic": "descartes-route-planner"
+    },
+    {
+      "id": 25,
+      "question": "What does a \"U\" on the map indicate?",
+      "options": ["Urgent stop", "Unassigned stop", "Unpublished route", "Updates available"],
+      "correctIndex": 1,
+      "explanation": "The \"U\" on the map indicates an unassigned stop that does not belong to a route.",
+      "difficulty": "new-hire",
+      "points": 100,
+      "topic": "descartes-route-planner"
+    },
+    {
+      "id": 26,
+      "question": "What should be done prior to archiving a resource that will not be used?",
+      "options": ["Freeze the route", "Publish the route", "Unassign all stops from the route", "Nothing"],
+      "correctIndex": 2,
+      "explanation": "Unassigning all stops from a route prior to moving the resource to archive will avoid missing customer orders",
+      "difficulty": "intermediate",
+      "points": 150,
+      "topic": "descartes-route-planner"
+    },
+    {
+      "id": 27,
+      "question": "Which route position represents a dynamic customer stop?",
+      "options": ["1", "25", "50", "100"],
+      "correctIndex": 2,
+      "explanation": "A \"50\" in preferred route position signals the customer is dynamic and can fall within any order on a route as long as the time window is met",
+      "difficulty": "new-hire",
+      "points": 100,
+      "topic": "descartes-route-planner"
     }
   ],
   "scenarios": [
@@ -375,6 +415,18 @@
       ],
       "difficulty": "expert",
       "topic": "descartes-route-planner"
+    },
+    {
+      "id": 13,
+      "title": "Start Time Update",
+      "situation": "A customer placed a large order that will require a route to begin right at 5:00AM to meet the time window. Which field(s) should be checked and updated within the resource settings?",
+      "choices": [
+        {"text": "Earliest Start", "outcome": "bad", "explanation": "Updating Earliest Start Time will only set the route to begin at a specific time but will remain a range of time if Latest Start is also not updated", "points": 0},
+        {"text": "Earliest Start, Latest Start and Latest End", "outcome": "good", "explanation": "Both the Earliest and Latest start should both be updated to 5:00AM and Latest End should be adjusted as needed to ensure the route does not exceed its allowable hours", "points": 300},
+        {"text": "Earliest Start and Latest Start", "outcome": "ok", "explanation": "Updating Earliest and Latest start to 5:00AM will ensure the route begins at that time, but without checking the Latest End the route could run over its allowable hours", "points": 100}
+      ],
+      "difficulty": "intermediate",
+      "topic": "descartes-route-planner"
     }
   ],
   "dataChallenges": [
@@ -454,38 +506,4 @@
       "routingTable": [
         {"id": 1, "prefix": "XDC-1001", "nextHop": "OrderUDFString4", "metric": "DV", "protocol": "Primary Facility present", "age": "Ready", "flags": "OK", "hasIssue": false},
         {"id": 2, "prefix": "XDC-1002", "nextHop": "Cross Dock Division", "metric": "Valid", "protocol": "Days to Deliver reviewed", "age": "Ready", "flags": "OK", "hasIssue": false},
-        {"id": 3, "prefix": "XDC-1003", "nextHop": "OrderUDFString4", "metric": "Blank", "protocol": "XDA/XDB validation missing", "age": "Blocked", "flags": "⚠", "issue": "XDA/XDB should be validated by checking OrderUDFString4 for DV.", "hasIssue": true},
-        {"id": 4, "prefix": "XDC-1004", "nextHop": "Omni Sharing", "metric": "Shared", "protocol": "Secondary market confirmed", "age": "Ready", "flags": "OK", "hasIssue": false},
-        {"id": 5, "prefix": "XDC-1005", "nextHop": "Primary Facility", "metric": "Blank", "protocol": "Facility missing", "age": "Blocked", "flags": "⚠", "issue": "Crossdock Primary Facility should be populated in SOUS Routing Attributes.", "hasIssue": true}
-      ],
-      "correctIssueIds": [3, 5],
-      "explanation": "Rows 3 and 5 have missing crossdock setup details that can create routing or publish issues.",
-      "difficulty": "intermediate",
-      "topic": "descartes-route-planner"
-    },
-    {
-      "id": 6,
-      "title": "Service Time Configuration",
-      "description": "Review service time configuration entries for operational risk.",
-      "hint": "Focus on unrealistic fixed and variable service time values.",
-      "routingTable": [
-        {"id": 1, "prefix": "SVC-001", "nextHop": "Market Specifics", "metric": "Fixed Time", "protocol": "Standard value", "age": "Ready", "flags": "OK", "hasIssue": false},
-        {"id": 2, "prefix": "SVC-002", "nextHop": "Market Specifics", "metric": "Variable Time", "protocol": "Reviewed", "age": "Ready", "flags": "OK", "hasIssue": false},
-        {"id": 3, "prefix": "SVC-003", "nextHop": "SOUS", "metric": "Order/Delivery Info", "protocol": "Updated", "age": "Ready", "flags": "OK", "hasIssue": false},
-        {"id": 4, "prefix": "SVC-004", "nextHop": "Service Time", "metric": "Fixed = 0", "protocol": "Likely too low", "age": "Review", "flags": "⚠", "issue": "Unrealistic fixed or variable service times can distort route build accuracy.", "hasIssue": true},
-        {"id": 5, "prefix": "SVC-005", "nextHop": "Service Time", "metric": "Variable present", "protocol": "Ready", "age": "Ready", "flags": "OK", "hasIssue": false}
-      ],
-      "correctIssueIds": [4],
-      "explanation": "Row 4 contains a service time configuration issue that can distort route timing.",
-      "difficulty": "new-hire",
-      "topic": "sous"
-    },
-    {
-      "id": 7,
-      "title": "Routing Parameter Audit",
-      "description": "Review routes using outdated or incorrect routing parameters.",
-      "hint": "Look for non-standard parameter values and missing approved default comments.",
-      "routingTable": [
-        {"id": 1, "prefix": "RT-1001", "nextHop": "Routing Parameters", "metric": "Custom_Legacy", "protocol": "No approved comment", "age": "Review", "flags": "⚠", "issue": "Templates should generally use Standard-Default, Rural-Default, or Metro-Default.", "hasIssue": true},
-        {"id": 2, "prefix": "RT-1002", "nextHop": "Routing Parameters", "metric": "Standard-Default", "protocol": "Approved default", "age": "Ready", "flags": "OK", "hasIssue": false},
-        {"id": 3, "pr
+        {"id": 3, "prefix": "XDC-1003", "nextHop": "OrderUDFString4", "metric": "Blank", "protocol": "XDA/XDB validation missing", "age": "Blocked", "flags": "⚠", "issue": "XDA/XDB should be validated by c
