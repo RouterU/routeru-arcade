@@ -50,7 +50,7 @@ const DRIVE_DURATIONS = [15, 15, 20];
 const ROAD_LANES = 3;
 
 const ACTIVE_ROUTE_RUNNER_MODE: "routeRunner" | "loadoutStack" | "chefChase" =
-  "loadoutstack";
+  "loadoutStack";
 
 const ITEM_META: Record<
   DriveItemType,
