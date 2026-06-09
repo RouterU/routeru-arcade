@@ -20,7 +20,7 @@ function writeFile(fileName, fileContent) {
 }
 
 function normalizeDifficulty(value) {
-  const rawValue = String(value || "new-hire")
+  const rawValue = String(value || "")
     .trim()
     .toLowerCase()
     .replaceAll("_", "-")
@@ -34,11 +34,11 @@ function normalizeDifficulty(value) {
   if (rawValue === "intermediate") return "intermediate";
   if (rawValue === "expert") return "expert";
 
-  return "new-hire";
+  return "intermediate";
 }
 
 function normalizeTopic(value) {
-  const rawValue = String(value || "descartes-route-planner")
+  const rawValue = String(value || "")
     .trim()
     .toLowerCase()
     .replaceAll("_", "-")
@@ -63,11 +63,21 @@ function normalizeTopic(value) {
 }
 
 function getDifficulty(item) {
-  return item.difficulty ?? item.Difficulty ?? item.difficultyLevel ?? item.DifficultyLevel;
+  return (
+    item.difficulty ??
+    item.Difficulty ??
+    item.difficultyLevel ??
+    item.DifficultyLevel
+  );
 }
 
 function getTopic(item) {
-  return item.topic ?? item.Topic ?? item.trainingMaterial ?? item.TrainingMaterial;
+  return (
+    item.topic ??
+    item.Topic ??
+    item.trainingMaterial ??
+    item.TrainingMaterial
+  );
 }
 
 function prepareItems(items = []) {
