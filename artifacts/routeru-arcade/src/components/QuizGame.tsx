@@ -50,25 +50,23 @@ export default function QuizGame({
   selectedDifficulty,
   selectedTopic,
 }: QuizGameProps) {
-  const questions = useMemo<QuizQuestion[]>(() => {
-    const difficultyFiltered = quizQuestions.filter(
-      (question) => question.difficulty === selectedDifficulty
-    );
+const questions = useMemo<QuizQuestion[]>(() => {
+  const difficultyFiltered = quizQuestions.filter(
+    (question) => question.difficulty === selectedDifficulty
+  );
 
-    const topicFiltered = difficultyFiltered.filter(
-      (question) =>
-        selectedTopic === "mix-it-up" || question.topic === selectedTopic
-    );
+  const topicFiltered = difficultyFiltered.filter(
+    (question) =>
+      selectedTopic === "mix-it-up" || question.topic === selectedTopic
+  );
 
-    const source =
-      topicFiltered.length > 0
-        ? topicFiltered
-        : difficultyFiltered.length > 0
-        ? difficultyFiltered
-        : quizQuestions;
+  const source =
+    topicFiltered.length > 0
+      ? topicFiltered
+      : difficultyFiltered;
 
-    return shuffleArray(source).slice(0, Math.min(SHUFFLE_COUNT, source.length));
-  }, [selectedDifficulty, selectedTopic]);
+  return shuffleArray(source).slice(0, Math.min(SHUFFLE_COUNT, source.length));
+}, [selectedDifficulty, selectedTopic]);
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [score, setScore] = useState(0);
