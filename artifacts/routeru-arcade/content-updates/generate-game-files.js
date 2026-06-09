@@ -5,13 +5,8 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// content-updates folder
 const contentDir = __dirname;
-
-// artifacts/routeru-arcade folder
 const baseDir = path.resolve(contentDir, "..");
-
-// src/data folder
 const dataDir = path.join(baseDir, "src", "data");
 const templatePath = path.join(contentDir, "master-template.json");
 
@@ -53,6 +48,8 @@ function normalizeTopic(value) {
     rawValue === "descartes" ||
     rawValue === "route-planner" ||
     rawValue === "descartes-route-planner" ||
+    rawValue === "descartes-routeplanner" ||
+    rawValue === "drp" ||
     rawValue === "rp"
   ) {
     return "descartes-route-planner";
@@ -65,35 +62,19 @@ function normalizeTopic(value) {
   return "descartes-route-planner";
 }
 
-function prepareQuiz(items = []) {
-  return items.map((item) => ({
-    ...item,
-    difficulty: normalizeDifficulty(item.difficulty),
-    topic: normalizeTopic(item.topic),
-  }));
+function getDifficulty(item) {
+  return item.difficulty ?? item.Difficulty ?? item.difficultyLevel ?? item.DifficultyLevel;
 }
 
-function prepareScenarios(items = []) {
-  return items.map((item) => ({
-    ...item,
-    difficulty: normalizeDifficulty(item.difficulty),
-    topic: normalizeTopic(item.topic),
-  }));
+function getTopic(item) {
+  return item.topic ?? item.Topic ?? item.trainingMaterial ?? item.TrainingMaterial;
 }
 
-function prepareDataChallenges(items = []) {
+function prepareItems(items = []) {
   return items.map((item) => ({
     ...item,
-    difficulty: normalizeDifficulty(item.difficulty),
-    topic: normalizeTopic(item.topic),
-  }));
-}
-
-function prepareRouteRunner(items = []) {
-  return items.map((item) => ({
-    ...item,
-    difficulty: normalizeDifficulty(item.difficulty),
-    topic: normalizeTopic(item.topic),
+    difficulty: normalizeDifficulty(getDifficulty(item)),
+    topic: normalizeTopic(getTopic(item)),
   }));
 }
 
@@ -185,17 +166,12 @@ export interface RouteRunnerQuestion {
 
 writeFile(
   "quizData.ts",
-  toTsExport(quizTypes, "quizQuestions", prepareQuiz(content.quiz), "QuizQuestion")
+  toTsExport(quizTypes, "quizQuestions", prepareItems(content.quiz), "QuizQuestion")
 );
 
 writeFile(
   "scenarioData.ts",
-  toTsExport(
-    scenarioTypes,
-    "scenarios",
-    prepareScenarios(content.scenarios),
-    "Scenario"
-  )
+  toTsExport(scenarioTypes, "scenarios", prepareItems(content.scenarios), "Scenario")
 );
 
 writeFile(
@@ -203,7 +179,7 @@ writeFile(
   toTsExport(
     dataChallengeTypes,
     "dataChallenges",
-    prepareDataChallenges(content.dataChallenges),
+    prepareItems(content.dataChallenges),
     "DataChallenge"
   )
 );
@@ -213,7 +189,7 @@ writeFile(
   toTsExport(
     routeRunnerTypes,
     "routeRunnerQuestions",
-    prepareRouteRunner(content.routeRunner),
+    prepareItems(content.routeRunner),
     "RouteRunnerQuestion"
   )
 );
